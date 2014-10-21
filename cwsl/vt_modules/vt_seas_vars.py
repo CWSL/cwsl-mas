@@ -1,7 +1,5 @@
 """
 
-Authors: Tim Bedin, Tim Erwin
-
 Copyright 2014 CSIRO
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +12,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-This module wraps the CCT seas_vars_mod.sh script.
+Authors: Tim Bedin, Tim Erwin
 
-Part of the Model Analysis Service VisTrails plugin.
+This module wraps the seasonal_timeseries.sh script 
+found in git repository cwsl-ctools.
+
+Creates a seasonal timeseries for a given time-period, with a single variable
+for each season. 
 
 """
 
@@ -27,7 +29,6 @@ from vistrails.core.modules import vistrails_module
 from vistrails.core.modules.basic_modules import String, List
 
 from cwsl.configuration import configuration
-from cwsl.core.module_loader import ModuleLoader
 from cwsl.core.process_unit import ProcessUnit
 from cwsl.core.constraint import Constraint
 from cwsl.core.pattern_generator import PatternGenerator
@@ -48,7 +49,7 @@ class SeasVars(vistrails_module.Module):
                      {'labels': str(['Input Dataset'])}),
                     ('year_start', String),
                     ('year_end', String),
-                    ('seas_agg', String),
+                    ('seas_agg', String, {'defaults': ['seasavg']}),
                     ('added_constraints', List, True,
                      {'defaults': ['[]']})]
 
@@ -62,10 +63,14 @@ class SeasVars(vistrails_module.Module):
 
         super(SeasVars, self).__init__()
 
+        #Command Line Tool
         tools_base_path = configuration.cwsl_ctools_path
+        #self.command = tools_base_path + '/aggregation/seas_vars_mod.sh'
         self.command = tools_base_path + '/aggregation/seas_vars_mod.sh'
-
-        self.simulate = configuration.simulate_execution
+        #Output file structure declaration
+        self.out_pattern = PatternGenerator('user', 'seasonal').pattern
+        # Set up the output command for this module, adding extra options.
+        self.positional_args=[('variable',0),('variable',1),('year_start',2),('year_end',3),('seas_agg',4)]
 
     def compute(self):
 
@@ -89,30 +94,14 @@ class SeasVars(vistrails_module.Module):
         except vistrails_module.ModuleError:
             cons_for_output = new_cons
 
-        # Get the output pattern using the PatternGenerator object.
-        # Gets the user infomation / authoritative path etc from the
-        # user configuration.
-        out_pattern = PatternGenerator('user', 'seasonal').pattern
-
-        # Set up the output command for this module, adding extra options.
-        #cons_for_output = set.union(cons_for_output, set(added_constraints))
-        #if check_vars == "true":
-        #    self.command += " -c "
-        #if remove_times == "true":
-        #    self.command += " -r "
-        #self.command += " -a "
-        command = self.command + ' tas tas ' + year_start + ' ' + year_end + ' ' + seas_agg
-
         # Execute the seas_vars process.
         this_process = ProcessUnit([in_dataset],
-                                   out_pattern,
-                                   command,
-                                   cons_for_output)
+                                   self.out_pattern,
+                                   self.command,
+                                   cons_for_output,
+                                   positional_args=self.positional_args)
 
-        this_process.execute(simulate=self.simulate)
+        this_process.execute(simulate=False)
         process_output = this_process.file_creator
 
         self.setResult('out_dataset', process_output)
-
-        # Unload the modules at the end.
-        #self.module_loader.unload(self.required_modules)
