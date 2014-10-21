@@ -21,8 +21,6 @@ Part of the Model Analysis Service VisTrails plugin.
 """
 
 
-__version__ = '$Id$'
-
 import os
 
 from vistrails.core.modules import vistrails_module

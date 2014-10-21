@@ -21,8 +21,6 @@ DataSet of some kind and a Pipeline-style pattern.
 
 """
 
-__version__ = "$Id$"
-
 from vistrails.core.modules import vistrails_module
 from vistrails.core.modules.basic_modules import String, List
 
