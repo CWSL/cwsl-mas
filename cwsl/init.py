@@ -24,6 +24,8 @@ from vistrails.gui.preferences import QPackageConfigurationDialog
 from vistrails.core.modules.module_registry import get_module_registry
 
 # Available Tools
+# TODO: Imports will get large as tools get added, 
+#  add automatic import similar to Spreadsheet package
 import cwsl.vt_modules.drs_dataset as drs
 from cwsl.vt_modules.vt_dataset import VtDataSet
 from cwsl.vt_modules.vt_cdscan import CDScan
@@ -32,9 +34,8 @@ from cwsl.vt_modules.vt_climatology import Climatology
 from cwsl.vt_modules.vt_nino34 import IndiciesNino34
 from cwsl.vt_modules.vt_general_command_pattern import GeneralCommandPattern
 from cwsl.vt_modules.vt_constraintbuilder import ConstraintBuilder
-
 from cwsl.vt_modules.vt_plot_timeseries import PlotTimeSeries
-from cwsl.vt_modules.imageviewer import ImageViewerPanel, TestImageViewerCell
+from cwsl.vt_modules.imageviewer import ImageViewerPanel
 
 
 def initialize(*args, **keywords):
@@ -51,6 +52,7 @@ def initialize(*args, **keywords):
     reg.add_module(VtDataSet, abstract=True)
     reg.add_module(drs.DataReferenceSyntax, abstract=True)
 
+    #Datasets
     reg.add_module(drs.RegionalClimateModel, namespace='DataSets|Generic',
                    name='Regional Climate Model DataSet')
     reg.add_module(drs.RegionalClimateModel_CCAM_NRM,
@@ -60,18 +62,22 @@ def initialize(*args, **keywords):
     reg.add_module(drs.GlobalClimateModel, namespace='DataSets|Generic',
                    name="Global Climate Model Dataset")
 
+    #Aggregation
     reg.add_module(CDScan, name='Merge Timeseries', namespace='Aggregation')
     reg.add_module(SeasVars, name='Seasonal Timeseries',
                    namespace='Aggregation')
     reg.add_module(Climatology, name='Climatology', namespace='Aggregation')
 
+    #Indicies
     reg.add_module(IndiciesNino34, name='Nino3.4', namespace='Indicies')
-
+ 
+    #Visualisation
     reg.add_module(PlotTimeSeries, name='Plot Timeseries', namespace='Visualisation')
+    #ImageViewerPanel depends on the Spreadsheet package
     reg.add_module(ImageViewerPanel, name='Image Viewer', namespace='Visualisation')
     reg.add_input_port(ImageViewerPanel, 'in_dataset', 'csiro.au.cwsl:VtDataSet')
-    reg.add_module(TestImageViewerCell, name='Image Viewer Cell', namespace='Visualisation')
 
+     #General
     reg.add_module(ConstraintBuilder, name='Constraint Builder',
                    namespace='Utilities')
     reg.add_module(GeneralCommandPattern, name='General Command Line Program',
