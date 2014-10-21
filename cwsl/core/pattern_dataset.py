@@ -28,16 +28,16 @@ from cwsl.core.dataset import DataSet
 
 
 class PatternDataSet(DataSet):
-    """ This is an object that works like a DataSet but does
-
-    not get its files from the Database.
+    """ This implmentation of the DataSet abstract class builds a collection of 
+   
+    files and attributes by scanning a pattern on the file system.
 
     It takes in a filename pattern string in the command-line
     pipeline format - e.g.:
 
     pattern_to_glob = "/home/bed02b/test/%colour%/%texture%/%fruit%_%colour%.%file_type%"
 
-    "Doesn't yet accept NOT constraints.
+    Doesn't yet accept NOT constraints.
 
     """
 
