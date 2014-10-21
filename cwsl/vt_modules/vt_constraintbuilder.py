@@ -21,8 +21,6 @@ Part of the Model Analysis Service VisTrails plugin.
 
 """
 
-__version__ = '$Id$'
-
 from vistrails.core.modules.vistrails_module import Module
 from vistrails.core.modules.basic_modules import List, String
 
