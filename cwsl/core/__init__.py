@@ -16,8 +16,6 @@ limitations under the License.
 
 """
 
-__version__ = "$Id$"
-
 import logging
 
 module_logger = logging.getLogger('cwsl')
