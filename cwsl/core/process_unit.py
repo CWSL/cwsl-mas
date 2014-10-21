@@ -208,7 +208,7 @@ class ProcessUnit(ProcessRunner):
 
         #TODO determin sceduling options
         scheduler = SimpleExecManager()
-        scheduler.add_module_deps(['python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5','cdo','nco'])
+        scheduler.add_module_deps(['python/2.7.5','python/2.7.5-matplotlib','python-cdat-lite/6.0rc2-py2.7.5','cdo','nco'])
 
         # For every possible combination, run process_run the command.
         for combination in this_looper:
