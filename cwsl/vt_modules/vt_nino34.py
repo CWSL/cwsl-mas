@@ -22,7 +22,6 @@ from vistrails.core.modules import vistrails_module
 from vistrails.core.modules.basic_modules import String, List
 
 from cwsl.configuration import configuration
-from cwsl.core.module_loader import ModuleLoader
 from cwsl.core.process_unit import ProcessUnit
 from cwsl.core.constraint import Constraint
 from cwsl.core.pattern_generator import PatternGenerator
@@ -55,9 +54,6 @@ class IndiciesNino34(vistrails_module.Module):
         # At the moment we need to load the modules here in the constructor.
         self.required_modules = ['cdo', 'cct', 'nco', 
                                  'python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5']
-        self.module_loader = ModuleLoader()
-        self.module_loader.load(self.required_modules)
-
         tools_base_path = configuration.cwsl_ctools_path
         self.command = tools_base_path + '/indicies/nino34.py'
 

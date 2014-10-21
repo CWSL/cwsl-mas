@@ -28,7 +28,6 @@ from vistrails.core.modules import vistrails_module
 from vistrails.core.modules import basic_modules
 
 from cwsl.configuration import configuration
-from cwsl.core.module_loader import ModuleLoader
 from cwsl.core.constraint import Constraint
 from cwsl.core.process_unit import ProcessUnit
 from cwsl.core.pattern_generator import PatternGenerator
@@ -58,8 +57,6 @@ class Climatology(vistrails_module.Module):
         self.simulate = configuration.simulate_execution
 
         self.required_modules = ['cdo', 'cct_module', 'nco']
-        self.module_loader = ModuleLoader()
-        self.module_loader.load(self.required_modules)
 
         self.command = os.environ['CCT'] + '/manipulation/nc/cdo_climatology.sh'
 

@@ -26,7 +26,6 @@ from vistrails.core.modules.basic_modules import String, List
 
 from cwsl.configuration import configuration
 from cwsl.core.process_unit import ProcessUnit
-from cwsl.core.module_loader import ModuleLoader
 from cwsl.core.file_creator import FileCreator
 from cwsl.core.constraint import Constraint
 
@@ -52,8 +51,6 @@ class GeneralCommandPattern(vistrails_module.Module):
         self.simulate = configuration.simulate_execution
 
         self.required_modules = ['python', 'cdo', 'nco']
-        self.module_loader = ModuleLoader()
-        self.module_loader.load(self.required_modules)
 
     def compute(self):
 

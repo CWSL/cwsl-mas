@@ -27,7 +27,6 @@ from vistrails.core.modules import vistrails_module
 from vistrails.core.modules.basic_modules import String, List
 
 from cwsl.configuration import configuration
-from cwsl.core.module_loader import ModuleLoader
 from cwsl.core.process_unit import ProcessUnit
 from cwsl.core.constraint import Constraint
 from cwsl.core.pattern_generator import PatternGenerator
@@ -114,5 +113,4 @@ class SeasVars(vistrails_module.Module):
 
         self.setResult('out_dataset', process_output)
 
-        # Unload the modules at the end.
-        #self.module_loader.unload(self.required_modules)
+

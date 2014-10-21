@@ -28,7 +28,6 @@ from vistrails.core.modules.basic_modules import String, List
 from cwsl.configuration import configuration
 from cwsl.core.constraint import Constraint
 from cwsl.core.process_unit import ProcessUnit
-#from cwsl.core.module_loader import ModuleLoader
 from cwsl.core.pattern_generator import PatternGenerator
 
 
@@ -48,8 +47,6 @@ class CDScan(vistrails_module.Module):
  
         # At the moment we need to load the modules here in the constructor.
         #self.required_modules = ['python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5']
-        #self.module_loader = ModuleLoader()
-        #self.module_loader.load(self.required_modules)
 
         tools_base_path = configuration.cwsl_ctools_path
         self.command = tools_base_path + '/aggregation/version_safe_cdscan.py'
