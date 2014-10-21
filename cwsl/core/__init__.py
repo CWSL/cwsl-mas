@@ -1,5 +1,4 @@
 """
-
 Authors: Tim Bedin, Tim Erwin
 
 Copyright 2014 CSIRO

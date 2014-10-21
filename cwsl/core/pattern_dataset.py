@@ -26,6 +26,7 @@ from cwsl.core.constraint import Constraint
 from cwsl.core.dataset import DataSet
 
 
+
 class PatternDataSet(DataSet):
     """ This is an object that works like a DataSet but does
 

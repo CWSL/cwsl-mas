@@ -15,11 +15,7 @@ limitations under the License.
 
 This module contains the MetaFiles class.
 
-Part of the Model Analysis Service VisTrails plugin
-Copyright CSIRO 2013
-
 """
-
 
 import os
 

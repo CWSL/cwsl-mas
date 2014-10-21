@@ -1,30 +1,28 @@
-'''
-Created on 31/05/2013
+"""
+Authors: Tim Bedin, Tim Erwin
 
-The ProcessRunner class is used as a mixin that to
-tell the ProcessUnit class how to actually run a
-command on the system.
+Copyright 2014 CSIRO
 
-Contact: Tim Bedin (Tim.Bedin@csiro.au)
-         Ric Pascual (Ricardo.Pascual@csiro.au)
-         Tim Erwin (Tim.Erwin@csiro.au)
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
-@filename: process_runner.py
+Contains the ProcessRunner class
 
-Part of the WP2 Model Analysis Service
-VisTrails plugin.
-
-Copyright CSIRO 2013
-
-'''
-
-__version__ = "$Revision: 1545 $"
+"""
 
 import subprocess
 import os
 import logging
 
 module_logger = logging.getLogger('cwsl.core.process_runner')
+
 
 
 class ProcessRunner(object):
