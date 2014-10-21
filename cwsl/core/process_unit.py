@@ -20,7 +20,6 @@ This module contains the ProcessUnit class.
 import logging
 
 from cwsl.core.argument_creator import ArgumentCreator
-from cwsl.core.process_runner import ProcessRunner
 from cwsl.core.file_creator import FileCreator
 from cwsl.core.constraint import Constraint
 from cwsl.core.scheduler import SimpleExecManager
@@ -28,7 +27,7 @@ from cwsl.core.scheduler import SimpleExecManager
 module_logger = logging.getLogger('cwsl.core.process_unit')
 
 
-class ProcessUnit(ProcessRunner):
+class ProcessUnit(object):
     """ This class sets up the execution of an operation
     performed on a DataSet.
 
@@ -48,7 +47,8 @@ class ProcessUnit(ProcessRunner):
 
     def __init__(self, inputlist, output_pattern, shell_command,
                  extra_constraints=set([]), map_dict={},
-                 cons_keywords={}, positional_args=[]):
+                 cons_keywords={}, positional_args=[],
+                 module_depends=[]):
 
         """ The class takes in a DataSet object, constraints to change and
         the path to an executable. It has an self.execute() method that
@@ -71,6 +71,7 @@ class ProcessUnit(ProcessRunner):
         self.inputlist = inputlist
         self.cons_keywords = cons_keywords
         self.positional_args = positional_args
+        self.module_depends = module_depends
 
         # The initial Constraints for the output are built from the
         # output file pattern.
@@ -100,7 +101,7 @@ class ProcessUnit(ProcessRunner):
                                        if not cons.values])
 
         missing_constraints = unfilled_constraints.union(empty_given_constraints)
-        module_logger.debug("Constraints that need to be filled from the input are: {0}".\
+        module_logger.debug("Constraints that need to be filled from the input are: {0}".
                             format(missing_constraints))
 
         module_logger.debug("Before filling, extra_constraints is: {0}"
@@ -200,7 +201,7 @@ class ProcessUnit(ProcessRunner):
 
         #TODO determin sceduling options
         scheduler = SimpleExecManager()
-        scheduler.add_module_deps(['python/2.7.5','python/2.7.5-matplotlib','python-cdat-lite/6.0rc2-py2.7.5','cdo','nco'])
+        scheduler.add_module_deps(self.module_depends)
 
         # For every possible combination, run process_run the command.
         for combination in this_looper:
@@ -219,10 +220,6 @@ class ProcessUnit(ProcessRunner):
                 modified_command = self.apply_positional_args(this_dict, modified_command)
 
                 # The subprocess / queue submission is done here.
-                #self.process_run(modified_command, in_files,
-                #                 out_files, simulate)
-                #if testing:
-                #    commands.append((modified_command, in_files, out_files))
                 scheduler.add_cmd(modified_command, in_files, out_files)
 
         scheduler.submit()

@@ -35,6 +35,13 @@ name = 'Climate and Weather Science Laboratory'
 identifier = 'csiro.au.cwsl'
 version = '0.1.0'
 
+try:
+    # This import will fail during testing!
+    from cwsl.configuration import configuration
+except ImportError:
+    module_logger.error("Configuration module not found!")
+    pass
+
 def package_dependencies():
     import vistrails.core.packagemanager
     manager = vistrails.core.packagemanager.get_package_manager()
@@ -43,5 +50,4 @@ def package_dependencies():
     else:
         return []
 
-from cwsl.configuration import configuration
 

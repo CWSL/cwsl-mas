@@ -24,7 +24,6 @@ from vistrails.core.modules import vistrails_module
 from vistrails.core.modules.basic_modules import String, List
 
 from cwsl.configuration import configuration
-from cwsl.core.module_loader import ModuleLoader
 from cwsl.core.process_unit import ProcessUnit
 from cwsl.core.constraint import Constraint
 from cwsl.core.pattern_generator import PatternGenerator
