@@ -1,5 +1,4 @@
 """
-
 Authors: Tim Bedin, Tim Erwin
 
 Copyright 2014 CSIRO
@@ -15,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 """
-
-__version__ = "$Id$"
 
 import logging
 

@@ -18,9 +18,6 @@ Copyright CSIRO 2014
 
 """
 
-__version__ = "$Id$"
-
-
 from vistrails.core.modules.basic_modules import List
 from vistrails.core.modules.vistrails_module import Module, ModuleError, NotCacheable
 

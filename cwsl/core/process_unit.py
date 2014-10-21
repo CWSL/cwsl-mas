@@ -1,4 +1,5 @@
 """
+Authors: Tim Bedin, Ricardo Pascual, Tim Erwin
 
 Copyright 2014 CSIRO
 
@@ -12,18 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-
 This module contains the ProcessUnit class.
 
-Authors: Tim Bedin (Tim.Bedin@csiro.au), bed02b
-         Ricardo Pascual (Ricardo.Pascual@csiro.au)
-         Tim Erwin (Tim.Erwin@csiro.au)
-
-Part of the CWSLab VisTrails plugin.
-
 """
-
-__version__ = "$Id$"
 
 import logging
 

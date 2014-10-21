@@ -16,8 +16,6 @@ limitations under the License.
 
 """
 
-__version__ = '$Id$'
-
 import os
 
 from vistrails.core.modules import vistrails_module
