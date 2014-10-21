@@ -33,6 +33,9 @@ from cwsl.vt_modules.vt_nino34 import IndiciesNino34
 from cwsl.vt_modules.vt_general_command_pattern import GeneralCommandPattern
 from cwsl.vt_modules.vt_constraintbuilder import ConstraintBuilder
 
+from cwsl.vt_modules.vt_plot_timeseries import PlotTimeSeries
+from cwsl.vt_modules.imageviewer import ImageViewerPanel, TestImageViewerCell
+
 
 def initialize(*args, **keywords):
 
@@ -63,6 +66,11 @@ def initialize(*args, **keywords):
     reg.add_module(Climatology, name='Climatology', namespace='Aggregation')
 
     reg.add_module(IndiciesNino34, name='Nino3.4', namespace='Indicies')
+
+    reg.add_module(PlotTimeSeries, name='Plot Timeseries', namespace='Visualisation')
+    reg.add_module(ImageViewerPanel, name='Image Viewer', namespace='Visualisation')
+    reg.add_input_port(ImageViewerPanel, 'in_dataset', 'csiro.au.cwsl:VtDataSet')
+    reg.add_module(TestImageViewerCell, name='Image Viewer Cell', namespace='Visualisation')
 
     reg.add_module(ConstraintBuilder, name='Constraint Builder',
                    namespace='Utilities')

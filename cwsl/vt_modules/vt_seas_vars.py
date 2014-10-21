@@ -80,7 +80,7 @@ class SeasVars(vistrails_module.Module):
         new_cons = set([Constraint('year_start', [year_start]),
                         Constraint('year_end', [year_end]),
                         Constraint('seas_agg', [seas_agg]),
-                        Constraint('file_type', ['nc']),
+                        Constraint('suffix', ['nc']),
                         Constraint('grid', ['native'])])
 
         # Optional added constraints.
