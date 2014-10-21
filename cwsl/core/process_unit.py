@@ -20,7 +20,6 @@ This module contains the ProcessUnit class.
 import logging
 
 from cwsl.core.argument_creator import ArgumentCreator
-from cwsl.core.process_runner import ProcessRunner
 from cwsl.core.file_creator import FileCreator
 from cwsl.core.constraint import Constraint
 from cwsl.core.scheduler import SimpleExecManager
@@ -28,7 +27,7 @@ from cwsl.core.scheduler import SimpleExecManager
 module_logger = logging.getLogger('cwsl.core.process_unit')
 
 
-class ProcessUnit(ProcessRunner):
+class ProcessUnit(object):
     """ This class sets up the execution of an operation
     performed on a DataSet.
 
