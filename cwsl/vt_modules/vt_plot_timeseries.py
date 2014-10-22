@@ -72,8 +72,14 @@ class PlotTimeSeries(vistrails_module.Module):
         # Required input
         in_dataset = self.getInputFromPort("in_dataset")
 
-        new_cons = set([Constraint('suffix', ['png']),
+        new_cons = set([Constraint('index', ['plot']),
+                        Constraint('suffix', ['png']),
                       ])
+
+        new_cons = set([Constraint('index', ['plot']),
+                        Constraint('suffix', ['test'])]
+                      )
+
 
         # Optional added constraints.
         try:

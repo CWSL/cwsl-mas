@@ -93,13 +93,13 @@ class SeasVars(vistrails_module.Module):
         except vistrails_module.ModuleError:
             cons_for_output = new_cons
 
-        #self.command = self.command + ' tas tas ' + year_start + ' ' + year_end + ' ' + seas_agg
+        #self.command = self.command + ' tos tos ' + year_start + ' ' + year_end + ' ' + seas_agg
         # Execute the seas_vars process.
         this_process = ProcessUnit([in_dataset],
                                    self.out_pattern,
                                    self.command,
                                    cons_for_output,
-                                   #positional_args=self.positional_args,
+                                   positional_args=self.positional_args,
                                    execution_options=self._execution_options)
 
         this_process.execute(simulate=configuration.simulate_execution)
