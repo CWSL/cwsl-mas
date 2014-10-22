@@ -183,12 +183,9 @@ class ProcessUnit(object):
                     merged_cons = set(*[cons.values for cons in found_cons])
                     to_add.append(Constraint(out_name, merged_cons))
 
-<<<<<<< HEAD
         module_logger.debug("to add: {0}".format(to_add))
         module_logger.debug("to remove: {0}".format(to_remove))
 
-=======
->>>>>>> 32e64d12de598803b83f97aa2ea321ed61ba412e
         for cons in to_remove:
             fixed_constraints.remove(cons)
         for cons in to_add:
@@ -214,7 +211,6 @@ class ProcessUnit(object):
         this_looper = ArgumentCreator(self.inputlist, self.file_creator)
         module_logger.debug("Created ArgumentCreator: {0}".format(this_looper))
 
-<<<<<<< HEAD
         #TODO determine scheduler from user options.
         scheduler = SimpleExecManager(noexec=simulate)
         if self.execution_options.has_key('required_modules'):
@@ -223,11 +219,6 @@ class ProcessUnit(object):
         #Add environment variables
         scheduler.add_environment_variables({'CWSL_CTOOLS':configuration.cwsl_ctools_path})
         scheduler.add_python_paths([os.path.join(configuration.cwsl_ctools_path,'pythonlib')])
-=======
-        #TODO determine sceduling options
-        scheduler = SimpleExecManager(noexec=simulate)
-        scheduler.add_module_deps(self.module_depends)
->>>>>>> 32e64d12de598803b83f97aa2ea321ed61ba412e
 
         # For every valid possible combination, add the command to the scheduler.
         for combination in this_looper:
