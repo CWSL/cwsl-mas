@@ -91,3 +91,19 @@ class TestProcessUnit(unittest.TestCase):
         
         expected_string = """#!/bin/sh\n\nmodule purge\necho fake_1 test_file1 /another/file_1/pattern_1.txt\n"""
         self.assertEqual(expected_string, the_process_unit.scheduler.job.to_str())
+
+    def test_positionalargs_2(self):
+        """ Test that positional arguments work if the constraint is part of the output only. """
+
+        extra_cons = set([Constraint('animal', ['moose', 'kangaroo'])])
+        the_process_unit = ProcessUnit([self.a_pattern_ds], '/another/%file%/%pattern%_%animal%.txt',
+                                       'echo', extra_constraints=extra_cons,
+                                       positional_args=[('animal', 0)])
+        
+        ds_result = the_process_unit.execute(simulate=True)
+        
+        outfiles = [file_thing for file_thing in ds_result.files]
+        self.assertEqual(len(outfiles), 2)
+        
+        expected_string = """#!/bin/sh\n\nmodule purge\necho moose test_file1 /another/file_1/pattern_1_moose.txt\necho kangaroo test_file1 /another/file_1/pattern_1_kangaroo.txt\n"""
+        self.assertEqual(expected_string, the_process_unit.scheduler.job.to_str())

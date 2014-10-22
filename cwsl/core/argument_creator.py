@@ -17,10 +17,12 @@ Contains the ArgumentCreator class.
 
 """
 
+import itertools
 import logging
-module_logger = logging.getLogger('cwsl.core.argument_creator')
 
 from cwsl.core.constraint import Constraint
+
+module_logger = logging.getLogger('cwsl.core.argument_creator')
 
 
 
@@ -97,14 +99,20 @@ class ArgumentCreator(object):
         # and ensure that constraints are not repeated.
         self.input_cons, self.output_cons = self.check_constraints(in_constraints,
                                                                    out_constraints)
-
+        
         # Find the shared attributes between the input and output.
         self.shared_constraints = self.input_cons.intersection(self.output_cons)
 
         # Find constraints that exist in the input but not the output - these
-        # will be added to the returned combination dictionary.
+        # will be added to the returned combination dictionary for use in positional
+        # or keyword arguments.
         self.input_only = self.input_cons.difference(self.output_cons)
         self.input_only_dict = {cons.key: cons.values.pop() for cons in self.input_only}
+
+        # Output only constraints are effectively shared constraints and must be added to
+        # the valid combinations and the shared_constraints set.
+        self.output_only = self.output_cons.difference(self.input_cons)
+        self.shared_constraints = self.shared_constraints.union(self.output_only)
 
         # If a mapping exists, then the input mapping constraint must be added to
         # the 'shared constraints'. (It effectively belongs to both input and output)
@@ -115,12 +123,12 @@ class ArgumentCreator(object):
                                                if cons.key == mapping]))
         self.shared_constraints = map_cons.union(self.shared_constraints)
 
-        self.shared_keys = set([cons.key for cons in self.shared_constraints])
-
         module_logger.debug("Shared input and output constraints are: {0}".
                             format(self.shared_constraints))
         module_logger.debug("Different input and output constraints are: {0}".
                             format(self.input_cons.symmetric_difference(self.output_cons)))
+
+        self.shared_keys = set([cons.key for cons in self.shared_constraints])
 
     def check_constraints(self, in_cons, out_cons):
         """ This method checks and cleans up any problems with input and
@@ -188,14 +196,28 @@ class ArgumentCreator(object):
 
         valids = [ds.valid_combinations for ds in self.input]
         set_of_valids = set.union(*valids)
-
-        self.valid_iter = iter(set_of_valids)
+        
+        if self.output_only:
+            self.valid_iter = self.custom_iterator(set_of_valids, self.output_only)
+        else:
+            self.valid_iter = iter(set_of_valids)
 
         # Store which combinations of constraints
         # have been processed this iteration.
         self.done_combinations = []
 
         return self
+
+    def custom_iterator(self, valid_set, output_cons):
+        """ This iterator adds any output_only constraints to the valid combinations from the input."""
+        all_possibles = [Constraint(cons[0][0], [cons[0][1]])
+                        for cons in itertools.product(*self.output_only)]
+        for items in itertools.product(iter(valid_set), all_possibles):
+            input_list = list(items[0])
+            input_list.append(items[1])
+            print(input_list)
+            yield(set(input_list))
+        
 
     def next(self):
         """ Return the next group of input and output file/metafile objects.
@@ -209,7 +231,9 @@ class ArgumentCreator(object):
 
             # Get a particular set of valid constraints from the input.
             this_combination_vals = self.valid_iter.next()
-
+            module_logger.debug("This combination values are: {}"
+                                .format(this_combination_vals))
+            
             # Get the subset of this combination which is in the shared
             # constraints.
             this_shared = [cons for cons in this_combination_vals
