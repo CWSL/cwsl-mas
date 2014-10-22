@@ -199,27 +199,27 @@ class ProcessUnit(object):
         this_looper = ArgumentCreator(self.inputlist, self.file_creator)
         module_logger.debug("Created ArgumentCreator: {0}".format(this_looper))
 
-        #TODO determin sceduling options
+        #TODO determine sceduling options
         scheduler = SimpleExecManager(noexec=simulate)
         scheduler.add_module_deps(self.module_depends)
 
-        # For every possible combination, run process_run the command.
+        # For every valid possible combination, add the command to the scheduler.
         for combination in this_looper:
             module_logger.debug("Combination: " + str(combination))
             if combination:
                 in_files, out_files = self.get_fullnames((combination[0], combination[1]))
+                this_dict = combination[2]
+                                
                 module_logger.info("in_files are:")
                 module_logger.info(in_files)
                 module_logger.info("out_files are:")
                 module_logger.info(out_files)
-                this_dict = combination[2]
-
-                module_logger.debug("Output files are: {0}".format(out_files))
 
                 # Now apply any keyword arguments.
                 modified_command = self.apply_keyword_args(this_dict)
                 
                 # The subprocess / queue submission is done here.
+                # The scheduler handles positional arguments.
                 scheduler.add_cmd(modified_command, in_files, out_files,
                                   constraint_dict=this_dict, positional_args=self.positional_args)
 

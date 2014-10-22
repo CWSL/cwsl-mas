@@ -101,6 +101,11 @@ class ArgumentCreator(object):
         # Find the shared attributes between the input and output.
         self.shared_constraints = self.input_cons.intersection(self.output_cons)
 
+        # Find constraints that exist in the input but not the output - these
+        # will be added to the returned combination dictionary.
+        self.input_only = self.input_cons.difference(self.output_cons)
+        self.input_only_dict = {cons.key: cons.values.pop() for cons in self.input_only}
+
         # If a mapping exists, then the input mapping constraint must be added to
         # the 'shared constraints'. (It effectively belongs to both input and output)
         map_cons = set()
@@ -215,7 +220,7 @@ class ArgumentCreator(object):
                 this_combination_dict[cons.key] = iter(cons.values).next()
 
             module_logger.debug("This combination is: {0}"
-                          .format(this_combination_dict))
+                                .format(this_combination_dict))
 
             # If this combination has been done, continue.
             this_hash = hash(frozenset(this_combination_dict.items()))
@@ -254,7 +259,9 @@ class ArgumentCreator(object):
 
             # Returns a tuple of lists if a file exists, otherwise loop again.
             if next_in and next_out:
-                return (next_in, next_out, this_combination_dict)
+                full_return = dict(this_combination_dict.items() + self.input_only_dict.items())
+                print(full_return)
+                return (next_in, next_out, full_return)
             else:
                 # If there is no input metafiles,
                 # call for the next combination.
