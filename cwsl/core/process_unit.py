@@ -17,15 +17,15 @@ This module contains the ProcessUnit class.
 
 """
 
-import logging
+import os,logging
 
 from cwsl.core.argument_creator import ArgumentCreator
 from cwsl.core.file_creator import FileCreator
 from cwsl.core.constraint import Constraint
 from cwsl.core.scheduler import SimpleExecManager
+from cwsl.configuration import configuration
 
 module_logger = logging.getLogger('cwsl.core.process_unit')
-
 
 class ProcessUnit(object):
     """ This class sets up the execution of an operation
@@ -45,10 +45,15 @@ class ProcessUnit(object):
 
     """
 
-    def __init__(self, inputlist, output_pattern, shell_command,
-                 extra_constraints=set([]), map_dict={},
-                 cons_keywords={}, positional_args=[],
-                 module_depends=[]):
+    def __init__(self, 
+                 inputlist, 
+                 output_pattern, 
+                 shell_command,
+                 extra_constraints=set([]), 
+                 map_dict={},
+                 cons_keywords={}, 
+                 positional_args=[],
+                 execution_options={}):
 
         """ The class takes in a DataSet object, constraints to change and
         the path to an executable. It has an self.execute() method that
@@ -71,7 +76,7 @@ class ProcessUnit(object):
         self.inputlist = inputlist
         self.cons_keywords = cons_keywords
         self.positional_args = positional_args
-        self.module_depends = module_depends
+        self.execution_options = execution_options
 
         # The initial Constraints for the output are built from the
         # output file pattern.
@@ -178,8 +183,8 @@ class ProcessUnit(object):
                     merged_cons = set(*[cons.values for cons in found_cons])
                     to_add.append(Constraint(out_name, merged_cons))
 
-        print "to add: {0}".format(to_add)
-        print "to remove: {0}".format(to_remove)
+        module_logger.debug("to add: {0}".format(to_add))
+        module_logger.debug("to remove: {0}".format(to_remove))
 
         for cons in to_remove:
             fixed_constraints.remove(cons)
@@ -188,8 +193,12 @@ class ProcessUnit(object):
 
         return fixed_constraints
 
-    def execute(self, simulate=False, testing=False):
+    def execute(self, simulate=False):
         """ This method runs the actual process."""
+
+        #Check that cws_ctools_path is set
+        if not configuration.cwsl_ctools_path or not os.path.exists(configuration.cwsl_ctools_path):
+            raise Exception("cwsl_ctools_path is not set in package options")
 
         # List to store commands for testing purposes.
         commands = []
@@ -199,9 +208,14 @@ class ProcessUnit(object):
         this_looper = ArgumentCreator(self.inputlist, self.file_creator)
         module_logger.debug("Created ArgumentCreator: {0}".format(this_looper))
 
-        #TODO determin sceduling options
-        scheduler = SimpleExecManager()
-        scheduler.add_module_deps(self.module_depends)
+        #TODO determine scheduler from user options.
+        scheduler = SimpleExecManager(noexec=simulate)
+        if self.execution_options.has_key('required_modules'):
+            scheduler.add_module_deps(self.execution_options['required_modules'])
+
+        #Add environment variables
+        scheduler.add_environment_variables({'CWSL_CTOOLS':configuration.cwsl_ctools_path})
+        scheduler.add_python_paths([os.path.join(configuration.cwsl_ctools_path,'pythonlib')])
 
         # For every possible combination, run process_run the command.
         for combination in this_looper:

@@ -21,6 +21,9 @@ import os, sys
 from textwrap import dedent
 import tempfile
 import subprocess
+import logging
+
+log = logging.getLogger('cwsl.core.scheduler')
 
 class Job(object):
 
@@ -84,15 +87,10 @@ class SimpleJob(Job):
         t = dedent(self.__template).strip()
         d = {}
 
-        print self.precmds
-        print self.cmds
-
         cmdlines = [self.escape(' '.join(args)) for args in self.precmds + self.cmds]
         cmds = '\n'.join(cmdlines) + '\n'
         d['cmds'] = cmds
         
-        print t % d
-
         return t % d
         
     def submit(self, deps=True, noexec=False):
@@ -115,10 +113,13 @@ class SimpleJob(Job):
         script_file.write(self.to_str() + '\n')
         script_file.close()
 
-        args = ['sh',script_name]
-        ret_code = subprocess.call(args)
-        if ret_code != 0:
-            raise BadReturnError
+        if noexec:
+            log.warning("Would run script:\n\n========>\n%s\n<========\n\n" % self.to_str())
+            ret_code = 0
+        else:
+            args = ['sh',script_name]
+            ret_code = subprocess.call(args)
+            if ret_code != 0: raise BadReturnError
 
         os.remove(script_name)
 
@@ -160,6 +161,14 @@ class SimpleExecManager(AbstractExecManager):
     def add_module_deps(self, module_list):
         for module in module_list:
             self.add_module_dep(module)
+
+    def add_environment_variables(self,environ_vars):
+        for var in environ_vars.keys():
+            self.add_pre_cmd(self.job,['export',"%s=%s" % (var,environ_vars[var])])
+
+    def add_python_paths(self,python_paths):
+        for path in python_paths:
+            self.add_pre_cmd(self.job,['export','PYTHONPATH=$PYTHONPATH:%s' % path])
 
     def add_cmd(self,cmd,in_files,out_files):
         for ofile in out_files:
