@@ -19,6 +19,8 @@ import os
 import sys
 import logging
 
+from cwsl.configuration import configuration
+
 module_logger = logging.getLogger('cswl')
 ch = logging.StreamHandler()
 # When not testing, only log WARNING and above.
@@ -34,13 +36,6 @@ sys.path.append(PROJECT_PATH)
 name = 'Climate and Weather Science Laboratory'
 identifier = 'csiro.au.cwsl'
 version = '0.1.0'
-
-try:
-    # This import will fail during testing!
-    from cwsl.configuration import configuration
-except ImportError:
-    module_logger.error("Configuration module can not be imported!")
-    pass
 
 def package_dependencies():
     import vistrails.core.packagemanager
