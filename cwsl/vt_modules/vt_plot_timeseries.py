@@ -1,6 +1,13 @@
 """
 
-Authors: Tim Bedin, Tim Erwin
+Creates a timeseries plot 
+
+This module wraps the plot_timeseries.sh script found in git repository cwsl-ctools.
+
+Part of the CWSLab VisTrails plugin.
+
+Authors: Tim Bedin, Tim.Bedin@csiro.au
+         Tim Erwin, Tim.Erwin@csiro.au
 
 Copyright 2014 CSIRO
 
@@ -46,18 +53,19 @@ class PlotTimeSeries(vistrails_module.Module):
 
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
 
+    _execution_options = {'required_modules': ['python/2.7.5','python/2.7.5-matplotlib', 'python-cdat-lite/6.0rc2-py2.7.5']
+                         }
+
     def __init__(self):
 
         super(PlotTimeSeries, self).__init__()
 
-        # At the moment we need to load the modules here in the constructor.
-        self.required_modules = ['cdo', 'cct', 'nco', 
-                                 'python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5']
+        self.command = '${CWSL_CTOOLS}/visualisation/plot_timeseries.py tos_annual'
 
-        tools_base_path = configuration.cwsl_ctools_path
-        self.command = tools_base_path + '/visualisation/plot_timeseries.py tas_annual'
-
-        self.simulate = configuration.simulate_execution
+        # Get the output pattern using the PatternGenerator object.
+        # Gets the user infomation / authoritative path etc from the
+        # user configuration.
+        self.out_pattern = PatternGenerator('user', 'indicies').pattern
 
     def compute(self):
 
@@ -65,8 +73,7 @@ class PlotTimeSeries(vistrails_module.Module):
         in_dataset = self.getInputFromPort("in_dataset")
 
         new_cons = set([Constraint('suffix', ['png']),
-                        Constraint('variable', ['tas_annual']),
-                        Constraint('seas_agg', ['plot'])])
+                      ])
 
         # Optional added constraints.
         try:
@@ -76,18 +83,15 @@ class PlotTimeSeries(vistrails_module.Module):
         except vistrails_module.ModuleError:
             cons_for_output = new_cons
 
-        # Get the output pattern using the PatternGenerator object.
-        # Gets the user infomation / authoritative path etc from the
-        # user configuration.
-        out_pattern = PatternGenerator('user', 'seasonal').pattern
 
         # Execute the seas_vars process.
         this_process = ProcessUnit([in_dataset],
-                                   out_pattern,
+                                   self.out_pattern,
                                    self.command,
-                                   cons_for_output)
+                                   cons_for_output,
+                                   execution_options=self._execution_options)
 
-        this_process.execute(simulate=self.simulate)
+        this_process.execute(simulate=configuration.simulate_execution)
         process_output = this_process.file_creator
 
         self.setResult('out_dataset', process_output)

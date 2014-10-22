@@ -1,6 +1,11 @@
 """
 
-Authors: Tim Bedin, Tim Erwin
+Wrapper for cdscan (CDAT) fo create a virtual aggregation catalogue file.
+
+Part of the CWSLab VisTrails plugin.
+
+Authors: Tim Bedin, Tim.Bedin@csiro.au
+         Tim Erwin, Tim.Erwin@csiro.au
 
 Copyright 2014 CSIRO
 
@@ -14,9 +19,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-This module wraps the CCT cdscan script.
-
-Part of the Model Analysis Service VisTrails plugin.
 
 """
 
@@ -41,16 +43,16 @@ class CDScan(vistrails_module.Module):
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet'),
                      ('out_constraints', String)]
 
+    _execution_options = {'required_modules': ['cdo', 'cct', 'nco',
+                                               'python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5']
+                         }
+
     def __init__(self):
 
         super(CDScan, self).__init__()
  
-        # At the moment we need to load the modules here in the constructor.
-        #self.required_modules = ['python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5']
-
-        tools_base_path = configuration.cwsl_ctools_path
-        self.command = tools_base_path + '/aggregation/version_safe_cdscan.py'
-        self.simulate = configuration.simulate_execution
+        self.command = '${CWSL_CTOOLS}/aggregation/version_safe_cdscan.py'
+        self.out_pattern = PatternGenerator('user', 'cdat_lite_catalogue').pattern
 
     def compute(self):
 
@@ -68,19 +70,16 @@ class CDScan(vistrails_module.Module):
             cons_for_output = set.union(cons_for_output,
                                         set(added_constraints))
 
-        out_pattern = PatternGenerator('user', 'cdat_lite_catalogue').pattern
 
         # Execute the xml_to_nc process.
         this_process = ProcessUnit([in_dataset],
-                                   out_pattern,
+                                   self.out_pattern,
                                    self.command,
-                                   cons_for_output)
+                                   cons_for_output,
+                                   execution_options=self._execution_options)
 
-        this_process.execute(simulate=self.simulate)
+        this_process.execute(simulate=configuration.simulate_execution)
         process_output = this_process.file_creator
 
         self.setResult('out_dataset', process_output)
         self.setResult('out_constraints', str(process_output.constraints))
-
-        # Unload the modules at the end.
-        #self.module_loader.unload(self.required_modules)

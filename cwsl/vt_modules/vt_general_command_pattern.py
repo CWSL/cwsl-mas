@@ -72,11 +72,11 @@ class GeneralCommandPattern(vistrails_module.Module):
 
         # Do the stuff.
         this_process = ProcessUnit([in_dataset],
-                                   output_pattern,
+                                   self.output_pattern,
                                    command,
                                    cons_for_output)
 
-        this_process.execute(simulate=self.simulate)
+        this_process.execute(simulate=configuration.simulate_execution)
         process_output = this_process.file_creator
 
         self.setResult('out_dataset', process_output)

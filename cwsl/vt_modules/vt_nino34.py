@@ -1,6 +1,9 @@
 """
 
-Authors: Tim Bedin, Tim Erwin
+Wrapper for CDO script that calculated Nino3.4 index
+
+Authors: Tim Bedin, Tim.Bedin@csiro.au
+         Tim Erwin, Tim.Erwin@csiro.au
 
 Copyright 2014 CSIRO
 
@@ -26,18 +29,15 @@ from cwsl.core.process_unit import ProcessUnit
 from cwsl.core.constraint import Constraint
 from cwsl.core.pattern_generator import PatternGenerator
 
-
 class IndiciesNino34(vistrails_module.Module):
     """
-    Creates a seasonal timeseries with:
-        annual, monthly, djf, mam, jja, son, ndjfma, mjjaso
+    Calculated a Nino3.4 Index:
 
-        Requires: cdo, nco and cdat (if xml input)
+    Requires: cdo, nco and cdat (if xml input)
 
     """
 
     # Define the module ports.
-    true_false = ["['true', 'false']"]
     _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet',
                      {'labels': str(['Input Dataset'])}),
                     ('added_constraints', List, True,
@@ -47,24 +47,31 @@ class IndiciesNino34(vistrails_module.Module):
 
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
 
+
+    _execution_options = {'required_modules': ['cdo', 'cct', 'nco',
+                                               'python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5']
+                         }
+
     def __init__(self):
 
         super(IndiciesNino34, self).__init__()
 
-        # At the moment we need to load the modules here in the constructor.
-        self.required_modules = ['cdo', 'cct', 'nco', 
-                                 'python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5']
-        tools_base_path = configuration.cwsl_ctools_path
-        self.command = tools_base_path + '/indicies/nino34.py'
+        #Output file structure declaration
+        # Get the output pattern using the PatternGenerator object.
+        # Gets the user infomation / authoritative path etc from the
+        # user configuration.
+        self.out_pattern = PatternGenerator('user', 'indicies').pattern
 
-        self.simulate = configuration.simulate_execution
+        #Location on command line tool
+        self.command = '${CWSL_CTOOLS}/indicies/nino34.py'
+
 
     def compute(self):
 
         # Required input
         in_dataset = self.getInputFromPort("in_dataset")
 
-        new_cons = set([Constraint('seas_agg', ['nino34']),
+        new_cons = set([Constraint('index', ['nino34']),
                         Constraint('grid', ['native'])]
                       )
 
@@ -76,21 +83,15 @@ class IndiciesNino34(vistrails_module.Module):
         except vistrails_module.ModuleError:
             cons_for_output = new_cons
 
-        # Get the output pattern using the PatternGenerator object.
-        # Gets the user infomation / authoritative path etc from the
-        # user configuration.
-        out_pattern = PatternGenerator('user', 'seasonal').pattern
 
         # Execute the seas_vars process.
         this_process = ProcessUnit([in_dataset],
-                                   out_pattern,
+                                   self.out_pattern,
                                    self.command,
-                                   cons_for_output)
+                                   cons_for_output,
+                                   execution_options=self._execution_options)
 
-        this_process.execute(simulate=self.simulate)
+        this_process.execute(simulate=configuration.simulate_execution)
         process_output = this_process.file_creator
 
         self.setResult('out_dataset', process_output)
-
-        # Unload the modules at the end.
-        self.module_loader.unload(self.required_modules)
