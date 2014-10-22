@@ -87,10 +87,21 @@ class SimpleJob(Job):
         t = dedent(self.__template).strip()
         d = {}
 
+<<<<<<< HEAD
+=======
+        #print self.precmds
+        #print self.cmds
+
+>>>>>>> 32e64d12de598803b83f97aa2ea321ed61ba412e
         cmdlines = [self.escape(' '.join(args)) for args in self.precmds + self.cmds]
         cmds = '\n'.join(cmdlines) + '\n'
         d['cmds'] = cmds
         
+<<<<<<< HEAD
+=======
+        #print t % d
+
+>>>>>>> 32e64d12de598803b83f97aa2ea321ed61ba412e
         return t % d
         
     def submit(self, deps=True, noexec=False):
@@ -100,7 +111,7 @@ class SimpleJob(Job):
                      depends.
         @type  deps: boolean
         @param noexec: Whether or not to actually submit the job for execution.
-                       If False the resulting shell script is printed to stdout.
+                       If True the resulting shell script is printed to stdout.
         @type  noexec: boolean
         """
 
@@ -108,20 +119,21 @@ class SimpleJob(Job):
         if len(self.outdirs) > 0:
             self.add_pre_cmd(['mkdir', '-p'] + sorted(self.outdirs))
 
-        script_file, script_name = tempfile.mkstemp('.sh')
-        script_file = os.fdopen(script_file, 'w+b')
-        script_file.write(self.to_str() + '\n')
-        script_file.close()
-
         if noexec:
-            log.warning("Would run script:\n\n========>\n%s\n<========\n\n" % self.to_str())
+            log.info("Would run script:\n\n========>\n%s\n<========\n\n" % self.to_str())
             ret_code = 0
         else:
-            args = ['sh',script_name]
-            ret_code = subprocess.call(args)
-            if ret_code != 0: raise BadReturnError
 
-        os.remove(script_name)
+            script_file, script_name = tempfile.mkstemp('.sh')
+            script_file = os.fdopen(script_file, 'w+b')
+            script_file.write(self.to_str() + '\n')
+            script_file.close()
+            
+            args = ['sh', script_name]
+            ret_code = subprocess.call(args)
+            if ret_code != 0:
+                raise BadReturnError
+            os.remove(script_name)
 
         return ret_code
 
@@ -146,22 +158,40 @@ class AbstractExecManager(object):
     def submit(self, job):
         raise NotImplementedException
 
+    def add_positional_args(self, arg_list, constraint_dict, positional_args):
+        """ Add positional args to a list of command arguments. """
+        
+        for arg_tuple in positional_args:
+            arg_name = arg_tuple[0]
+            position = arg_tuple[1]
+
+            this_att_value = constraint_dict[arg_name]
+            if position != -1:
+                position += 1   # +1 because arg_list[0] is the actual command!
+                arg_list.insert(position, this_att_value)
+            else:
+                arg_list.append(this_att_value)
+                
+        return arg_list
+
+
 class SimpleExecManager(AbstractExecManager):
 
     def __init__(self, verbose=False, noexec=False):
 
         super(SimpleExecManager, self).__init__(verbose,noexec)
         self.job = SimpleJob()
-        #Clear loaded modules inherited from parent
+        # Clear loaded modules inherited from parent
         self.add_pre_cmd(self.job,['module','purge'])
 
     def add_module_dep(self, module):
-        self.add_pre_cmd(self.job, ['module','load',module])
+        self.add_pre_cmd(self.job, ['module', 'load', module])
 
     def add_module_deps(self, module_list):
         for module in module_list:
             self.add_module_dep(module)
 
+<<<<<<< HEAD
     def add_environment_variables(self,environ_vars):
         for var in environ_vars.keys():
             self.add_pre_cmd(self.job,['export',"%s=%s" % (var,environ_vars[var])])
@@ -171,13 +201,22 @@ class SimpleExecManager(AbstractExecManager):
             self.add_pre_cmd(self.job,['export','PYTHONPATH=$PYTHONPATH:%s' % path])
 
     def add_cmd(self,cmd,in_files,out_files):
+=======
+    def add_cmd(self, cmd, in_files, out_files,
+                constraint_dict={}, kw_args=[], positional_args=[]):
+        
+>>>>>>> 32e64d12de598803b83f97aa2ea321ed61ba412e
         for ofile in out_files:
             self.job.outdirs.add(os.path.dirname(ofile))
 
         cmdlist = cmd.split() 
         allargs = cmdlist + in_files + out_files
-        self.queue_cmd(self.job,allargs)
-                    
+
+        final_args = self.add_positional_args(allargs, constraint_dict,
+                                              positional_args)
+
+        self.queue_cmd(self.job, final_args)
+
     def submit(self):
         """Creates a simple shell script with all the commands to be executed.
            Uses Popen to run the script.
@@ -189,3 +228,7 @@ class SimpleExecManager(AbstractExecManager):
         self.job.submit(noexec=self.noexec)
 
 
+class BadReturnError(Exception):
+    """ An error raised when the command being run by the scheduler doesn't return 0 """
+
+    pass

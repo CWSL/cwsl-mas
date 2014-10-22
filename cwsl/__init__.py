@@ -39,7 +39,7 @@ try:
     # This import will fail during testing!
     from cwsl.configuration import configuration
 except ImportError:
-    module_logger.error("Configuration module not found!")
+    module_logger.error("Configuration module can not be imported!")
     pass
 
 def package_dependencies():

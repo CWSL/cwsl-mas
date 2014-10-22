@@ -49,10 +49,10 @@ class Constraint(object):
 
         # The unicode stuff is to deal with some funny equality/hash problems.
         # it may not actually be necessary.
-        self.key = unicode(str(key))
+        self.key = str(key)
 
-        unicode_vals = [unicode(str(val)) for val in values]
-        self.values = set(unicode_vals)
+        str_vals = [str(val) for val in values]
+        self.values = set(str_vals)
 
     def __repr__(self):
         # The values set needs to be transformed to a sorted list

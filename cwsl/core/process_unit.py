@@ -86,7 +86,7 @@ class ProcessUnit(object):
         fixed_constraints = self.fill_empty_constraints(extra_constraints)
         final_constraints = self.apply_mappings(map_dict, fixed_constraints)
 
-        print "Final constraints are: {0}".format(final_constraints)
+        module_logger.debug("Final output constraints are: {0}".format(final_constraints))
 
         # Make a file_creator from the new, fixed constraints.
         self.file_creator = FileCreator(output_pattern, final_constraints)
@@ -183,9 +183,12 @@ class ProcessUnit(object):
                     merged_cons = set(*[cons.values for cons in found_cons])
                     to_add.append(Constraint(out_name, merged_cons))
 
+<<<<<<< HEAD
         module_logger.debug("to add: {0}".format(to_add))
         module_logger.debug("to remove: {0}".format(to_remove))
 
+=======
+>>>>>>> 32e64d12de598803b83f97aa2ea321ed61ba412e
         for cons in to_remove:
             fixed_constraints.remove(cons)
         for cons in to_add:
@@ -205,9 +208,13 @@ class ProcessUnit(object):
 
         # We now create a looper to compare all the input Datasets with
         # the output fileCreators.
+
+        module_logger.debug("Now creating ArgumentCreator")
+        
         this_looper = ArgumentCreator(self.inputlist, self.file_creator)
         module_logger.debug("Created ArgumentCreator: {0}".format(this_looper))
 
+<<<<<<< HEAD
         #TODO determine scheduler from user options.
         scheduler = SimpleExecManager(noexec=simulate)
         if self.execution_options.has_key('required_modules'):
@@ -216,44 +223,38 @@ class ProcessUnit(object):
         #Add environment variables
         scheduler.add_environment_variables({'CWSL_CTOOLS':configuration.cwsl_ctools_path})
         scheduler.add_python_paths([os.path.join(configuration.cwsl_ctools_path,'pythonlib')])
+=======
+        #TODO determine sceduling options
+        scheduler = SimpleExecManager(noexec=simulate)
+        scheduler.add_module_deps(self.module_depends)
+>>>>>>> 32e64d12de598803b83f97aa2ea321ed61ba412e
 
-        # For every possible combination, run process_run the command.
+        # For every valid possible combination, add the command to the scheduler.
         for combination in this_looper:
+            module_logger.debug("Combination: " + str(combination))
             if combination:
                 in_files, out_files = self.get_fullnames((combination[0], combination[1]))
-                print("in_files are:")
-                print(in_files)
-                print("out_files are:")
-                print(out_files)
                 this_dict = combination[2]
+                                
+                module_logger.info("in_files are:")
+                module_logger.info(in_files)
+                module_logger.info("out_files are:")
+                module_logger.info(out_files)
 
-                module_logger.debug("Output files are: {0}".format(out_files))
-
-                # Now apply any extra arguments.
+                # Now apply any keyword arguments.
                 modified_command = self.apply_keyword_args(this_dict)
-                modified_command = self.apply_positional_args(this_dict, modified_command)
-
+                
                 # The subprocess / queue submission is done here.
-                scheduler.add_cmd(modified_command, in_files, out_files)
+                # The scheduler handles positional arguments.
+                scheduler.add_cmd(modified_command, in_files, out_files,
+                                  constraint_dict=this_dict, positional_args=self.positional_args)
 
         scheduler.submit()
-        self.commands = commands
+
+        # The scheduler is kept for testing purposes.
+        self.scheduler = scheduler
 
         return self.file_creator
-
-    def apply_positional_args(self, cons_dict, command):
-
-        split_command = command.split()
-
-        for arg_tuple in self.positional_args:
-            arg_name = arg_tuple[0]
-            position = arg_tuple[1]
-
-            this_att_value = cons_dict[arg_name]
-            split_command.insert(position + 1, this_att_value)  # +1 because arg[0] is the actual command!
-
-        # Now reconstruct the command.
-        return reduce(lambda x, y: x + ' ' + y, split_command)
 
     def apply_keyword_args(self, cons_dict, prefix='--'):
         """ Using the dictionary of keyword arguments, construct a shell command."""
@@ -270,6 +271,7 @@ class ProcessUnit(object):
     def get_fullnames(self, combination):
         required_atts = ["path_dir", "filename"]
         in_files = []
+
         for qs in combination[0]:
             try:
                 in_files += [infile.full_path

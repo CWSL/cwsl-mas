@@ -22,7 +22,7 @@ import unittest
 from cwsl.core.constraint import Constraint
 
 
-class TestConstraintClass(unittest.TestCase):
+class TestConstraint(unittest.TestCase):
 
     def setUp(self):
 
@@ -30,6 +30,7 @@ class TestConstraintClass(unittest.TestCase):
         self.model_constraint = Constraint('model', ['ACCESS1-0', 'BNU-ESM'])
 
     def testEquality(self):
+        """ Test that two constraints compare as equal. """
 
         constraint_1 = Constraint('model', ['ACCESS1-0'])
         constraint_2 = Constraint('model', ['ACCESS1-0'])
@@ -83,6 +84,7 @@ class TestConstraintClass(unittest.TestCase):
             self.assertTrue(constraint in constraint_set_2)
 
     def test_getter(self):
+        """ Test getting the value of a constraint key. """
 
         self.assertEqual(
             self.tas_constraint.key,
@@ -109,6 +111,7 @@ class TestConstraintClass(unittest.TestCase):
                                        self.tas_constraint.values))
 
     def test_setter(self):
+        """ Test setting the value of a constraint key. """
 
         self.tas_constraint.values = ['pr']
         self.assertItemsEqual(
@@ -117,7 +120,6 @@ class TestConstraintClass(unittest.TestCase):
             '''Setter method not setting values correctly''')
 
     def test_constraint_set(self):
-
         """ Test to make sure that putting constraint objects into a set works correctly."""
 
         some_constraints = set([Constraint('model', ['ACCESS1-3']),
@@ -142,7 +144,6 @@ class TestConstraintClass(unittest.TestCase):
         print("Unsorted = {0}\nSorted = {1}".format(unsorted_list, sorted_list))
 
     def test_hash_and_equality(self):
-
         """ Test to see that constraint objects have the same hash and
         compare as equal properly. """
 
@@ -193,7 +194,7 @@ class TestConstraintClass(unittest.TestCase):
                              repr(some_constraints_2[i]))
 
     def test_iteration(self):
-
+        """ Test that you can iterate through values in a Constraint. """
         new_constraint = Constraint('things', ['this', 'that', 'something_else'])
 
         out_vals = [out for out in new_constraint]
