@@ -87,21 +87,10 @@ class SimpleJob(Job):
         t = dedent(self.__template).strip()
         d = {}
 
-<<<<<<< HEAD
-=======
-        #print self.precmds
-        #print self.cmds
-
->>>>>>> 32e64d12de598803b83f97aa2ea321ed61ba412e
         cmdlines = [self.escape(' '.join(args)) for args in self.precmds + self.cmds]
         cmds = '\n'.join(cmdlines) + '\n'
         d['cmds'] = cmds
         
-<<<<<<< HEAD
-=======
-        #print t % d
-
->>>>>>> 32e64d12de598803b83f97aa2ea321ed61ba412e
         return t % d
         
     def submit(self, deps=True, noexec=False):
@@ -120,7 +109,7 @@ class SimpleJob(Job):
             self.add_pre_cmd(['mkdir', '-p'] + sorted(self.outdirs))
 
         if noexec:
-            log.info("Would run script:\n\n========>\n%s\n<========\n\n" % self.to_str())
+            log.warning("Would run script:\n\n========>\n%s\n<========\n\n" % self.to_str())
             ret_code = 0
         else:
 
@@ -191,7 +180,6 @@ class SimpleExecManager(AbstractExecManager):
         for module in module_list:
             self.add_module_dep(module)
 
-<<<<<<< HEAD
     def add_environment_variables(self,environ_vars):
         for var in environ_vars.keys():
             self.add_pre_cmd(self.job,['export',"%s=%s" % (var,environ_vars[var])])
@@ -200,12 +188,9 @@ class SimpleExecManager(AbstractExecManager):
         for path in python_paths:
             self.add_pre_cmd(self.job,['export','PYTHONPATH=$PYTHONPATH:%s' % path])
 
-    def add_cmd(self,cmd,in_files,out_files):
-=======
     def add_cmd(self, cmd, in_files, out_files,
                 constraint_dict={}, kw_args=[], positional_args=[]):
         
->>>>>>> 32e64d12de598803b83f97aa2ea321ed61ba412e
         for ofile in out_files:
             self.job.outdirs.add(os.path.dirname(ofile))
 
