@@ -32,6 +32,7 @@ module_logger = logging.getLogger('cwsl.tests.test_process_unit')
 class TestProcessUnit(unittest.TestCase):
 
     def setUp(self):
+        # This creaes a mock pattern dataset that returns a single file.
 
         test_cons = set([Constraint('fake', ['fake_1']),
                          Constraint('file', ['file_1']),
@@ -62,3 +63,5 @@ class TestProcessUnit(unittest.TestCase):
 
         expected_string = """#!/bin/sh\n\nmodule purge\necho test_file1 /another/file_1/pattern_1.txt\n"""
         self.assertEqual(expected_string, the_process_unit.scheduler.job.to_str())
+
+

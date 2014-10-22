@@ -208,41 +208,27 @@ class ProcessUnit(object):
             module_logger.debug("Combination: " + str(combination))
             if combination:
                 in_files, out_files = self.get_fullnames((combination[0], combination[1]))
-                print("in_files are:")
-                print(in_files)
-                print("out_files are:")
-                print(out_files)
+                module_logger.info("in_files are:")
+                module_logger.info(in_files)
+                module_logger.info("out_files are:")
+                module_logger.info(out_files)
                 this_dict = combination[2]
 
                 module_logger.debug("Output files are: {0}".format(out_files))
 
-                # Now apply any extra arguments.
+                # Now apply any keyword arguments.
                 modified_command = self.apply_keyword_args(this_dict)
-                modified_command = self.apply_positional_args(this_dict, modified_command)
-
+                
                 # The subprocess / queue submission is done here.
-                scheduler.add_cmd(modified_command, in_files, out_files)
+                scheduler.add_cmd(modified_command, in_files, out_files,
+                                  constraint_dict=this_dict, positional_args=self.positional_args)
 
         scheduler.submit()
 
-        # The scheduler is user for testing purposes.
+        # The scheduler is kept for testing purposes.
         self.scheduler = scheduler
 
         return self.file_creator
-
-    def apply_positional_args(self, cons_dict, command):
-
-        split_command = command.split()
-
-        for arg_tuple in self.positional_args:
-            arg_name = arg_tuple[0]
-            position = arg_tuple[1]
-
-            this_att_value = cons_dict[arg_name]
-            split_command.insert(position + 1, this_att_value)  # +1 because arg[0] is the actual command!
-
-        # Now reconstruct the command.
-        return reduce(lambda x, y: x + ' ' + y, split_command)
 
     def apply_keyword_args(self, cons_dict, prefix='--'):
         """ Using the dictionary of keyword arguments, construct a shell command."""

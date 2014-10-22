@@ -84,8 +84,8 @@ class SimpleJob(Job):
         t = dedent(self.__template).strip()
         d = {}
 
-        print self.precmds
-        print self.cmds
+        #print self.precmds
+        #print self.cmds
 
         cmdlines = [self.escape(' '.join(args)) for args in self.precmds + self.cmds]
         cmds = '\n'.join(cmdlines) + '\n'
@@ -120,7 +120,7 @@ class SimpleJob(Job):
             script_file.write(self.to_str() + '\n')
             script_file.close()
             
-            args = ['sh',script_name]
+            args = ['sh', script_name]
             ret_code = subprocess.call(args)
             if ret_code != 0:
                 raise BadReturnError
@@ -149,29 +149,52 @@ class AbstractExecManager(object):
     def submit(self, job):
         raise NotImplementedException
 
+    def add_positional_args(self, arg_list, constraint_dict, positional_args):
+        """ Add positional args to a list of command arguments. """
+        
+        for arg_tuple in positional_args:
+            arg_name = arg_tuple[0]
+            position = arg_tuple[1]
+
+            this_att_value = constraint_dict[arg_name]
+            if position != -1:
+                position += 1   # +1 because arg_list[0] is the actual command!
+                arg_list.insert(position, this_att_value)
+            else:
+                arg_list.append(this_att_value)
+                
+        return arg_list
+
+
 class SimpleExecManager(AbstractExecManager):
 
     def __init__(self, verbose=False, noexec=False):
 
         super(SimpleExecManager, self).__init__(verbose,noexec)
         self.job = SimpleJob()
-        #Clear loaded modules inherited from parent
+        # Clear loaded modules inherited from parent
         self.add_pre_cmd(self.job,['module','purge'])
 
     def add_module_dep(self, module):
-        self.add_pre_cmd(self.job, ['module','load',module])
+        self.add_pre_cmd(self.job, ['module', 'load', module])
 
     def add_module_deps(self, module_list):
         for module in module_list:
             self.add_module_dep(module)
 
-    def add_cmd(self,cmd,in_files,out_files):
+    def add_cmd(self, cmd, in_files, out_files,
+                constraint_dict={}, kw_args=[], positional_args=[]):
+        
         for ofile in out_files:
             self.job.outdirs.add(os.path.dirname(ofile))
 
         cmdlist = cmd.split() 
         allargs = cmdlist + in_files + out_files
-        self.queue_cmd(self.job,allargs)
+
+        final_args = self.add_positional_args(allargs, constraint_dict,
+                                              positional_args)
+
+        self.queue_cmd(self.job, final_args)
 
     def submit(self):
         """Creates a simple shell script with all the commands to be executed.
