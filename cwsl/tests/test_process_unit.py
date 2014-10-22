@@ -22,9 +22,11 @@ import logging
 
 import mock
 
+from cwsl.configuration import configuration
 from cwsl.core.constraint import Constraint
 from cwsl.core.pattern_dataset import PatternDataSet
 from cwsl.core.process_unit import ProcessUnit
+
 
 module_logger = logging.getLogger('cwsl.tests.test_process_unit')
 
@@ -48,6 +50,10 @@ class TestProcessUnit(unittest.TestCase):
 
         # Create a valid set of contraints for the mock.
         self.a_pattern_ds.valid_combinations = set([frozenset(test_cons)])
+
+        # Constant header for the job scripts.
+        self.script_header = "#!/bin/sh\n\nmodule purge\nexport CWSL_CTOOLS={}\nexport PYTHONPATH=$PYTHONPATH:{}/pythonlib\n"\
+            .format(configuration.cwsl_ctools_path, configuration.cwsl_ctools_path)
     
     def test_execution(self):
         """ Test that a process unit can execute a basic process without falling over. """
@@ -61,7 +67,7 @@ class TestProcessUnit(unittest.TestCase):
         outfiles = [file_thing for file_thing in ds_result.files]
         self.assertEqual(len(outfiles), 1)
 
-        expected_string = """#!/bin/sh\n\nmodule purge\necho test_file1 /another/file_1/pattern_1.txt\n"""
+        expected_string = self.script_header + "mkdir -p /another/file_1\necho test_file1 /another/file_1/pattern_1.txt\n"
         self.assertEqual(expected_string, the_process_unit.scheduler.job.to_str())
 
     def test_positionalargs_1(self):
@@ -75,7 +81,7 @@ class TestProcessUnit(unittest.TestCase):
         outfiles = [file_thing for file_thing in ds_result.files]
         self.assertEqual(len(outfiles), 1)
         
-        expected_string = """#!/bin/sh\n\nmodule purge\necho pattern_1 test_file1 /another/file_1/pattern_1.txt\n"""
+        expected_string = self.script_header + "mkdir -p /another/file_1\necho pattern_1 test_file1 /another/file_1/pattern_1.txt\n"
         self.assertEqual(expected_string, the_process_unit.scheduler.job.to_str())
 
     def test_positionalargs_2(self):
@@ -89,7 +95,7 @@ class TestProcessUnit(unittest.TestCase):
         outfiles = [file_thing for file_thing in ds_result.files]
         self.assertEqual(len(outfiles), 1)
         
-        expected_string = """#!/bin/sh\n\nmodule purge\necho fake_1 test_file1 /another/file_1/pattern_1.txt\n"""
+        expected_string = self.script_header + "mkdir -p /another_file_1\necho fake_1 test_file1 /another/file_1/pattern_1.txt\n"
         self.assertEqual(expected_string, the_process_unit.scheduler.job.to_str())
 
     def test_positionalargs_2(self):
@@ -105,5 +111,19 @@ class TestProcessUnit(unittest.TestCase):
         outfiles = [file_thing for file_thing in ds_result.files]
         self.assertEqual(len(outfiles), 2)
         
-        expected_string = """#!/bin/sh\n\nmodule purge\necho moose test_file1 /another/file_1/pattern_1_moose.txt\necho kangaroo test_file1 /another/file_1/pattern_1_kangaroo.txt\n"""
+        expected_string = self.script_header + 'mkdir -p /another/file_1\necho moose test_file1 /another/file_1/pattern_1_moose.txt\necho kangaroo test_file1 /another/file_1/pattern_1_kangaroo.txt\n'
+        self.assertEqual(expected_string, the_process_unit.scheduler.job.to_str())
+
+    def test_positionalargs_3(self):
+        """ Test that positional arguments work if multiple extra constraints found only in the output are added. """
+
+        extra_cons = set([Constraint('animal', ['moose', 'kangaroo']),
+                          Constraint('colour', ['blue'])])
+
+        the_process_unit = ProcessUnit([self.a_pattern_ds], '/another/%file%/%pattern%_%animal%_%colour%.txt',
+                                       'echo', extra_constraints=extra_cons,
+                                       positional_args=[('animal', 0), ('colour', 1)])
+        ds_result = the_process_unit.execute(simulate=True)
+
+        expected_string = self.script_header + 'mkdir -p /another/file_1\necho moose blue test_file1 /another/file_1/pattern_1_moose_blue.txt\necho kangaroo blue test_file1 /another/file_1/pattern_1_kangaroo_blue.txt\n'
         self.assertEqual(expected_string, the_process_unit.scheduler.job.to_str())

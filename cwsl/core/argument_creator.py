@@ -185,8 +185,8 @@ class ArgumentCreator(object):
                             if in_con.key == out_constraint.key]
                 assert(len(new_cons) == 1)
                 if not new_cons:
-                    module_logger.error("Output constraint {0} has no values!".\
-                                 format(out_constraint))
+                    module_logger.error("Output constraint {0} has no values!"
+                                        .format(out_constraints))
                 new_outs.add(*new_cons)
 
         return new_ins, new_outs
@@ -198,6 +198,8 @@ class ArgumentCreator(object):
         set_of_valids = set.union(*valids)
         
         if self.output_only:
+            module_logger.debug("Output only constraints are: {}"
+                                .format(self.output_only))
             self.valid_iter = self.custom_iterator(set_of_valids, self.output_only)
         else:
             self.valid_iter = iter(set_of_valids)
@@ -210,12 +212,19 @@ class ArgumentCreator(object):
 
     def custom_iterator(self, valid_set, output_cons):
         """ This iterator adds any output_only constraints to the valid combinations from the input."""
-        all_possibles = [Constraint(cons[0][0], [cons[0][1]])
-                        for cons in itertools.product(*self.output_only)]
+        
+        all_possibles = []
+        for combination in itertools.product(*output_cons):
+            this_com_list = []
+            for cons in combination:
+                this_com_list.append(Constraint(cons[0], [cons[1]]))
+            all_possibles.append(this_com_list)
+                                     
+        module_logger.debug("All possible new constraints to be added are: {}".format(all_possibles))
         for items in itertools.product(iter(valid_set), all_possibles):
             input_list = list(items[0])
-            input_list.append(items[1])
-            print(input_list)
+            input_list += items[1]
+            module_logger.debug("Input list is: {}".format(input_list))
             yield(set(input_list))
         
 
