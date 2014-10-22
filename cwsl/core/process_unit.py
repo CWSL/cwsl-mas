@@ -81,7 +81,7 @@ class ProcessUnit(object):
         fixed_constraints = self.fill_empty_constraints(extra_constraints)
         final_constraints = self.apply_mappings(map_dict, fixed_constraints)
 
-        print "Final constraints are: {0}".format(final_constraints)
+        module_logger.debug("Final output constraints are: {0}".format(final_constraints))
 
         # Make a file_creator from the new, fixed constraints.
         self.file_creator = FileCreator(output_pattern, final_constraints)
@@ -178,9 +178,6 @@ class ProcessUnit(object):
                     merged_cons = set(*[cons.values for cons in found_cons])
                     to_add.append(Constraint(out_name, merged_cons))
 
-        print "to add: {0}".format(to_add)
-        print "to remove: {0}".format(to_remove)
-
         for cons in to_remove:
             fixed_constraints.remove(cons)
         for cons in to_add:
@@ -188,7 +185,7 @@ class ProcessUnit(object):
 
         return fixed_constraints
 
-    def execute(self, simulate=False, testing=False):
+    def execute(self, simulate=False):
         """ This method runs the actual process."""
 
         # List to store commands for testing purposes.
@@ -196,15 +193,19 @@ class ProcessUnit(object):
 
         # We now create a looper to compare all the input Datasets with
         # the output fileCreators.
+
+        module_logger.debug("Now creating ArgumentCreator")
+        
         this_looper = ArgumentCreator(self.inputlist, self.file_creator)
         module_logger.debug("Created ArgumentCreator: {0}".format(this_looper))
 
         #TODO determin sceduling options
-        scheduler = SimpleExecManager()
+        scheduler = SimpleExecManager(noexec=simulate)
         scheduler.add_module_deps(self.module_depends)
 
         # For every possible combination, run process_run the command.
         for combination in this_looper:
+            module_logger.debug("Combination: " + str(combination))
             if combination:
                 in_files, out_files = self.get_fullnames((combination[0], combination[1]))
                 print("in_files are:")
@@ -223,7 +224,9 @@ class ProcessUnit(object):
                 scheduler.add_cmd(modified_command, in_files, out_files)
 
         scheduler.submit()
-        self.commands = commands
+
+        # The scheduler is user for testing purposes.
+        self.scheduler = scheduler
 
         return self.file_creator
 
@@ -256,6 +259,7 @@ class ProcessUnit(object):
     def get_fullnames(self, combination):
         required_atts = ["path_dir", "filename"]
         in_files = []
+
         for qs in combination[0]:
             try:
                 in_files += [infile.full_path

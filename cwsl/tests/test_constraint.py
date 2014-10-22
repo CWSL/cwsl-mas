@@ -22,7 +22,7 @@ import unittest
 from cwsl.core.constraint import Constraint
 
 
-class TestConstraintClass(unittest.TestCase):
+class TestConstraint(unittest.TestCase):
 
     def setUp(self):
 

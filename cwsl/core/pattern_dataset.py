@@ -17,6 +17,8 @@ Contains the PatternDataSet class.
 
 """
 
+import logging
+
 import glob
 import re
 import itertools
@@ -24,6 +26,8 @@ from collections import defaultdict
 
 from cwsl.core.constraint import Constraint
 from cwsl.core.dataset import DataSet
+
+module_logger = logging.getLogger('cwsl.core.pattern_dataset')
 
 
 
@@ -108,6 +112,7 @@ class PatternDataSet(DataSet):
         """
 
         if self._files:
+            # If there are already files found, do not glob.
             pass
         else:
             self._files = []
@@ -181,6 +186,7 @@ class PatternDataSet(DataSet):
                 for thing in match.groupdict():
                     new_cons_dir[thing].add(match.groupdict()[thing])
             else:
+                module_logger.error("Pattern regex did not match found file!")
                 raise Exception
 
         cons_set = set()

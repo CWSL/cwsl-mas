@@ -89,6 +89,8 @@ class ArgumentCreator(object):
                                      for in_set in self.input])
         out_constraints = set.union(*[out_set.constraints
                                       for out_set in self.output])
+        module_logger.debug('All input constraints are: ' + str(in_constraints))
+        module_logger.debug('All output constraints are: ' + str(out_constraints))
 
         # Now apply the check constraints function to map
         # empty output constraints to the corresponding constraint in the input
@@ -110,10 +112,10 @@ class ArgumentCreator(object):
 
         self.shared_keys = set([cons.key for cons in self.shared_constraints])
 
-        module_logger.debug("Shared input and output constraints are: {0}".\
-                          format(self.shared_constraints))
-        module_logger.debug("Different input and output constraints are: {0}".\
-                          format(self.input_cons.symmetric_difference(self.output_cons)))
+        module_logger.debug("Shared input and output constraints are: {0}".
+                            format(self.shared_constraints))
+        module_logger.debug("Different input and output constraints are: {0}".
+                            format(self.input_cons.symmetric_difference(self.output_cons)))
 
     def check_constraints(self, in_cons, out_cons):
         """ This method checks and cleans up any problems with input and

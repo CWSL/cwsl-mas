@@ -91,7 +91,7 @@ class SimpleJob(Job):
         cmds = '\n'.join(cmdlines) + '\n'
         d['cmds'] = cmds
         
-        print t % d
+        #print t % d
 
         return t % d
         
@@ -102,25 +102,29 @@ class SimpleJob(Job):
                      depends.
         @type  deps: boolean
         @param noexec: Whether or not to actually submit the job for execution.
-                       If False the resulting shell script is printed to stdout.
+                       If True the resulting shell script is printed to stdout.
         @type  noexec: boolean
         """
 
-        #Add directory creation
-        if len(self.outdirs) > 0:
-            self.add_pre_cmd(['mkdir', '-p'] + sorted(self.outdirs))
+        if noexec:
+            print("Job script to be run:")
+            print(self.to_str())
+            ret_code = 0
+        else:
+            # Add directory creation
+            if len(self.outdirs) > 0:
+                self.add_pre_cmd(['mkdir', '-p'] + sorted(self.outdirs))
 
-        script_file, script_name = tempfile.mkstemp('.sh')
-        script_file = os.fdopen(script_file, 'w+b')
-        script_file.write(self.to_str() + '\n')
-        script_file.close()
-
-        args = ['sh',script_name]
-        ret_code = subprocess.call(args)
-        if ret_code != 0:
-            raise BadReturnError
-
-        os.remove(script_name)
+            script_file, script_name = tempfile.mkstemp('.sh')
+            script_file = os.fdopen(script_file, 'w+b')
+            script_file.write(self.to_str() + '\n')
+            script_file.close()
+            
+            args = ['sh',script_name]
+            ret_code = subprocess.call(args)
+            if ret_code != 0:
+                raise BadReturnError
+            os.remove(script_name)
 
         return ret_code
 
@@ -168,7 +172,7 @@ class SimpleExecManager(AbstractExecManager):
         cmdlist = cmd.split() 
         allargs = cmdlist + in_files + out_files
         self.queue_cmd(self.job,allargs)
-                    
+
     def submit(self):
         """Creates a simple shell script with all the commands to be executed.
            Uses Popen to run the script.
@@ -180,3 +184,7 @@ class SimpleExecManager(AbstractExecManager):
         self.job.submit(noexec=self.noexec)
 
 
+class BadReturnError(Exception):
+    """ An error raised when the command being run by the scheduler doesn't return 0 """
+
+    pass
