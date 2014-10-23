@@ -21,6 +21,9 @@ limitations under the License.
 
 import os, re, subprocess, logging
 
+import vistrails.api
+
+
 def get_git_status(ifile):
     """
     Get git version information from filename
@@ -43,3 +46,18 @@ def get_git_status(ifile):
         git_version = "Git info: %s" % version.group(1)
     
     return git_version
+
+
+def get_vistrails_info():
+    """
+    Return a tuple with the VisTrails vt file and version information.
+
+    """
+
+    this_controller = vistrails.api.get_current_controller()
+    
+    filename = this_controller.vistrail.locator.name
+    current_version = this_controller.current_version
+
+    return(filename, current_version)
+
