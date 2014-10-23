@@ -27,6 +27,7 @@ from cwsl.configuration import configuration
 
 module_logger = logging.getLogger('cwsl.core.process_unit')
 
+
 class ProcessUnit(object):
     """ This class sets up the execution of an operation
     performed on a DataSet.
@@ -196,7 +197,7 @@ class ProcessUnit(object):
     def execute(self, simulate=False):
         """ This method runs the actual process."""
 
-        #Check that cws_ctools_path is set
+        # Check that cws_ctools_path is set
         if not configuration.cwsl_ctools_path or not os.path.exists(configuration.cwsl_ctools_path):
             raise Exception("cwsl_ctools_path is not set in package options")
 

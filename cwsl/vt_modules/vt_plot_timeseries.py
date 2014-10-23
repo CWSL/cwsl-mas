@@ -76,11 +76,6 @@ class PlotTimeSeries(vistrails_module.Module):
                         Constraint('suffix', ['png']),
                       ])
 
-        new_cons = set([Constraint('index', ['plot']),
-                        Constraint('suffix', ['test'])]
-                      )
-
-
         # Optional added constraints.
         try:
             # Add extra constraints if necessary.

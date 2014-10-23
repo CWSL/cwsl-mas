@@ -41,7 +41,7 @@ class TestScheduler(unittest.TestCase):
                              positional_args=[('test_1', 0)])
         this_manager.submit()
 
-        expected_string = """#!/bin/sh\n\nmodule purge\necho first_test infile_1 outfile_1\n"""
+        expected_string = """#!/bin/sh\n\nmodule purge\nmkdir -p \necho first_test infile_1 outfile_1\n"""
         self.assertEqual(this_manager.job.to_str(), expected_string)
 
         # Positional argument in position 1
@@ -51,7 +51,7 @@ class TestScheduler(unittest.TestCase):
                             positional_args=[('test_2', 1)])
         new_manager.submit()
 
-        expected_string = """#!/bin/sh\n\nmodule purge\necho infile_1 second_test outfile_1\n"""
+        expected_string = """#!/bin/sh\n\nmodule purge\nmkdir -p \necho infile_1 second_test outfile_1\n"""
         self.assertEqual(new_manager.job.to_str(), expected_string)
 
         # Positional argument in position -1
@@ -61,5 +61,5 @@ class TestScheduler(unittest.TestCase):
                               positional_args=[('test_2', -1)])
         final_manager.submit()
 
-        expected_string = """#!/bin/sh\n\nmodule purge\necho infile_1 outfile_1 second_test\n"""
+        expected_string = """#!/bin/sh\n\nmodule purge\nmkdir -p \necho infile_1 outfile_1 second_test\n"""
         self.assertEqual(final_manager.job.to_str(), expected_string)

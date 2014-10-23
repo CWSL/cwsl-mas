@@ -31,16 +31,11 @@ module_logger.addHandler(ch)
 PROJECT_PATH = os.path.split(os.path.abspath(os.path.dirname(__file__)))[0]
 sys.path.append(PROJECT_PATH)
 
+from cwsl.configuration import configuration
+
 name = 'Climate and Weather Science Laboratory'
 identifier = 'csiro.au.cwsl'
 version = '0.1.0'
-
-try:
-    # This import will fail during testing!
-    from cwsl.configuration import configuration
-except ImportError:
-    module_logger.error("Configuration module can not be imported!")
-    pass
 
 def package_dependencies():
     import vistrails.core.packagemanager
