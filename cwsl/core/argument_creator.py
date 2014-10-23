@@ -44,7 +44,7 @@ class ArgumentCreator(object):
 
         Here each input file will create many output files.
 
-        In this case, it should be able to return a mapping like
+        In this case, it returns a mapping like
         (inputfile1, outputfile1), (inputfile1, outputfile2) ...
         up to (inputfile1, outputfileN), where N is the number of
         allowed values of the added attribute.
@@ -111,7 +111,10 @@ class ArgumentCreator(object):
 
         # Output only constraints are effectively shared constraints and must be added to
         # the valid combinations and the shared_constraints set.
-        self.output_only = self.output_cons.difference(self.input_cons)
+        in_keys = [cons.key for cons in self.input_cons]
+        self.output_only = [cons for cons in self.output_cons
+                            if cons.key not in in_keys]
+        
         self.shared_constraints = self.shared_constraints.union(self.output_only)
 
         # If a mapping exists, then the input mapping constraint must be added to
