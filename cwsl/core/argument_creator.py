@@ -107,7 +107,8 @@ class ArgumentCreator(object):
         # will be added to the returned combination dictionary for use in positional
         # or keyword arguments.
         self.input_only = self.input_cons.difference(self.output_cons)
-        self.input_only_dict = {cons.key: cons.values.pop() for cons in self.input_only}
+        # The cons.values set is turned into a list so we can just get one value.
+        self.input_only_dict = {cons.key: list(cons.values)[0] for cons in self.input_only}
 
         # Output only constraints are effectively shared constraints and must be added to
         # the valid combinations and the shared_constraints set.
