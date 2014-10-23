@@ -43,7 +43,7 @@ class CDScan(vistrails_module.Module):
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet'),
                      ('out_constraints', String)]
 
-    _execution_options = {'required_modules': ['cdo', 'cct', 'nco',
+    _execution_options = {'required_modules': ['cdo', 'nco',
                                                'python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5']
                          }
 
