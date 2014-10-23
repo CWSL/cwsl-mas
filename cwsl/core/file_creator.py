@@ -20,21 +20,19 @@ Contains the FileCreator class.
 import re
 import itertools
 import logging
-module_logger = logging.getLogger('cwsl.core.file_creator')
 import os.path
 
 from cwsl.core.constraint import Constraint
 from cwsl.core.metafile import MetaFiles
+
+module_logger = logging.getLogger('cwsl.core.file_creator')
+
 
 
 class FileCreator(object):
     '''
     This class is an object that creates the output MockClimateFiles
     objects, given an output pattern and a set of Constraints.
-
-    We cannot use the actual ClimateFiles objects because these
-    require ForeignKey relationships with other tables which
-    may not exist.
 
     A FileCreator has a 'output_pattern' attribute which defines
     what the filename of any created output files should be.
@@ -66,6 +64,9 @@ class FileCreator(object):
 
         '''
 
+        module_logger.debug("Building FileCreator with pattern: {0} and extra_constraints: {1}"
+                            .format(output_pattern, extra_constraints))
+
         self.output_pattern = output_pattern
 
         # Make the constraints from the output pattern.
@@ -81,7 +82,6 @@ class FileCreator(object):
             if not constraint.values:
                 module_logger.error("Constraint {0} is empty - should be in canonical form!"
                                     .format(constraint))
-                print constraint
                 raise EmptyConstraintError
 
         # Set up the subset types (the attribute names present in the DataSet.
@@ -94,6 +94,9 @@ class FileCreator(object):
         # One to hold the valid_hashes
         self.valid_hashes = set()
 
+        module_logger.debug("After init, self.constraints: {}"
+                            .format(self.constraints))
+
     def get_files(self, att_dict, check=False, update=True, map_dict={}):
         """ This method returns all possible MockClimateFiles from the
         FileCreator that match an input attribute dictionary.
@@ -105,6 +108,11 @@ class FileCreator(object):
 
         """
 
+        module_logger.debug("Search attribute dict is: {}".format(att_dict))
+        module_logger.debug("Subset types are: {}".format(self.subset_types))
+        module_logger.debug("Before getting constraint, all constraints are: {}"
+                            .format(self.constraints))
+        
         for mapping in map_dict:
             map_val = att_dict.pop(mapping)
             att_dict[map_dict[mapping]] = map_val
@@ -167,6 +175,8 @@ class FileCreator(object):
 
         for constraint in self.constraints:
             if constraint.key == attribute_name:
+                module_logger.debug("Returning constraint: {}"
+                                    .format(constraint))
                 return constraint
 
         # If it can't be found, return None.
@@ -175,8 +185,6 @@ class FileCreator(object):
     def merge_constraints(self, new_constraints):
         """ This function adds the constraint values to the constraints from
         a pattern.
-
-        This surely can be written in a more concise way.
 
         """
 
