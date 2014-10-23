@@ -65,7 +65,7 @@ class CDScan(vistrails_module.Module):
 
         # Change the file_type constraint from nc to xml and add
         # any added constraints.
-        cons_for_output = set([Constraint('file_type', ['xml'])])
+        cons_for_output = set([Constraint('suffix', ['xml'])])
         if added_constraints:
             cons_for_output = set.union(cons_for_output,
                                         set(added_constraints))
