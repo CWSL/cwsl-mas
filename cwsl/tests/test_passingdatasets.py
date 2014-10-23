@@ -71,3 +71,19 @@ class TestPassingData(unittest.TestCase):
         
         expected_string = self.script_header + "mkdir -p /foo/OVERWRITE/file_1\necho test_file1 /foo/OVERWRITE/file_1/pattern_1_other_things.txt\n"
         self.assertEqual(expected_string, a_process_unit.scheduler.job.to_str())
+
+    # def test_add_then_overwrite(self):
+    #     """ Test to make sure that adding and then overwriting constraints in later process units works. """
+
+    #     extra_con = set([Constraint('an_extra', ['new_value'])])
+    #     a_process_unit = ProcessUnit([self.a_pattern_ds], "/%fake%/%file%/%pattern%/%an_extra%.txt",
+    #                                  "echo", extra_constraints=extra_con)
+    #     first_output = a_process_unit.execute(simulate=True)
+
+    #     # Now make a new output with an new value of %fake%.
+    #     new_process_unit = ProcessUnit([first_output], "/%fake%/%file%/%pattern%/%an_extra%.txt",
+    #                                    "echo", extra_constraints=set([Constraint('pattern', ['OVERWRITE_PATTERN'])]))
+    #     new_process_unit.execute(simulate=True)
+        
+    #     expected_string = self.script_header + "mkdir -p /fake_1/file_1/pattern_1\necho /fake_1/file_1/pattern_1/new_value.txt /fake_1/file_1/OVERWRITE_PATTERN/new_value.txt\n" 
+    #     self.assertEqual(expected_string, a_process_unit.scheduler.job.to_str())

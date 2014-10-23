@@ -127,3 +127,22 @@ class TestProcessUnit(unittest.TestCase):
 
         expected_string = self.script_header + 'mkdir -p /another/file_1\necho moose blue test_file1 /another/file_1/pattern_1_moose_blue.txt\necho kangaroo blue test_file1 /another/file_1/pattern_1_kangaroo_blue.txt\n'
         self.assertEqual(expected_string, the_process_unit.scheduler.job.to_str())
+
+    def test_overwrites(self):
+        """ Test that datasets/file creators always maintain their correct constraints during constraint overwrites. """
+
+        extra_con = set([Constraint('fake', ['OVERWRITE'])])
+        the_process_unit = ProcessUnit([self.a_pattern_ds], '/%fake%/%file%/%pattern%.txt',
+                                       'echo', extra_constraints=extra_con)
+
+        ds_result = the_process_unit.execute(simulate=True)
+
+        expected_in_cons = set([Constraint('fake', ['fake_1']),
+                                Constraint('file', ['file_1']),
+                                Constraint('pattern', ['pattern_1'])])
+        expected_out_cons = set([Constraint('fake', ['OVERWRITE']),
+                                 Constraint('file', ['file_1']),
+                                 Constraint('pattern', ['pattern_1'])])
+
+        self.assertEqual(expected_in_cons, self.a_pattern_ds.constraints)
+        self.assertEqual(expected_out_cons, ds_result.constraints)
