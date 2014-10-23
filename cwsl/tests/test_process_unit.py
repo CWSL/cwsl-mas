@@ -34,7 +34,7 @@ module_logger = logging.getLogger('cwsl.tests.test_process_unit')
 class TestProcessUnit(unittest.TestCase):
 
     def setUp(self):
-        # This creaes a mock pattern dataset that returns a single file.
+        # This creates a mock pattern dataset that returns a single file.
 
         test_cons = set([Constraint('fake', ['fake_1']),
                          Constraint('file', ['file_1']),

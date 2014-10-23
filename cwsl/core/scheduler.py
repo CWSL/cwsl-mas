@@ -17,6 +17,7 @@ limitations under the License.
 
 """
 
+import abc
 import os, sys
 from textwrap import dedent
 import tempfile
@@ -24,6 +25,7 @@ import subprocess
 import logging
 
 log = logging.getLogger('cwsl.core.scheduler')
+
 
 class Job(object):
 
@@ -109,7 +111,7 @@ class SimpleJob(Job):
             self.add_pre_cmd(['mkdir', '-p'] + sorted(self.outdirs))
 
         if noexec:
-            log.warning("Would run script:\n\n========>\n%s\n<========\n\n" % self.to_str())
+            log.debug("Would run script:\n\n========>\n%s\n<========\n\n" % self.to_str())
             ret_code = 0
         else:
 
@@ -128,12 +130,11 @@ class SimpleJob(Job):
 
 class AbstractExecManager(object):
 
+    __metaclass__ = abc.ABCMeta
+
     def __init__(self, verbose, noexec):
         self.noexec = noexec
         self.verbose = verbose
-
-    def new_task(self, exec_node, ratio_unique=1.0, dep=None):
-        raise NotImplementedException
 
     def add_dep(self, task, dep):
         task.add_dep(dep)
@@ -144,24 +145,13 @@ class AbstractExecManager(object):
     def queue_cmd(self, job, allargs):
         job.queue_cmd(allargs)
 
-    def submit(self, job):
+    @abc.abstractmethod
+    def new_task(self, exec_node, ratio_unique=1.0, dep=None):
         raise NotImplementedException
 
-    def add_positional_args(self, arg_list, constraint_dict, positional_args):
-        """ Add positional args to a list of command arguments. """
-        
-        for arg_tuple in positional_args:
-            arg_name = arg_tuple[0]
-            position = arg_tuple[1]
-
-            this_att_value = constraint_dict[arg_name]
-            if position != -1:
-                position += 1   # +1 because arg_list[0] is the actual command!
-                arg_list.insert(position, this_att_value)
-            else:
-                arg_list.append(this_att_value)
-                
-        return arg_list
+    @abc.abstractmethod
+    def submit(self, job):
+        raise NotImplementedException
 
 
 class SimpleExecManager(AbstractExecManager):
@@ -188,20 +178,13 @@ class SimpleExecManager(AbstractExecManager):
         for path in python_paths:
             self.add_pre_cmd(self.job,['export','PYTHONPATH=$PYTHONPATH:%s' % path])
 
-    def add_cmd(self, cmd, in_files, out_files,
-                constraint_dict={}, kw_args=[], positional_args=[]):
+    def add_cmd(self, cmd_list, out_files):
         
         self._out_files = out_files
         for ofile in out_files:
             self.job.outdirs.add(os.path.dirname(ofile))
 
-        cmdlist = cmd.split() 
-        allargs = cmdlist + in_files + out_files
-
-        final_args = self.add_positional_args(allargs, constraint_dict,
-                                              positional_args)
-
-        self.queue_cmd(self.job, final_args)
+        self.queue_cmd(self.job, cmd_list)
 
     def submit(self):
         """Creates a simple shell script with all the commands to be executed.
@@ -212,6 +195,12 @@ class SimpleExecManager(AbstractExecManager):
            own subshell....
         """
         self.job.submit(noexec=self.noexec)
+
+    def add_dep(self, task, dep):
+        raise NotImplementedException
+
+    def new_task(self, exec_node, ratio_unique=1.0, dep=None):
+        raise NotImplementedException
 
 
 class BadReturnError(Exception):
