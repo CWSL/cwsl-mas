@@ -19,8 +19,6 @@ import os
 import sys
 import logging
 
-from cwsl.configuration import configuration
-
 module_logger = logging.getLogger('cswl')
 ch = logging.StreamHandler()
 # When not testing, only log WARNING and above.
@@ -32,6 +30,8 @@ module_logger.addHandler(ch)
 #Initialise project path
 PROJECT_PATH = os.path.split(os.path.abspath(os.path.dirname(__file__)))[0]
 sys.path.append(PROJECT_PATH)
+
+from cwsl.configuration import configuration
 
 name = 'Climate and Weather Science Laboratory'
 identifier = 'csiro.au.cwsl'

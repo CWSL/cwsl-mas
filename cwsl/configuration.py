@@ -25,6 +25,13 @@ class DummyConfig(object):
         for key, value in atts.items():
             setattr(self, key, value)
 
+# Set the USER and PROJECT constants.
+try:
+    PROJECT = os.environ['PROJECT']
+except KeyError:
+    PROJECT = 'no_project_set'
+USER = os.environ['USER']
+
 
 # Set up configuration objects so that user settings are available.
 try:
@@ -57,10 +64,5 @@ except ImportError:
     # use a dummy config object.
     configuration = DummyConfig({'cwsl_ctools_path': os.path.expanduser("~")})
 
-# Set the USER and PROJECT constants.
-try:
-    PROJECT = os.environ['PROJECT']
-except KeyError:
-    PROJECT = 'no_project_set'
-USER = os.environ['USER']
+
 
