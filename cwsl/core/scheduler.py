@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -
 """
 
 Authors: David Kent, Tim Bedin, Tim Erwin
@@ -191,9 +191,9 @@ class SimpleExecManager(AbstractExecManager):
     def add_cmd(self, cmd, in_files, out_files,
                 constraint_dict={}, kw_args=[], positional_args=[]):
         
+        self._out_files = out_files
         for ofile in out_files:
             self.job.outdirs.add(os.path.dirname(ofile))
-        self._out_files = out_files
 
         cmdlist = cmd.split() 
         allargs = cmdlist + in_files + out_files
