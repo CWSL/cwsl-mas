@@ -249,9 +249,9 @@ class ProcessUnit(object):
         
         for keyword in self.cons_keywords:
             associated_cons_name = self.cons_keywords[keyword]
-            this_att_value = cons_dict[associated_cons_name]
+            this_att_value = kw_cons_dict[associated_cons_name]
 
-            command_list.append(' ' + prefix + keyword + ' ' + this_att_value)
+            command_list.append(prefix + keyword + ' ' + this_att_value)
 
         return command_list
     
@@ -262,7 +262,12 @@ class ProcessUnit(object):
             arg_name = arg_tuple[0]
             position = arg_tuple[1]
 
-            this_att_value = constraint_dict[arg_name]
+            try:
+                if arg_tuple[2] == 'raw':
+                    this_att_value = arg_name
+            except IndexError:
+                this_att_value = constraint_dict[arg_name]
+
             if position != -1:
                 position += 1   # +1 because arg_list[0] is the actual command!
                 arg_list.insert(position, this_att_value)

@@ -35,7 +35,6 @@ class TestProcessUnit(unittest.TestCase):
 
     def setUp(self):
         # This creates a mock pattern dataset that returns a single file.
-
         test_cons = set([Constraint('fake', ['fake_1']),
                          Constraint('file', ['file_1']),
                          Constraint('pattern', ['pattern_1'])])
@@ -54,7 +53,7 @@ class TestProcessUnit(unittest.TestCase):
         # Constant header for the job scripts.
         self.script_header = "#!/bin/sh\n\nmodule purge\nexport CWSL_CTOOLS={}\nexport PYTHONPATH=$PYTHONPATH:{}/pythonlib\n"\
             .format(configuration.cwsl_ctools_path, configuration.cwsl_ctools_path)
-    
+        
     def test_execution(self):
         """ Test that a process unit can execute a basic process without falling over. """
 
@@ -146,3 +145,23 @@ class TestProcessUnit(unittest.TestCase):
 
         self.assertEqual(expected_in_cons, self.a_pattern_ds.constraints)
         self.assertEqual(expected_out_cons, ds_result.constraints)
+
+    def test_mix_types(self):
+        """ Test to ensure that mixing keyword and positional arguments works as expected. """
+
+        the_process_unit_1 = ProcessUnit([self.a_pattern_ds], '/%fake%/%file%/%pattern%.txt',
+                                         'echo', cons_keywords={'fake_name': 'fake'})
+        result_1 = the_process_unit_1.execute(simulate=True)
+        expected_string_1 = self.script_header + 'mkdir -p /fake_1/file_1\necho test_file1 /fake_1/file_1/pattern_1.txt --fake_name fake_1\n'
+
+        self.assertEqual(expected_string_1, the_process_unit_1.scheduler.job.to_str())
+
+        
+        # Now try both keyword and positional.
+        the_process_unit_2 = ProcessUnit([self.a_pattern_ds], '/%fake%/%file%/%pattern%.txt',
+                                         'echo', cons_keywords={'fake_name': 'fake'},
+                                         positional_args=[('--input', 0, 'raw'), ('--output', 2, 'raw')])
+        result_2 = the_process_unit_2.execute(simulate=True)
+        expected_string_2 = self.script_header + 'mkdir -p /fake_1/file_1\necho --input test_file1 --output /fake_1/file_1/pattern_1.txt --fake_name fake_1\n'
+
+        self.assertEqual(expected_string_2, the_process_unit_2.scheduler.job.to_str())
