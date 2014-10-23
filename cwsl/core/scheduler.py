@@ -193,6 +193,7 @@ class SimpleExecManager(AbstractExecManager):
         
         for ofile in out_files:
             self.job.outdirs.add(os.path.dirname(ofile))
+        self._out_files = out_files
 
         cmdlist = cmd.split() 
         allargs = cmdlist + in_files + out_files

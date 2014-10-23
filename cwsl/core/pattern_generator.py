@@ -86,7 +86,7 @@ class PatternGenerator(object):
         fullpath_dict["timeseries"] = os.path.join("%mip%/%product%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
                                                    "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_cdat-5-1-0.xml")
         fullpath_dict["cdat_lite_catalogue"] = os.path.join("%mip%/%product%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
-                                                            "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_cdat-lite-6-0rc2-py2.7.xml")
+                                                            "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_cdat-lite-6-0rc2-py2.7.%suffix%")
         fullpath_dict["seasonal_aggregate"] = os.path.join("%mip%/%product%/%grid%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
                                                            "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%year_start%-%year_end%-%seas_agg%_%grid%.nc")
         return fullpath_dict
