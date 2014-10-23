@@ -111,7 +111,7 @@ class SimpleJob(Job):
             self.add_pre_cmd(['mkdir', '-p'] + sorted(self.outdirs))
 
         if noexec:
-            log.debug("Would run script:\n\n========>\n%s\n<========\n\n" % self.to_str())
+            log.warning("Would run script:\n\n========>\n%s\n<========\n\n" % self.to_str())
             ret_code = 0
         else:
 
