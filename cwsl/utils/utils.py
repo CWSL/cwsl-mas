@@ -26,13 +26,18 @@ import vistrails.api
 
 from cwsl.configuration import USER, PROJECT
 
+log = logging.getLogger("cwsl.utils.utils")
+
 
 def get_git_status(ifile):
     """
     Get git version information from filename
     """
 
+    ifile = os.path.expandvars(ifile)
+
     if not os.path.exists(ifile):
+        log.error("{} does not exist!".format(ifile))
         raise Exception
 
     cwd = os.getcwd()
@@ -97,7 +102,7 @@ def build_metadata(command_line_list):
     
     full_ver_string = (' '.join(['user:', USER, 'nci project:', PROJECT, 'time created:', time_string]) + '\n' + 
                        ' '.join(vt_info_list) + '\n' + 
-                       ' '.join(['script executed:', command_line_list[0], 'script file version:', script_git]) + '\n' +
+                       ' '.join(['script executed:', os.path.expandvars(command_line_list[0]), 'script file version:', script_git]) + '\n' +
                        ' '.join(['full command line:'] + command_line_list))
 
     return full_ver_string
