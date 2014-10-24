@@ -37,17 +37,23 @@ def get_git_status(ifile):
 
     cwd = os.getcwd()
     os.chdir(os.path.dirname(ifile))
-    status = subprocess.check_output(['git','status',ifile])
-    version = subprocess.check_output(['git','log',ifile])
+    try:
+        status = subprocess.check_output(['git','status',ifile])
+        version = subprocess.check_output(['git','log',ifile])
+        
+        version = re.search('commit (.*?)\n',version)
+        modified = re.search('Changed',status)
+        if modified:
+            git_version = "Git info: %s - with uncommited modifications" % version.group(1)
+        else:
+            git_version = "Git info: %s" % version.group(1)
+    
+    except subprocess.CalledProcessError:
+        git_version = "Could not determine file version."
+        
+    
     os.chdir(cwd)
 
-    version = re.search('commit (.*?)\n',version)
-    modified = re.search('Changed',status)
-    if modified:
-        git_version = "Git info: %s - with uncommited modifications" % version.group(1)
-    else:
-        git_version = "Git info: %s" % version.group(1)
-    
     return git_version
 
 
@@ -78,18 +84,21 @@ def build_metadata(command_line_list):
     
     """
 
-    time_string = datetime.now.isoformat()
+    rightnow = datetime.now()
+    time_string = rightnow.isoformat()
 
     vt_info = get_vistrails_info()
 
     # Get the git information about the script and the vistrails file.
     vt_git = get_git_status(vt_info[0])
-    script_git = get_git_status(command_list_list[0])
-
-    full_ver_string = (' '.join([USER, PROJECT, time_string]) + '\n' +
-                       ' '.join((vt_info, vt_git)) + '\n' +
-                       ' '.join([command_line_list[0], script_git]) + '\n' +
-                       ' '.join(command_line_list))
+    script_git = get_git_status(command_line_list[0])
+    
+    vt_info_list = ['vt file:', str(vt_info[0]), 'vt file node:', str(vt_info[1]), 'vt file version:', vt_git]
+    
+    full_ver_string = (' '.join(['user:', USER, 'nci project:', PROJECT, 'time created:', time_string]) + '\n' + 
+                       ' '.join(vt_info_list) + '\n' + 
+                       ' '.join(['script executed:', command_line_list[0], 'script file version:', script_git]) + '\n' +
+                       ' '.join(['full command line:'] + command_line_list))
 
     return full_ver_string
     
