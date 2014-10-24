@@ -94,7 +94,7 @@ def build_metadata(command_line_list):
 
     rightnow = datetime.now()
     time_string = rightnow.isoformat()
-    short_time = str(now.year) + str(now.month) + str(now.day) + ':'
+    short_time = str(rightnow.year) + str(rightnow.month) + str(rightnow.day) + ':'
 
     vt_info = get_vistrails_info()
 
@@ -104,10 +104,11 @@ def build_metadata(command_line_list):
     
     vt_info_list = [short_time, 'VISTRAIL FILE:', str(vt_info[0]), 'NODE NUMBER:', str(vt_info[1]), 'VERSION:', vt_git]
     
+    real_script_name = os.path.expandvars(command_line_list[0])
     full_ver_string = (' '.join([short_time, 'USER:', USER, 'NCI PROJECT:', PROJECT, 'DATE/TIME:', time_string]) + '\n' + 
                        ' '.join(vt_info_list) + '\n' + 
-                       ' '.join([short_time, 'SCRIPT:', os.path.expandvars(command_line_list[0]), 'VERSION:', script_git]) + '\n' +
-                       ' '.join([short_time, 'CMD:'] + command_line_list) + '\n')
+                       ' '.join([short_time, 'SCRIPT:', real_script_name, 'VERSION:', script_git]) + '\n' +
+                       ' '.join([short_time, 'CMD:'] + [real_script_name] + command_line_list[1:]) + '\n')
 
     return full_ver_string
     
