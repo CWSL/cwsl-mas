@@ -20,8 +20,11 @@ limitations under the License.
 """
 
 import os, re, subprocess, logging
+from datetime import datetime
 
 import vistrails.api
+
+from cwsl.configuration import USER, PROJECT
 
 
 def get_git_status(ifile):
@@ -61,3 +64,32 @@ def get_vistrails_info():
 
     return(filename, current_version)
 
+
+def build_metadata(command_line_list):
+    """
+    Takes in a full command line list, e.g. ['echo', 'infile.txt', 'outfile.txt']
+
+    Create version metadata to embed in output files.
+    Returns a string of form:
+        User, NCI Project, Timestamp
+        Current VisTrail, internal pipeline version, git version info
+        Script to be run, git version info
+        Full command line of the task.
+    
+    """
+
+    time_string = datetime.now.isoformat()
+
+    vt_info = get_vistrails_info()
+
+    # Get the git information about the script and the vistrails file.
+    vt_git = get_git_status(vt_info[0])
+    script_git = get_git_status(command_list_list[0])
+
+    full_ver_string = (' '.join([USER, PROJECT, time_string]) + '\n' +
+                       ' '.join((vt_info, vt_git)) + '\n' +
+                       ' '.join([command_line_list[0], script_git]) + '\n' +
+                       ' '.join(command_line_list))
+
+    return full_ver_string
+    
