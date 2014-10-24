@@ -41,3 +41,15 @@ class TestScheduler(unittest.TestCase):
         expected_string = """#!/bin/sh\n\nmodule purge\nmkdir -p \necho infile_1 outfile_1\n"""
         self.assertEqual(this_manager.job.to_str(), expected_string)
 
+    def test_command_annotation(self):
+        """ Test that the scheduler can correctly add annotations. """
+        
+        in_files = ['infile_1.nc']
+        out_files = ['outfile_1.nc']
+        
+        this_manager = SimpleExecManager(noexec=True)
+        this_manager.add_cmd(['echo'] + in_files + out_files, out_files, annotation="This is an annotation")
+        this_manager.submit()
+
+        expected_string = """#!/bin/sh\n\nmodule purge\nmodule load nco\nmkdir -p \necho infile_1.nc outfile_1.nc\nncatted -O -a vistrails_history,global,a,c,"This is an annotation" outfile_1.nc\n"""
+        self.assertEqual(this_manager.job.to_str(), expected_string)

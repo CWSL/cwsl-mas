@@ -178,14 +178,28 @@ class SimpleExecManager(AbstractExecManager):
         for path in python_paths:
             self.add_pre_cmd(self.job,['export','PYTHONPATH=$PYTHONPATH:%s' % path])
 
-    def add_cmd(self, cmd_list, out_files):
-        
+    def add_cmd(self, cmd_list, out_files, annotation=None):
         self._out_files = out_files
         for ofile in out_files:
             self.job.outdirs.add(os.path.dirname(ofile))
 
         self.queue_cmd(self.job, cmd_list)
-
+        
+        # If there is an annotation, add a second job that annotates the outfile.
+        if annotation:
+            self.add_annotation(annotation, out_files)
+            
+    def add_annotation(self, annotation, out_files):
+        """ Annotate the vistrails_history metadata tag with an annotation string."""
+        self.add_module_deps(['nco'])
+        att_desc = 'vistrails_history,global,a,c,"' + annotation + '"'
+        for out_file in out_files:
+            if os.path.splitext(out_file)[1] in ['.nc', '.NC']:
+                annotate_list = ['ncatted', '-O', '-a', att_desc, out_file]
+                self.queue_cmd(self.job, annotate_list)
+            else:
+                log.warning("Not annotating file - not netCDF")
+            
     def submit(self):
         """Creates a simple shell script with all the commands to be executed.
            Uses Popen to run the script.
