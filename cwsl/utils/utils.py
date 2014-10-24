@@ -22,12 +22,15 @@ limitations under the License.
 import os, re, subprocess, logging
 from datetime import datetime
 
-import vistrails.api
-
 from cwsl.configuration import USER, PROJECT
 
 log = logging.getLogger("cwsl.utils.utils")
 
+try:
+    import vistrails.api
+except ImportError:
+    log.warning("Can not import VisTrails api - is it on the PYTHONPATH?")
+    
 
 def get_git_status(ifile):
     """
@@ -103,7 +106,7 @@ def build_metadata(command_line_list):
     full_ver_string = (' '.join(['user:', USER, 'nci project:', PROJECT, 'time created:', time_string]) + '\n' + 
                        ' '.join(vt_info_list) + '\n' + 
                        ' '.join(['script executed:', os.path.expandvars(command_line_list[0]), 'script file version:', script_git]) + '\n' +
-                       ' '.join(['full command line:'] + command_line_list))
+                       ' '.join(['full command line:'] + command_line_list) + '\n')
 
     return full_ver_string
     

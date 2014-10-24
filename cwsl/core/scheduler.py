@@ -192,7 +192,7 @@ class SimpleExecManager(AbstractExecManager):
     def add_annotation(self, annotation, out_files):
         """ Annotate the vistrails_history metadata tag with an annotation string."""
         self.add_module_deps(['nco'])
-        att_desc = 'vistrails_history,global,a,c,"' + annotation + '\n"'
+        att_desc = 'vistrails_history,global,a,c,"' + annotation + '"'
         for out_file in out_files:
             if os.path.splitext(out_file)[1] in ['.nc', '.NC']:
                 annotate_list = ['ncatted', '-O', '-a', att_desc, out_file]

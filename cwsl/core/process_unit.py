@@ -237,7 +237,10 @@ class ProcessUnit(object):
                 final_command_list = self.apply_positional_args(keyword_command_list, this_dict)
 
                 # Generate the annotation string.
-                annotation = utils.build_metadata(final_command_list)
+                try:
+                    annotation = utils.build_metadata(final_command_list)
+                except NameError:
+                    annotation = None
 
                 # The subprocess / queue submission is done here.
                 scheduler.add_cmd(final_command_list, out_files, annotation=annotation)
