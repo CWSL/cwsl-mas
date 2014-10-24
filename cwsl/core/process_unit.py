@@ -19,11 +19,12 @@ This module contains the ProcessUnit class.
 
 import os,logging
 
+from cwsl.configuration import configuration
+from cwsl.utils import utils
 from cwsl.core.argument_creator import ArgumentCreator
 from cwsl.core.file_creator import FileCreator
 from cwsl.core.constraint import Constraint
 from cwsl.core.scheduler import SimpleExecManager
-from cwsl.configuration import configuration
 
 module_logger = logging.getLogger('cwsl.core.process_unit')
 
@@ -211,8 +212,9 @@ class ProcessUnit(object):
         if self.execution_options.has_key('required_modules'):
             scheduler.add_module_deps(self.execution_options['required_modules'])
 
-        #Add environment variables
+        #Add environment variables to the script and the current environment.
         scheduler.add_environment_variables({'CWSL_CTOOLS':configuration.cwsl_ctools_path})
+        os.environ['CWSL_CTOOLS'] = configuration.cwsl_ctools_path
         scheduler.add_python_paths([os.path.join(configuration.cwsl_ctools_path,'pythonlib')])
 
         # For every valid possible combination, apply any positional and
@@ -234,8 +236,12 @@ class ProcessUnit(object):
                 keyword_command_list = self.apply_keyword_args(base_cmd_list, this_dict)
                 final_command_list = self.apply_positional_args(keyword_command_list, this_dict)
 
+                # Generate the annotation string.
+                annotation = utils.build_metadata(final_command_list)
+
                 # The subprocess / queue submission is done here.
-                scheduler.add_cmd(final_command_list, out_files)
+                scheduler.add_cmd(final_command_list, out_files, annotation=annotation)
+                
 
         scheduler.submit()
 
