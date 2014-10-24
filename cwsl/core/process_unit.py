@@ -19,11 +19,12 @@ This module contains the ProcessUnit class.
 
 import os,logging
 
+from cwsl.configuration import configuration
+from cwsl.utils import utils
 from cwsl.core.argument_creator import ArgumentCreator
 from cwsl.core.file_creator import FileCreator
 from cwsl.core.constraint import Constraint
 from cwsl.core.scheduler import SimpleExecManager
-from cwsl.configuration import configuration
 
 module_logger = logging.getLogger('cwsl.core.process_unit')
 
@@ -201,14 +202,8 @@ class ProcessUnit(object):
         if not configuration.cwsl_ctools_path or not os.path.exists(configuration.cwsl_ctools_path):
             raise Exception("cwsl_ctools_path is not set in package options")
 
-        # List to store commands for testing purposes.
-        commands = []
-
         # We now create a looper to compare all the input Datasets with
         # the output fileCreators.
-
-        module_logger.debug("Now creating ArgumentCreator")
-        
         this_looper = ArgumentCreator(self.inputlist, self.file_creator)
         module_logger.debug("Created ArgumentCreator: {0}".format(this_looper))
 
@@ -217,11 +212,13 @@ class ProcessUnit(object):
         if self.execution_options.has_key('required_modules'):
             scheduler.add_module_deps(self.execution_options['required_modules'])
 
-        #Add environment variables
+        #Add environment variables to the script and the current environment.
         scheduler.add_environment_variables({'CWSL_CTOOLS':configuration.cwsl_ctools_path})
+        os.environ['CWSL_CTOOLS'] = configuration.cwsl_ctools_path
         scheduler.add_python_paths([os.path.join(configuration.cwsl_ctools_path,'pythonlib')])
 
-        # For every valid possible combination, add the command to the scheduler.
+        # For every valid possible combination, apply any positional and
+        # keyword args, then add the command to the scheduler.
         for combination in this_looper:
             module_logger.debug("Combination: " + str(combination))
             if combination:
@@ -233,13 +230,21 @@ class ProcessUnit(object):
                 module_logger.info("out_files are:")
                 module_logger.info(out_files)
 
-                # Now apply any keyword arguments.
-                modified_command = self.apply_keyword_args(this_dict)
+                base_cmd_list = [self.shell_command] + in_files + out_files
                 
+                # Now apply any keyword arguments and positional args.
+                keyword_command_list = self.apply_keyword_args(base_cmd_list, this_dict)
+                final_command_list = self.apply_positional_args(keyword_command_list, this_dict)
+
+                # Generate the annotation string.
+                try:
+                    annotation = utils.build_metadata(final_command_list)
+                except NameError:
+                    annotation = None
+
                 # The subprocess / queue submission is done here.
-                # The scheduler handles positional arguments.
-                scheduler.add_cmd(modified_command, in_files, out_files,
-                                  constraint_dict=this_dict, positional_args=self.positional_args)
+                scheduler.add_cmd(final_command_list, out_files, annotation=annotation)
+                
 
         scheduler.submit()
 
@@ -248,17 +253,37 @@ class ProcessUnit(object):
 
         return self.file_creator
 
-    def apply_keyword_args(self, cons_dict, prefix='--'):
-        """ Using the dictionary of keyword arguments, construct a shell command."""
-        command = self.shell_command
-
+    def apply_keyword_args(self, command_list, kw_cons_dict, prefix='--'):
+        """ Add keywords from the keyword constraint dictionary to the command list."""
+        
         for keyword in self.cons_keywords:
             associated_cons_name = self.cons_keywords[keyword]
-            this_att_value = cons_dict[associated_cons_name]
+            this_att_value = kw_cons_dict[associated_cons_name]
 
-            command += (' ' + prefix + keyword + ' ' + this_att_value)
+            command_list.append(prefix + keyword + ' ' + this_att_value)
 
-        return command
+        return command_list
+    
+    def apply_positional_args(self, arg_list, constraint_dict):
+        """ Add positional args to a list of command arguments. """
+        
+        for arg_tuple in self.positional_args:
+            arg_name = arg_tuple[0]
+            position = arg_tuple[1]
+
+            try:
+                if arg_tuple[2] == 'raw':
+                    this_att_value = arg_name
+            except IndexError:
+                this_att_value = constraint_dict[arg_name]
+
+            if position != -1:
+                position += 1   # +1 because arg_list[0] is the actual command!
+                arg_list.insert(position, this_att_value)
+            else:
+                arg_list.append(this_att_value)
+                
+        return arg_list
 
     def get_fullnames(self, combination):
         required_atts = ["path_dir", "filename"]

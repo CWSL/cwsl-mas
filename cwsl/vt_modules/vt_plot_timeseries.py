@@ -60,7 +60,7 @@ class PlotTimeSeries(vistrails_module.Module):
 
         super(PlotTimeSeries, self).__init__()
 
-        self.command = '${CWSL_CTOOLS}/visualisation/plot_timeseries.py tos_annual'
+        self.command = '${CWSL_CTOOLS}/visualisation/plot_timeseries.py'
 
         # Get the output pattern using the PatternGenerator object.
         # Gets the user infomation / authoritative path etc from the
@@ -90,7 +90,8 @@ class PlotTimeSeries(vistrails_module.Module):
                                    self.out_pattern,
                                    self.command,
                                    cons_for_output,
-                                   execution_options=self._execution_options)
+                                   execution_options=self._execution_options,
+                                   positional_args=[('tos_annual', 0, 'raw')])
 
         this_process.execute(simulate=configuration.simulate_execution)
         process_output = this_process.file_creator

@@ -28,38 +28,28 @@ class TestScheduler(unittest.TestCase):
         self.test_cons_dict = {'test_1': 'first_test',
                                'test_2': 'second_test'}
     
-    def test_positionalargs(self):
-        """ Add a positional argument to a command. """
+    def test_schedulecommand(self):
+        """ Test that the scheduler can create a script for a simple command. """
 
         in_files = ['infile_1']
         out_files = ['outfile_1']
 
-        # Positional argument in position 0
         this_manager = SimpleExecManager(noexec=True)
-        this_manager.add_cmd('echo', in_files, out_files,
-                             constraint_dict=self.test_cons_dict,
-                             positional_args=[('test_1', 0)])
+        this_manager.add_cmd(['echo'] + in_files + out_files, out_files)
         this_manager.submit()
 
-        expected_string = """#!/bin/sh\n\nmodule purge\nmkdir -p \necho first_test infile_1 outfile_1\n"""
+        expected_string = """#!/bin/sh\n\nmodule purge\nmkdir -p \necho infile_1 outfile_1\n"""
         self.assertEqual(this_manager.job.to_str(), expected_string)
 
-        # Positional argument in position 1
-        new_manager = SimpleExecManager(noexec=True)
-        new_manager.add_cmd('echo', in_files, out_files,
-                            constraint_dict=self.test_cons_dict,
-                            positional_args=[('test_2', 1)])
-        new_manager.submit()
+    def test_command_annotation(self):
+        """ Test that the scheduler can correctly add annotations. """
+        
+        in_files = ['infile_1.nc']
+        out_files = ['outfile_1.nc']
+        
+        this_manager = SimpleExecManager(noexec=True)
+        this_manager.add_cmd(['echo'] + in_files + out_files, out_files, annotation="This is an annotation")
+        this_manager.submit()
 
-        expected_string = """#!/bin/sh\n\nmodule purge\nmkdir -p \necho infile_1 second_test outfile_1\n"""
-        self.assertEqual(new_manager.job.to_str(), expected_string)
-
-        # Positional argument in position -1
-        final_manager = SimpleExecManager(noexec=True)
-        final_manager.add_cmd('echo', in_files, out_files,
-                              constraint_dict=self.test_cons_dict,
-                              positional_args=[('test_2', -1)])
-        final_manager.submit()
-
-        expected_string = """#!/bin/sh\n\nmodule purge\nmkdir -p \necho infile_1 outfile_1 second_test\n"""
-        self.assertEqual(final_manager.job.to_str(), expected_string)
+        expected_string = """#!/bin/sh\n\nmodule purge\nmodule load nco\nmkdir -p \necho infile_1.nc outfile_1.nc\nncatted -O -a vistrails_history,global,a,c,"This is an annotation" outfile_1.nc\n"""
+        self.assertEqual(this_manager.job.to_str(), expected_string)
