@@ -97,10 +97,10 @@ class RegionalClimateModel(DataReferenceSyntax):
     """
 
     # CORDEX DATA REFERENCE SYNTAX
-    pattern = '%product%/%activity%/%domain%/%institute%/%model%/%experiment%/%ensemble%/%RCMName%/%RCMVersionID%/%frequency%/%variable%/%variable%_%domain%_%model%_%experiment%_%ensemble%_%RCMName%_%RCMVersionID%_%frequency%_%time_span%.nc'
+    pattern = '%mip%/%product%/%domain%/%institute%/%model%/%experiment%/%ensemble%/%RCMName%/%RCMVersionID%/%frequency%/%variable%/%variable%_%domain%_%model%_%experiment%_%ensemble%_%RCMName%_%RCMVersionID%_%frequency%_%time_span%.nc'
 
     # Restrict to RCM
-    constraints = {'activity': 'RCM'}
+    constraints = {'product': 'RCM'}
 
     def __init__(self):
         super(RegionalClimateModel, self).__init__(self.pattern, self.constraints)
@@ -108,7 +108,7 @@ class RegionalClimateModel(DataReferenceSyntax):
 
 class GlobalClimateModel(DataReferenceSyntax):
     """
-    File path search based on the CMIP5 GCM DRS (ref).
+    File path search based on the CMIP5 GCM DRS (http://cmip-pcmdi.llnl.gov/cmip5/docs/cmip5_data_reference_syntax.pdf).
 
     Path structure: <path>/<mip>/<product>/<institute>/<model>/<experiment>/<frequency>/<realm>/<variable>/<ensemble>/<filename>
       where:
@@ -120,11 +120,38 @@ class GlobalClimateModel(DataReferenceSyntax):
     pattern = '%mip%/%product%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%time_span%.nc'
 
     # Restrict to GCM
-    constraints = {'activity': 'GCM'}
+    constraints = {'product': 'GCM'}
 
     def __init__(self):
         super(GlobalClimateModel, self).__init__(self.pattern, self.constraints)
 
+class CMIP5(GlobalClimateModel):
+    """
+    File path search for CMIP5
+
+    Path structure: <path>/<mip>/<product>/<institute>/<model>/<experiment>/<frequency>/<realm>/<variable>/<ensemble>/<filename>
+      where:
+          <path>: Configured via menu: Packages->CWSL->Configure: authorative_path 
+          <filename>:  <variable>_<mip_table>_<model>_<experiment>_<ensemble>_<time_span>
+    """
+
+    constraints = {'mip': 'CMIP5',
+                   'product': 'GCM',
+                  }
+
+class CMIP3(GlobalClimateModel):
+    """
+    File path search for CMIP3 based on CMIP5 DRS structure (http://cmip-pcmdi.llnl.gov/cmip5/docs/cmip5_data_reference_syntax.pdf)
+
+    Path structure: <path>/<mip>/<product>/<institute>/<model>/<experiment>/<frequency>/<realm>/<variable>/<ensemble>/<filename>
+      where:
+          <path>: Configured via menu: Packages->CWSL->Configure: authorative_path 
+          <filename>:  <variable>_<mip_table>_<model>_<experiment>_<ensemble>_<time_span>
+    """
+
+    constraints = {'mip': 'CMIP3',
+                   'product': 'GCM',
+                  }
 
 class RegionalClimateModel_SDMa_NRM(RegionalClimateModel):
     """

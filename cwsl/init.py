@@ -53,14 +53,18 @@ def initialize(*args, **keywords):
     reg.add_module(drs.DataReferenceSyntax, abstract=True)
 
     #Datasets
+    reg.add_module(drs.GlobalClimateModel, namespace='DataSets|Generic',
+                   name="Global Climate Model Dataset")
     reg.add_module(drs.RegionalClimateModel, namespace='DataSets|Generic',
                    name='Regional Climate Model DataSet')
+    reg.add_module(drs.CMIP5, namespace='DataSets|GCM',
+                   name="CMIP5")
+    reg.add_module(drs.CMIP3, namespace='DataSets|GCM',
+                   name="CMIP3")
     reg.add_module(drs.RegionalClimateModel_CCAM_NRM,
                    name='CSIRO-CCAM-NRM', namespace='DataSets|RCM')
     reg.add_module(drs.RegionalClimateModel_SDMa_NRM,
                    name='BOM-SDMa-NRM', namespace='DataSets|RCM')
-    reg.add_module(drs.GlobalClimateModel, namespace='DataSets|Generic',
-                   name="Global Climate Model Dataset")
 
     #Aggregation
     reg.add_module(CDScan, name='Merge Timeseries', namespace='Aggregation')
