@@ -1,8 +1,0 @@
-cwsl-mas
-==============
-
-Vistrails plugin that wraps command line tools for climate data analysis. Should be used together with git repository cwsl-ctools.
-
-Plugin utilises datasets (file collections) of well structured data such as the CMIP5 Data Reference Sytax () to quickly subset and provide lists of files to analysis modules. Plugin has inbuilt control flow based on structure of data and enforces consistent naming of output files. 
-
-
