@@ -49,7 +49,7 @@ class TestPatternDataSet(unittest.TestCase):
                 
         self.test_patternds = PatternDataSet("/fake/%colour%_%animal%.txt",
                                              constraint_set=test_cons)
-        self.test_patternds.files = mock_file_list
+        self.test_patternds._files = mock_file_list
 
     def test_getfiles(self):
         """ Ensure that files are correctly returned using 'get_files'. """
