@@ -41,9 +41,9 @@ try:
     # setting up directory structure
     configuration = ConfigurationObject(
         #Path to MIP data
-        drs_basepath='/g/data/ua6/drstree',
+        drs_basepath='',
         #Path to QA/QC processed data
-        authoritative_basepath='/g/data/ua6/CAWCR_CVC_processed/authoritative/',
+        authoritative_basepath='',
         #Path to put user files
         user_basepath='/short/%s/%s/' % (PROJECT, USER),
         #Execution Manager
@@ -57,7 +57,7 @@ try:
         #Turn on debugging
         debug=False,
         #Path to CWSL Climate Toolkit
-        cwsl_ctools_path='/g/data/r87/public/apps/cwsl-ctools/master/',
+        cwsl_ctools_path='',
     )
 except ImportError:
     # If vistrails is not in the PYTHONPATH, we are in testing mode.
