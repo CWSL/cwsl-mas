@@ -40,6 +40,8 @@ class SeasVars(vistrails_module.Module):
         Creates a seasonal timeseries with:
         annual, monthly, djf, mam, jja, son, ndjfma, mjjaso and monthly
 
+        Variable is renamed to variable_season i.e tas_annual
+
         Requires: cdo, nco and cdat (if xml input)
 
     """
