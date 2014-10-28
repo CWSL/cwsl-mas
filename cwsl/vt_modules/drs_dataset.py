@@ -25,7 +25,7 @@ from cwsl.configuration import configuration
 from cwsl.core.pattern_dataset import PatternDataSet
 from cwsl.core.constraint import Constraint
 
-
+import os
 import logging
 logger = logging.getLogger('cwsl.vtmodules.dataset')
 
@@ -59,8 +59,7 @@ class DataReferenceSyntax(NotCacheable, Module):
                              ("No authorative path set"
                               " in the CWSL Configuration"))
 
-        # TODO Check basepath add trailing '/'
-        patterns = basepath + self.pattern
+        patterns = os.path.join(basepath,self.pattern)
         return patterns
 
     def compute(self):
