@@ -198,7 +198,7 @@ class SimpleExecManager(AbstractExecManager):
                 annotate_list = ['ncatted', '-O', '-a', att_desc, out_file]
                 self.queue_cmd(self.job, annotate_list)
             else:
-                log.warning("Not annotating file - not netCDF")
+                log.warning("Not annotating file '%s' - not NetCDF" % out_file)
             
     def submit(self):
         """Creates a simple shell script with all the commands to be executed.
