@@ -41,7 +41,8 @@ def get_git_status(ifile):
 
     if not os.path.exists(ifile):
         log.error("{} does not exist!".format(ifile))
-        raise Exception
+        git_version = "Could not determine file version."
+        return git_version
 
     cwd = os.getcwd()
     os.chdir(os.path.dirname(ifile))
