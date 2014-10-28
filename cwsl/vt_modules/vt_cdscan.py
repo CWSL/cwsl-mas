@@ -34,14 +34,26 @@ from cwsl.core.pattern_generator import PatternGenerator
 
 
 class CDScan(vistrails_module.Module):
+    """
+    Create a single cdms catalogue file for the entire timeperiod for a set of files.
+
+    Inputs:    dataset 
+
+    Outputs:   dataset
+    Filepath:  <user_basepath>/%mip%/%product%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/
+    Filename:  %variable%_%mip_table%_%model%_%experiment%_%ensemble%_cdat-lite-6-0rc2-py2.7.%suffix%
+
+    Requires: python, cdat
+
+    """
+
 
     # Define the module ports.
     _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet'),
                     ('added_constraints', List, True,
                      {'defaults': ['[]']})]
 
-    _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet'),
-                     ('out_constraints', String)]
+    _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
 
     _execution_options = {'required_modules': ['cdo', 'nco',
                                                'python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5']
@@ -82,4 +94,3 @@ class CDScan(vistrails_module.Module):
         process_output = this_process.file_creator
 
         self.setResult('out_dataset', process_output)
-        self.setResult('out_constraints', str(process_output.constraints))
