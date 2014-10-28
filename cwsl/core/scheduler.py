@@ -114,17 +114,20 @@ class SimpleJob(Job):
             log.warning("Would run script:\n\n========>\n%s\n<========\n\n" % self.to_str())
             ret_code = 0
         else:
-
             script_file, script_name = tempfile.mkstemp('.sh')
             script_file = os.fdopen(script_file, 'w+b')
             script_file.write(self.to_str() + '\n')
             script_file.close()
             
             args = ['sh', script_name]
-            ret_code = subprocess.call(args)
-            if ret_code != 0:
-                raise BadReturnError
-            os.remove(script_name)
+            
+            try:
+                subprocess.check_call(args)
+            except subprocess.CalledProcessError, e:
+                raise
+            finally:
+                print("Removing script file.")
+                os.remove(script_name)
 
         return ret_code
 
@@ -215,9 +218,3 @@ class SimpleExecManager(AbstractExecManager):
 
     def new_task(self, exec_node, ratio_unique=1.0, dep=None):
         raise NotImplementedException
-
-
-class BadReturnError(Exception):
-    """ An error raised when the command being run by the scheduler doesn't return 0 """
-
-    pass
