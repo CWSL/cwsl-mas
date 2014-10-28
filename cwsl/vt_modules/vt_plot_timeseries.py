@@ -38,17 +38,21 @@ from cwsl.core.pattern_generator import PatternGenerator
 
 class PlotTimeSeries(vistrails_module.Module):
     """
-    Creates a seasonal timeseries with:
-        annual, monthly, djf, mam, jja, son, ndjfma, mjjaso
+    Plots a timeseries. 
 
-        Requires: cdo, nco and cdat (if xml input)
+    Required inputs: variable_name (varible name of data from input file)
+
+    Other inputs:    infile (from dataset connector)
+                     title (model name from dataset connector)
+
+    Requires: python, cdat
 
     """
 
     # Define the module ports.
-    true_false = ["['true', 'false']"]
     _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet',
                      {'labels': str(['Input Dataset'])}),
+                    ('variable_name', String),
                    ]
 
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
@@ -71,10 +75,12 @@ class PlotTimeSeries(vistrails_module.Module):
 
         # Required input
         in_dataset = self.getInputFromPort("in_dataset")
+        variable_name = self.getInputFromPort("variable_name")
+        self.positional_args=[(variable_name,0,'raw'),('model',1)]
 
-        new_cons = set([Constraint('index', ['plot']),
+        new_cons = set([Constraint('variable', [variable_name]),
                         Constraint('suffix', ['png']),
-                      ])
+                        ])
 
         # Optional added constraints.
         try:
@@ -91,7 +97,7 @@ class PlotTimeSeries(vistrails_module.Module):
                                    self.command,
                                    cons_for_output,
                                    execution_options=self._execution_options,
-                                   positional_args=[('tos_annual', 0, 'raw')])
+                                   positional_args=self.positional_args)
 
         this_process.execute(simulate=configuration.simulate_execution)
         process_output = this_process.file_creator
