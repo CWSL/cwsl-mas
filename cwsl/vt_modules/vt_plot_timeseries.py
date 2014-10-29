@@ -67,7 +67,7 @@ class PlotTimeSeries(vistrails_module.Module):
         # Get the output pattern using the PatternGenerator object.
         # Gets the user infomation / authoritative path etc from the
         # user configuration.
-        self.out_pattern = PatternGenerator('user', 'indicies').pattern
+        self.out_pattern = PatternGenerator('user', 'monthly_indices').pattern
 
     def compute(self):
 
