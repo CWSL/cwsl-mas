@@ -49,7 +49,7 @@ class TestPassingData(unittest.TestCase):
         # Create a valid set of contraints for the mock.
         self.a_pattern_ds.valid_combinations = set([frozenset(test_cons)])
         
-        self.script_header = "#!/bin/sh\n\nmodule purge\nexport CWSL_CTOOLS={}\nexport PYTHONPATH=$PYTHONPATH:{}/pythonlib\n"\
+        self.script_header = "#!/bin/sh\nset -e\n\nmodule purge\nexport CWSL_CTOOLS={}\nexport PYTHONPATH=$PYTHONPATH:{}/pythonlib\n"\
             .format(configuration.cwsl_ctools_path, configuration.cwsl_ctools_path)
         
         

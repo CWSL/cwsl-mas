@@ -51,7 +51,7 @@ class TestProcessUnit(unittest.TestCase):
         self.a_pattern_ds.valid_combinations = set([frozenset(test_cons)])
 
         # Constant header for the job scripts.
-        self.script_header = "#!/bin/sh\n\nmodule purge\nexport CWSL_CTOOLS={}\nexport PYTHONPATH=$PYTHONPATH:{}/pythonlib\n"\
+        self.script_header = "#!/bin/sh\nset -e\n\nmodule purge\nexport CWSL_CTOOLS={}\nexport PYTHONPATH=$PYTHONPATH:{}/pythonlib\n"\
             .format(configuration.cwsl_ctools_path, configuration.cwsl_ctools_path)
         
     def test_execution(self):
