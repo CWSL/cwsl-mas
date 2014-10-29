@@ -60,7 +60,7 @@ class IndicesNino34(vistrails_module.Module):
         # Get the output pattern using the PatternGenerator object.
         # Gets the user infomation / authoritative path etc from the
         # user configuration.
-        self.out_pattern = PatternGenerator('user', 'indicies').pattern
+        self.out_pattern = PatternGenerator('user', 'seasonal_indices').pattern
 
         #Location on command line tool
         self.command = '${CWSL_CTOOLS}/indices/nino34.py'
