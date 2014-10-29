@@ -147,13 +147,12 @@ class TestProcessUnit(unittest.TestCase):
         self.assertEqual(expected_out_cons, ds_result.constraints)
 
     def test_empty_constraint_overwrite(self):
-        """ Test that ProcessUnit throw an exception if a constraint in overwritten with an empty string."""
+        """ Test that ProcessUnit throw an exception if a constraint is overwritten with nothing."""
 
         extra_con = set([Constraint('fake', [])])
-        the_process_unit = ProcessUnit([self.a_pattern_ds], '/%fake%/%file%/%pattern%.txt',
-                                       'echo', extra_constraints=extra_con)
-
-        self.assertRaises(EmptyOverwriteError, the_process_unit.execute, simulate=True)
+        
+        self.assertRaises(EmptyOverwriteError, ProcessUnit, [self.a_pattern_ds], '/%fake%/%file%/%pattern%.txt',
+                          'echo', extra_constraints=extra_con)
 
     def test_mix_types(self):
         """ Test to ensure that mixing keyword and positional arguments works as expected. """
