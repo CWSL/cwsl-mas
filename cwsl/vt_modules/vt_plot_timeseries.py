@@ -97,7 +97,11 @@ class PlotTimeSeries(vistrails_module.Module):
                                    execution_options=self._execution_options,
                                    positional_args=self.positional_args)
 
-        this_process.execute(simulate=configuration.simulate_execution)
+        try:
+            this_process.execute(simulate=configuration.simulate_execution)
+        except Exception, e:
+            raise vistrails_module.ModuleError(self, e.output)
+
         process_output = this_process.file_creator
 
         self.setResult('out_dataset', process_output)
