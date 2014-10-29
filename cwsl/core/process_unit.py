@@ -305,3 +305,8 @@ class ProcessUnit(object):
                 out_files += [outfile.full_path for outfile in qs]
 
         return in_files, out_files
+
+
+# Exception Classes
+class EmptyOverwriteError(Exception):
+    pass
