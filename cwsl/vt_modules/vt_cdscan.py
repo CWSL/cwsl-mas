@@ -23,6 +23,7 @@ limitations under the License.
 """
 
 import os
+import subprocess
 
 from vistrails.core.modules import vistrails_module
 from vistrails.core.modules.basic_modules import String, List
@@ -90,7 +91,11 @@ class CDScan(vistrails_module.Module):
                                    cons_for_output,
                                    execution_options=self._execution_options)
 
-        this_process.execute(simulate=configuration.simulate_execution)
+        try:
+            this_process.execute(simulate=configuration.simulate_execution)
+        except subprocess.CalledProcessError, e:
+            raise vistrails_module.ModuleError(self, e.output)
+            
         process_output = this_process.file_creator
 
         self.setResult('out_dataset', process_output)
