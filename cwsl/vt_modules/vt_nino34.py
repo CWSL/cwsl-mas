@@ -29,7 +29,7 @@ from cwsl.core.process_unit import ProcessUnit
 from cwsl.core.constraint import Constraint
 from cwsl.core.pattern_generator import PatternGenerator
 
-class IndiciesNino34(vistrails_module.Module):
+class IndicesNino34(vistrails_module.Module):
     """
     Calculated a Nino3.4 Index:
 
@@ -54,7 +54,7 @@ class IndiciesNino34(vistrails_module.Module):
 
     def __init__(self):
 
-        super(IndiciesNino34, self).__init__()
+        super(IndicesNino34, self).__init__()
 
         #Output file structure declaration
         # Get the output pattern using the PatternGenerator object.
@@ -63,7 +63,7 @@ class IndiciesNino34(vistrails_module.Module):
         self.out_pattern = PatternGenerator('user', 'indicies').pattern
 
         #Location on command line tool
-        self.command = '${CWSL_CTOOLS}/indicies/nino34.py'
+        self.command = '${CWSL_CTOOLS}/indices/nino34.py'
 
 
     def compute(self):
