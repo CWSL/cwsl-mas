@@ -29,6 +29,7 @@ from vistrails.core.modules.module_registry import get_module_registry
 import cwsl.vt_modules.drs_dataset as drs
 from cwsl.vt_modules.vt_dataset import VtDataSet
 from cwsl.vt_modules.vt_cdscan import CDScan
+from cwsl.vt_modules.vt_xmltonc import XmlToNc
 from cwsl.vt_modules.vt_seas_vars import SeasVars
 from cwsl.vt_modules.vt_climatology import Climatology
 from cwsl.vt_modules.vt_nino34 import IndiciesNino34
@@ -69,6 +70,8 @@ def initialize(*args, **keywords):
     #Aggregation
     reg.add_module(CDScan, name='Merge Timeseries', namespace='Aggregation')
     reg.add_module(SeasVars, name='Seasonal Timeseries',
+                   namespace='Aggregation')
+    reg.add_module(XmlToNc, name='Timeseries from cdml',
                    namespace='Aggregation')
     reg.add_module(Climatology, name='Climatology', namespace='Aggregation')
 
