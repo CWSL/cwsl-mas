@@ -97,7 +97,14 @@ class ProcessUnit(object):
 
     def fill_empty_constraints(self, extra_constraints):
 
-        out_cons_names = [cons.key for cons in extra_constraints]
+        out_cons_names = []
+        for cons in extra_constraints:
+            if not cons.values:
+                raise EmptyOverwriteError("Constraint on {} is empty - can not overwrite existing constraint"
+                                          .format(cons.key))
+            else:
+                out_cons_names.append(cons.key)
+
         # These are constraints that exist in the pattern but not in
         # the extra_constraints - they must be filled from the input
         # if they exist there.
@@ -305,3 +312,8 @@ class ProcessUnit(object):
                 out_files += [outfile.full_path for outfile in qs]
 
         return in_files, out_files
+
+
+# Exception Classes
+class EmptyOverwriteError(Exception):
+    pass

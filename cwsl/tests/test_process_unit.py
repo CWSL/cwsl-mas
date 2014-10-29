@@ -25,7 +25,7 @@ import mock
 from cwsl.configuration import configuration
 from cwsl.core.constraint import Constraint
 from cwsl.core.pattern_dataset import PatternDataSet
-from cwsl.core.process_unit import ProcessUnit
+from cwsl.core.process_unit import ProcessUnit, EmptyOverwriteError
 
 
 module_logger = logging.getLogger('cwsl.tests.test_process_unit')
@@ -145,6 +145,14 @@ class TestProcessUnit(unittest.TestCase):
 
         self.assertEqual(expected_in_cons, self.a_pattern_ds.constraints)
         self.assertEqual(expected_out_cons, ds_result.constraints)
+
+    def test_empty_constraint_overwrite(self):
+        """ Test that ProcessUnit throw an exception if a constraint is overwritten with nothing."""
+
+        extra_con = set([Constraint('fake', [])])
+        
+        self.assertRaises(EmptyOverwriteError, ProcessUnit, [self.a_pattern_ds], '/%fake%/%file%/%pattern%.txt',
+                          'echo', extra_constraints=extra_con)
 
     def test_mix_types(self):
         """ Test to ensure that mixing keyword and positional arguments works as expected. """
