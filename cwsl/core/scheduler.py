@@ -74,6 +74,7 @@ class SimpleJob(Job):
 
     __template = """
                  #!/bin/sh
+                 set -e
 
                  %(cmds)s
                  """
@@ -112,7 +113,6 @@ class SimpleJob(Job):
 
         if noexec:
             log.warning("Would run script:\n\n========>\n%s\n<========\n\n" % self.to_str())
-            ret_code = 0
         else:
             script_file, script_name = tempfile.mkstemp('.sh')
             script_file = os.fdopen(script_file, 'w+b')
@@ -122,14 +122,14 @@ class SimpleJob(Job):
             args = ['sh', script_name]
             
             try:
-                subprocess.check_call(args)
+                output = subprocess.check_output(args, stderr=subprocess.STDOUT)
             except subprocess.CalledProcessError, e:
+                output = e.output
                 raise
             finally:
-                print("Removing script file.")
+                # For now, print output to console as well.
+                print(output)
                 os.remove(script_name)
-
-        return ret_code
 
 class AbstractExecManager(object):
 
@@ -210,6 +210,8 @@ class SimpleExecManager(AbstractExecManager):
            Popen isn't used directly for each command as otherwise the 
            "module load" commands have no effect as each command is run in its
            own subshell....
+
+
         """
         self.job.submit(noexec=self.noexec)
 
