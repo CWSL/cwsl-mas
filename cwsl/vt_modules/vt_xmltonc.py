@@ -32,15 +32,21 @@ from cwsl.core.pattern_generator import PatternGenerator
 
 
 class XmlToNc(vistrails_module.Module):
-    ''' This module creates single netCDF files from cdml catalogues '''
+    """ 
+    This module selects a time period from a single netCDF file or cdml catalogue file
+
+    Requires: year_start - Start date of time selection, format YYYY[[MM][DD]]
+              year_end   - End date of time selection, format YYYY[[MM][DD]] 
+
+    """
 
     # Define the module ports.
     _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet',
                      {'labels': str(['Input Dataset'])}),
                     ('start_year', basic_modules.Integer,
-                     {'labels': str(['Start Date (YYYY[MM][DD]):'])}),
+                     {'labels': str(['Start Date (YYYY[[MM][DD]])'])}),
                     ('end_year', basic_modules.Integer,
-                     {'labels': str(['End Date (YYYY[MM][DD]):'])}),
+                     {'labels': str(['End Date (YYYY[[MM][DD]])'])}),
                     ('added_constraints', basic_modules.List, True,
                      {'defaults': ["[]"]})]
 
