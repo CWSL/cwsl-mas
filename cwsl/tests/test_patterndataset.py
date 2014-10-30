@@ -32,34 +32,24 @@ logger = logging.getLogger("cwsl.tests.test_patterndataset")
 
 class TestPatternDataSet(unittest.TestCase):
 
-    def setUp(self):
-
-        test_cons = set([Constraint('colour', ['green', 'blue']),
-                         Constraint('animal', ['echidna', 'kangaroo'])])
-
-        mock_file_1 = mock.MagicMock()
-        mock_file_2 = mock.MagicMock()
-        mock_file_1.full_path = '/fake/green_echidna.txt'
-        mock_file_1.__str__.return_value = '/fake/green_echidna.txt'
-        mock_file_2.full_path = '/fake/blue_kangaroo.txt'
-        mock_file_2.__str__.return_value = '/fake/blue_kangaroo.txt'
-        
-        # Overwrite the 'files' attribute of the class.
-        mock_file_list = [mock_file_1, mock_file_2]
-                
-        self.test_patternds = PatternDataSet("/fake/%colour%_%animal%.txt",
-                                             constraint_set=test_cons)
-        self.test_patternds._files = mock_file_list
-
     def test_getfiles(self):
         """ Ensure that files are correctly returned using 'get_files'. """
 
-        
-        found_files = self.test_patternds.get_files({'colour': 'green',
-                                                     'animal': 'echidna'})
-        expected_files = ['/fake/green_echidna.txt']
-        
-        self.assertEqual(found_files, expected_files)
+        with mock.patch('cwsl.core.pattern_dataset.PatternDataSet.files') as mock_files:
+
+            # Make a fake files attribute.
+            mock_file_1 = '/fake/green_echidna.txt'
+            mock_file_2 = '/fake/blue_kangaroo.txt'
+            file_list = [mock_file_1, mock_file_2]
+            mock_files.__get__ = mock.MagicMock(return_value=file_list)
+                        
+            test_patternds = PatternDataSet("/fake/%colour%_%animal%.txt")
+            
+            found_files = test_patternds.get_files({'colour': 'green',
+                                                    'animal': 'echidna'})
+
+            expected_files = ['/fake/green_echidna.txt']
+            self.assertEqual(found_files, expected_files)
 
     def test_badconstraints(self):
         """ Constructing a PatternDataset with constraints that don't exist should fail. """
