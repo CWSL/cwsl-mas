@@ -1,9 +1,8 @@
+# -*- coding: utf-8 -*-
 """
 
-Wrapper for CDO script that calculated Nino3.4 index
-
-Authors: Tim Bedin, Tim.Bedin@csiro.au
-         Tim Erwin, Tim.Erwin@csiro.au
+Authors:  Tim Bedin (Tim.Bedin@csiro.au)
+          Tim Erwin (Tim.Erwin@csiro.au)
 
 Copyright 2014 CSIRO
 
@@ -17,81 +16,79 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
+This module calculates a timeseries of the Niño3.4 index from
+a monthly sea surface temperature input.
+
+Part of the CWSLab Model Analysis Service VisTrails plugin.
+
 """
 
-import os
-
 from vistrails.core.modules import vistrails_module
-from vistrails.core.modules.basic_modules import String, List
+from vistrails.core.modules import basic_modules
 
 from cwsl.configuration import configuration
-from cwsl.core.process_unit import ProcessUnit
 from cwsl.core.constraint import Constraint
+from cwsl.core.process_unit import ProcessUnit
 from cwsl.core.pattern_generator import PatternGenerator
 
+
 class IndicesNino34(vistrails_module.Module):
-    """
-    Calculated a Nino3.4 Index:
+    ''' This module calculates the Niño 3.4 index from an input monthly time series
 
-    Requires: cdo, nco and cdat (if xml input)
 
-    """
+    of sea surface temperature data. It uses a 30-year rolling climatology to calculate
+    the surface temperature anomaly.
+    
+    This wraps the cwsl-ctools/indices/nino_34.sh script.
+
+    '''
 
     # Define the module ports.
-    _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet',
-                     {'labels': str(['Input Dataset'])}),
-                    ('added_constraints', List, True,
-                     {'labels': 'Constraints',
-                      'defaults': ['[]']})
-                   ]
-
-    _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
-
-
-    _execution_options = {'required_modules': ['cdo', 'cct', 'nco',
-                                               'python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5']
-                         }
+    _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet'),
+                    ('added_constraints', basic_modules.List, True,
+                     {'defaults': ["[]"]})]
+    
+    _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet'),
+                     ('out_constraints', basic_modules.String, True)]
+    
+    _execution_options = {'required_modules': ['cdo', 'cct', 'nco', 
+                                               'python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5']}
 
     def __init__(self):
 
         super(IndicesNino34, self).__init__()
-
-        #Output file structure declaration
-        # Get the output pattern using the PatternGenerator object.
-        # Gets the user infomation / authoritative path etc from the
-        # user configuration.
-        self.out_pattern = PatternGenerator('user', 'seasonal_indices').pattern
-
-        #Location on command line tool
-        self.command = '${CWSL_CTOOLS}/indices/nino34.py'
-
-
+        
+        #Command Line Tool
+        tools_base_path = configuration.cwsl_ctools_path
+        self.command = '${CWSL_CTOOLS}/indices/nino34.sh'
+        #Output file structure declaration 
+        self.out_pattern = PatternGenerator('user', 'monthly_indices').pattern
+        
+        # Set up the output command for this module, adding extra options.
+        self.positional_args = [('year_start', 2), ('year_end', 3)]
+        
     def compute(self):
 
         # Required input
         in_dataset = self.getInputFromPort("in_dataset")
-
-        new_cons = set([Constraint('index', ['nino34']),
-                        Constraint('grid', ['native'])]
-                      )
-
-        # Optional added constraints.
-        try:
-            # Add extra constraints if necessary.
-            added_constraints = self.getInputFromPort('added_constraints')
-            cons_for_output = new_cons.intersection(added_constraints)
-        except vistrails_module.ModuleError:
-            cons_for_output = new_cons
-
-
-        # Execute the seas_vars process.
+        
+        new_cons = set([Constraint('index', ['nino34'])])
+        
+        cons_for_output = new_cons
+        
+        # Execute the process.
         this_process = ProcessUnit([in_dataset],
                                    self.out_pattern,
                                    self.command,
                                    cons_for_output,
+                                   positional_args=self.positional_args,
                                    execution_options=self._execution_options)
 
-        this_process.execute(simulate=configuration.simulate_execution)
+        try:
+            this_process.execute(simulate=configuration.simulate_execution)
+        except Exception, e:
+            raise vistrails_module.ModuleError(self, e.output)
+
         process_output = this_process.file_creator
 
         self.setResult('out_dataset', process_output)
