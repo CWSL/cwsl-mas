@@ -2,6 +2,8 @@ from vistrails.packages.spreadsheet.basic_widgets import SpreadsheetCell
 from vistrails.packages.spreadsheet.spreadsheet_controller import spreadsheetController
 from vistrails.packages.spreadsheet.widgets.imageviewer.imageviewer import ImageViewerCellWidget
 
+import os
+
 class TestImageViewerCell(SpreadsheetCell):
     """
     ImageViewerCell is a custom Module to display labels, images, etc.
@@ -35,8 +37,8 @@ class ImageViewerPanel(SpreadsheetCell):
             dataset = self.getInputFromPort('in_dataset')
             window = spreadsheetController.findSpreadsheetWindow()
             for f in dataset.files:
-                print f.filename,f.full_path
-                fileValue = window.file_pool.make_local_copy(f.full_path)
-                self.displayAndWait(ImageViewerCellWidget, (fileValue, ))
+                if os.path.exists(f.full_path):
+                    fileValue = window.file_pool.make_local_copy(f.full_path)
+                    self.displayAndWait(ImageViewerCellWidget, (fileValue, ))
         else:
             self.displayAndWait(ImageViewerCellWidget, (None, ))
