@@ -26,6 +26,7 @@ from collections import defaultdict
 
 from cwsl.core.constraint import Constraint
 from cwsl.core.dataset import DataSet
+from cwsl.core.file_creator import FileCreator
 
 module_logger = logging.getLogger('cwsl.core.pattern_dataset')
 
@@ -47,6 +48,16 @@ class PatternDataSet(DataSet):
 
     def __init__(self, pattern_to_glob,
                  constraint_set=set()):
+
+        # First, check that added constraints are also found in the pattern.
+        # TODO (31/10/15): This is duplicated in the ProcessUnit, should be refactored.
+        generated_cons = FileCreator.constraints_from_pattern(pattern_to_glob)
+        gen_names = [cons.key for cons in generated_cons]
+        for cons in constraint_set:
+            if cons.key not in gen_names:
+                raise ConstraintNotFoundError("Constraint {} is not found in output pattern {}".
+                                              format(cons.key, pattern_to_glob))
+        
 
         to_remove = []
         for cons in constraint_set:
@@ -276,3 +287,7 @@ class PathString(str):
     def __init__(self, value):
         super(PathString, self).__init__(value)
         self.full_path = value
+
+class ConstraintNotFoundError(Exception):
+    """ Exception class for misspelled constraints. """
+    pass
