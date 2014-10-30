@@ -72,7 +72,7 @@ def initialize(*args, **keywords):
     reg.add_module(CDScan, name='Merge Timeseries', namespace='Aggregation')
     reg.add_module(SeasVars, name='Seasonal Timeseries',
                    namespace='Aggregation')
-    reg.add_module(XmlToNc, name='netCDF from CDML',
+    reg.add_module(XmlToNc, name='Timeslice',
                    namespace='Aggregation')
     reg.add_module(Climatology, name='Climatology', namespace='Aggregation')
 

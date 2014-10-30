@@ -38,9 +38,9 @@ class XmlToNc(vistrails_module.Module):
     _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet',
                      {'labels': str(['Input Dataset'])}),
                     ('start_year', basic_modules.Integer,
-                     {'labels': str(['Begin at this year'])}),
+                     {'labels': str(['Start Date (YYYY[MM][DD]):'])}),
                     ('end_year', basic_modules.Integer,
-                     {'labels': str(['End at this year'])}),
+                     {'labels': str(['End Date (YYYY[MM][DD]):'])}),
                     ('added_constraints', basic_modules.List, True,
                      {'defaults': ["[]"]})]
 
