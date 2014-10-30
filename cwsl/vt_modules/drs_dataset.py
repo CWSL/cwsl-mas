@@ -76,6 +76,8 @@ class DataReferenceSyntax(NotCacheable, Module):
         user_constraints = self.getInputFromPort("added_constraints")
         if user_constraints:
             constraints.extend(user_constraints)
+        else:
+            raise ModuleError(self, "No constraints set on DataSet - you can not run a workflow on the entire DataSet")
 
         # Create dataset based on file search path and contraints
         dataset = PatternDataSet(patterns, constraints)
