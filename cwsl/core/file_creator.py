@@ -164,9 +164,11 @@ class FileCreator(object):
         """
         for combination in self.huge_iterator:
             # Create a set of constraints for this combination.
-            yield self.climate_file_from_combination(self.subset_types, combination,
-                                                     check=True, update=False)
-
+            climate_file =  self.climate_file_from_combination(self.subset_types, combination,
+                                                               check=True, update=False)
+            if climate_file:
+                yield climate_file
+                
     def get_constraint(self, attribute_name):
         """ Get a particular constraint by name."""
 
