@@ -45,10 +45,11 @@ def get_git_status(ifile):
         return git_version
 
     cwd = os.getcwd()
-    os.chdir(os.path.dirname(ifile))
+    (basepath, filename) = os.path.split(ifile)
+    os.chdir(basepath)
     try:
-        status = subprocess.check_output(['git','status',ifile])
-        version = subprocess.check_output(['git','log',ifile])
+        status = subprocess.check_output(['git','status',filename])
+        version = subprocess.check_output(['git','log',filename])
         
         version = re.search('commit (.*?)\n',version)
         modified = re.search('Changed',status)
@@ -60,7 +61,6 @@ def get_git_status(ifile):
     except subprocess.CalledProcessError:
         git_version = "Could not determine file version."
         
-    
     os.chdir(cwd)
 
     return git_version
