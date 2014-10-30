@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 
 Authors:  Tim Bedin (Tim.Bedin@csiro.au)
