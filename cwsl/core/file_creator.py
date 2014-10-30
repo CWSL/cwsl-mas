@@ -58,7 +58,7 @@ class FileCreator(object):
     '''
 
     def __init__(self, output_pattern, extra_constraints):
-        ''' This constructor sets up the DataSet for this file creator from the
+        ''' This constructor sets up the FileCreator from the
         pattern of its output and 'extra' constraints that set the value of
         its attributes.
 
