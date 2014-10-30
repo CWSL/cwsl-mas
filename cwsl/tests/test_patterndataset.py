@@ -24,7 +24,7 @@ import mock
 
 import cwsl.core.pattern_dataset
 from cwsl.core.constraint import Constraint
-from cwsl.core.pattern_dataset import PatternDataSet
+from cwsl.core.pattern_dataset import PatternDataSet, ConstraintNotFoundError
 
 
 logger = logging.getLogger("cwsl.tests.test_patterndataset")
@@ -60,3 +60,13 @@ class TestPatternDataSet(unittest.TestCase):
         expected_files = ['/fake/green_echidna.txt']
         
         self.assertEqual(found_files, expected_files)
+
+    def test_badconstraints(self):
+        """ Constructing a PatternDataset with constraints that don't exist should fail. """
+
+        # Misspelled constraint.
+        test_cons = set([Constraint('modell', 'ACCESS1-0')])
+
+        self.assertRaises(ConstraintNotFoundError, PatternDataSet,
+                          "/not/real/pattern/%model%.nc",
+                          constraint_set=test_cons)
