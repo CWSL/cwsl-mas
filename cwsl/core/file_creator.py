@@ -158,17 +158,14 @@ class FileCreator(object):
 
     @property
     def files(self):
-        """ This property returns all the files that can be possibly
-        returned by this file_creator.
-
-        This can make some massive lists! Shouldn't really be
-        used in looping.
+        """ This property returns all the real files
+        that exist in this file_creator.
 
         """
         for combination in self.huge_iterator:
             # Create a set of constraints for this combination.
             yield self.climate_file_from_combination(self.subset_types, combination,
-                                                     check=False, update=False)
+                                                     check=True, update=False)
 
     def get_constraint(self, attribute_name):
         """ Get a particular constraint by name."""
