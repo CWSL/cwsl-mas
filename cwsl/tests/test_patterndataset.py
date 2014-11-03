@@ -45,41 +45,38 @@ class TestPatternDataSet(unittest.TestCase):
         mock_file_2 = '/fake/blue_kangaroo.txt'
         mock_file_3 = '/fake/red_kangaroo.txt'
         mock_file_4 = '/fake/purple_kangaroo.txt'
-        file_list = [mock_file_1, mock_file_2,
-                     mock_file_3, mock_file_4]
-        self.mock_return_list = mock.MagicMock(return_value=file_list)
-        
+        self.mock_file_list = [mock_file_1, mock_file_2,
+                               mock_file_3, mock_file_4]
+
     def test_noconstraints(self):
         ''' If no Constraint objects are given in the constructor, the PatternDataSet should check .files to find them. '''
 
-        with mock.patch('cwsl.core.pattern_dataset.PatternDataSet.files') as mock_files:
-            mock_files.__get__ = self.mock_return_list
-            
+        with mock.patch('cwsl.core.pattern_dataset.PatternDataSet.glob_fs') as mock_glob:
+            mock_glob.return_value = self.mock_file_list
             test_patternds = PatternDataSet(self.mock_file_pattern)
 
             self.assertEqual(test_patternds.constraints,
                              self.fake_constraints)
+            # Check that we only try to glob the fs once.
+            mock_glob.assert_called_once_with()
 
-            
-        
-    
-    
 
     def test_getfiles(self):
         """ Ensure that files are correctly returned using 'get_files'. """
 
-        with mock.patch('cwsl.core.pattern_dataset.PatternDataSet.files') as mock_files:
+        with mock.patch('cwsl.core.pattern_dataset.PatternDataSet.glob_fs') as mock_glob:
 
-            # Add the mock fake files attribute.
-            mock_files.__get__ = self.mock_return_list
+            # Add the mock fake glob function.
+            mock_glob.return_value = self.mock_file_list
             
-            test_patternds = PatternDataSet("/fake/%colour%_%animal%.txt")
+            test_patternds = PatternDataSet(self.mock_file_pattern)
             
             found_files = test_patternds.get_files({'colour': 'green',
                                                     'animal': 'echidna'})
-
             expected_files = ['/fake/green_echidna.txt']
+
             self.assertEqual(found_files, expected_files)
+            mock_glob.assert_called_once_with()
 
     def test_badconstraints(self):
         """ Constructing a PatternDataset with constraints that don't exist should fail. """
@@ -90,4 +87,3 @@ class TestPatternDataSet(unittest.TestCase):
         self.assertRaises(ConstraintNotFoundError, PatternDataSet,
                           "/not/real/pattern/%model%.nc",
                           constraint_set=test_cons)
-

@@ -42,39 +42,26 @@ class PatternDataSet(DataSet):
 
     pattern_to_glob = "/home/bed02b/test/%colour%/%texture%/%fruit%_%colour%.%file_type%"
 
-    Doesn't yet accept NOT constraints.
-
     """
 
     def __init__(self, pattern_to_glob,
                  constraint_set=set()):
 
-        # First, check that added constraints are also found in the pattern.
-        # TODO (31/10/15): This is duplicated in the ProcessUnit, should be refactored.
+        self._files = None
+        
+        # Check that added constraints are also found in the input pattern.
         generated_cons = FileCreator.constraints_from_pattern(pattern_to_glob)
         gen_names = [cons.key for cons in generated_cons]
         for cons in constraint_set:
             if cons.key not in gen_names:
                 raise ConstraintNotFoundError("Constraint {} is not found in output pattern {}".
                                               format(cons.key, pattern_to_glob))
-        
 
-        to_remove = []
-        for cons in constraint_set:
-            if not cons.values:
-                to_remove.append(cons)
-        for cons in to_remove:
-            constraint_set.remove(cons)
-
-        self._files = None
-
-        given_names = []
-        given_values = []
         if constraint_set:
             self.restricted_patterns = []
-            given_names = [cons.key for cons in constraint_set]
-            given_values = [cons.values for cons in constraint_set]
-
+            given_names, given_values = zip(*[(cons.key, cons.values)
+                                              for cons in constraint_set])
+            
             # Generate all combinations
             for combination in itertools.product(*given_values):
                 new_pattern = pattern_to_glob
@@ -116,22 +103,25 @@ class PatternDataSet(DataSet):
 
     @property
     def files(self):
+        # If there are already files found, do not glob.
+        if not self._files:
+            self._files = self.glob_fs()
+            module_logger.debug("_files is: ".format(self._files))
+                                        
+        return self._files
+    
+    def glob_fs(self):
         """ Returns a list of the files that match the
-
+                
         glob patterns.
 
         """
 
-        if self._files:
-            # If there are already files found, do not glob.
-            pass
-        else:
-            self._files = []
-            for pattern in self.glob_patterns:
-                self._files += [PathString(present_file)
-                                 for present_file in glob.glob(pattern)]
-
-        return self._files
+        found_files = []
+        for pattern in self.glob_patterns:
+            found_files += [PathString(present_file)
+                            for present_file in glob.glob(pattern)]
+        return found_files
 
     def __iter__(self):
         """ Make the object iterable """
