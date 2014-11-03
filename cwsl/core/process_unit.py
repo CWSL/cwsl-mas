@@ -108,9 +108,13 @@ class ProcessUnit(object):
         to_remove = []
         for cons in self.output_constraints:
             if not cons.values:
+                module_logger.debug("Trying to fill constraint: {}"
+                                    .format(cons))
                 found_cons = set([input_ds.get_constraint(cons.key)
                                   for input_ds in self.inputlist
                                   if input_ds.get_constraint(cons.key)])
+                module_logger.debug("Found constraints: {}"
+                                    .format(found_cons))
                 new_cons = new_cons.union(found_cons)
                 to_remove.append(cons)
 
@@ -133,6 +137,7 @@ class ProcessUnit(object):
         output_names = [cons.key for cons in self.output_constraints]
 
         to_add = []
+        replaced = []
         for output_name, map_tuple in self.map_dict.items():
             if output_name not in output_names:
                 raise Exception("Constraint name for mapping : {} is not found in {}"
@@ -140,9 +145,20 @@ class ProcessUnit(object):
             else:
                 # Grab the matching constraint from the input.
                 new_cons = self.inputlist[map_tuple[1]].get_constraint(map_tuple[0])
-                to_add.append(new_cons)
-        
+                replacement = Constraint(output_name, new_cons.values)
+                replaced.append(map_tuple[0])
+                to_add += [new_cons, replacement]
+                # Replace the 'mapped' empty constraint values with the values from the input.
 
+        module_logger.debug("to_add: {}".format(to_add))
+        module_logger.debug("replaced: {}".format(replaced))
+                
+        # Remove replaced constraints.
+        to_remove = [cons for cons in self.output_constraints
+                     if cons.key in replaced]
+        for cons in to_remove:
+            self.output_constraints.remove(to_remove)
+            
         # Add constraints to the set.
         for cons in to_add:
             self.output_constraints.add(cons)
