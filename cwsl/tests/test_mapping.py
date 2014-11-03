@@ -36,38 +36,33 @@ class TestMapping(unittest.TestCase):
     def setUp(self):
         
         self.input_pattern = '/a/fake/%gcm_model%_%variable%_%file_type%'
-        self.output_pattern = '/a/fake/%gcm_model%_%variable%_%file_type%'
+        self.output_pattern = '/a/fake/%obs_model%_%variable%_%file_type%'
 
-        self.patcher = mock.patch('cwsl.core.pattern_dataset.PatternDataSet.glob_fs')
-        self.mock_globber = self.patcher.start()
-
-        mock_file_1 = '/a/fake/ACCESS1-0_tas_netCDF'
-        mock_file_2 = '/a/fake/MIROC_tas_netCDF'
-        mock_file_3 = '/a/fake/ACCESS1-0_pr_netCDF'
-        
-        self.mock_globber.return_value = [mock_file_1, mock_file_2, mock_file_3]
-
-        # Create a mock pattern dataset to use in process unit tests.
-        self.a_pattern_ds = PatternDataSet(self.input_pattern)
-        
         # Constant header for the job scripts.
         self.script_header = "#!/bin/sh\nset -e\n\nmodule purge\nexport CWSL_CTOOLS={}\nexport PYTHONPATH=$PYTHONPATH:{}/pythonlib\n"\
             .format(configuration.cwsl_ctools_path, configuration.cwsl_ctools_path)
 
-    def tearDown(self):
-
-        self.patcher.stop()
-        
     def test_simple_mapping(self):
 
-        the_process_unit = ProcessUnit([self.a_pattern_ds], self.output_pattern,
-                                       'echo')
+        # Create a mock pattern dataset to use in process unit tests.
+        with mock.patch('cwsl.core.pattern_dataset.PatternDataSet.glob_fs') as mock_glob:
+
+            mock_file_1 = '/a/fake/ACCESS1-0_tas_netCDF'
+            mock_file_2 = '/a/fake/MIROC_tas_netCDF'
+            mock_file_3 = '/a/fake/ACCESS1-0_pr_netCDF'
+
+            mock_glob.return_value = [mock_file_1, mock_file_2, mock_file_3]
         
-        ds_result = the_process_unit.execute(simulate=True)
+            a_pattern_ds = PatternDataSet(self.input_pattern)
 
-        outfiles = [file_thing for file_thing in ds_result.files]
-        self.assertEqual(len(outfiles), 1)
-
-        expected_string = self.script_header + "mkdir -p /another/file_1\necho test_file1 /another/file_1/pattern_1.txt\n"
+            the_process_unit = ProcessUnit([a_pattern_ds], self.output_pattern,
+                                           'echo', map_dict={'obs_model': ('gcm_model', 0)})
+            
+            ds_result = the_process_unit.execute(simulate=True)
+            
+            outfiles = [file_thing for file_thing in ds_result.files]
+            self.assertEqual(len(outfiles), 3)
+        
+            expected_string = self.script_header + "mkdir -p /another/file_1\necho test_file1 /another/file_1/pattern_1.txt\n"
 
 
