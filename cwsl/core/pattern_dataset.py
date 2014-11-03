@@ -106,7 +106,6 @@ class PatternDataSet(DataSet):
         # If there are already files found, do not glob.
         if not self._files:
             self._files = self.glob_fs()
-            module_logger.debug("_files is: ".format(self._files))
                                         
         return self._files
     
