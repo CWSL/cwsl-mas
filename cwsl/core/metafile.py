@@ -21,7 +21,7 @@ import os
 
 
 
-class MetaFiles(object):
+class MetaFile(object):
     ''' This object represents a single file and it's stored attributes.
 
     '''
@@ -46,3 +46,8 @@ class MetaFiles(object):
         val = hash(frozen_keys) ^ hash(frozen_vals) ^ hash(self.full_path)
 
         return val
+
+    def __eq__(self, other):
+        # MetaFiles with the same hash are equal.
+        return(hash(self) == hash(other))
+            
