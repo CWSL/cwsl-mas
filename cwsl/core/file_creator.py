@@ -23,7 +23,7 @@ import logging
 import os.path
 
 from cwsl.core.constraint import Constraint
-from cwsl.core.metafile import MetaFiles
+from cwsl.core.metafile import MetaFile
 
 module_logger = logging.getLogger('cwsl.core.file_creator')
 
@@ -82,7 +82,8 @@ class FileCreator(object):
             if not constraint.values:
                 module_logger.error("Constraint {0} is empty - should be in canonical form!"
                                     .format(constraint))
-                raise EmptyConstraintError
+                raise EmptyConstraintError("Constraint {0} is empty - should be in canonical form!"
+                                           .format(constraint))
 
         # Set up the subset types (the attribute names present in the DataSet.
         self.subset_types = [cons.key for cons in self.constraints]
@@ -188,8 +189,13 @@ class FileCreator(object):
         """
 
         existing_cons_names = [cons.key for cons in self.constraints]
+        module_logger.debug("existing cons names is: {}"
+                            .format(existing_cons_names))
 
+        
         # Now add the constraints - only if they are in the pattern!
+        module_logger.debug("new_constraints is: {}"
+                            .format(new_constraints))
         for cons in new_constraints:
             if cons.key in existing_cons_names:
                 self.constraints.add(cons)
@@ -247,9 +253,9 @@ class FileCreator(object):
         new_path = os.path.dirname(new_file)
         file_name = os.path.basename(new_file)
 
-        new_climate_file = MetaFiles(path_dir=new_path,
-                                     filename=file_name,
-                                     all_atts=sub_dict)
+        new_climate_file = MetaFile(path_dir=new_path,
+                                    filename=file_name,
+                                    all_atts=sub_dict)
 
         file_hash = hash(new_climate_file)
 
