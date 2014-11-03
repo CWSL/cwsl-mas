@@ -24,6 +24,7 @@ import mock
 
 import cwsl.core.pattern_dataset
 from cwsl.core.constraint import Constraint
+from cwsl.core.metafile import MetaFile
 from cwsl.core.pattern_dataset import PatternDataSet, ConstraintNotFoundError
 
 
@@ -76,7 +77,7 @@ class TestPatternDataSet(unittest.TestCase):
             
             found_files = test_patternds.get_files({'colour': 'green',
                                                     'animal': 'echidna'})
-            expected_files = ['/fake/green_echidna.txt']
+            expected_files = [MetaFile('green_echidna.txt', '/fake', {})]
 
             self.assertEqual(found_files, expected_files)
             mock_glob.assert_called_once_with()
