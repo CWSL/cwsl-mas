@@ -17,13 +17,14 @@ Contains the PatternDataSet class.
 
 """
 
+import os.path
 import logging
-
 import glob
 import re
 import itertools
 from collections import defaultdict
 
+from cwsl.core.metafile import MetaFile
 from cwsl.core.constraint import Constraint
 from cwsl.core.dataset import DataSet
 from cwsl.core.file_creator import FileCreator
@@ -210,6 +211,8 @@ class PatternDataSet(DataSet):
 
         This requires self.create_subsets() to be called before running.
 
+        Returns a list of MetaFile objects.
+
         """
 
         files_returned = []
@@ -221,7 +224,12 @@ class PatternDataSet(DataSet):
 
         all_files = set.intersection(*files_returned)
 
-        return list(all_files)
+        output = []
+        for full_path in all_files:
+            path, name = os.path.split(full_path)
+            output.append(MetaFile(name, path, {}))
+        
+        return output
 
     def create_subsets(self):
         """ Sets up a hash table to allow you to get the required files
