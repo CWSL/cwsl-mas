@@ -107,7 +107,9 @@ class ArgumentCreator(object):
         # will be added to the returned combination dictionary for use in positional
         # or keyword arguments.
         self.input_only = self.input_cons.difference(self.output_cons)
+
         # The cons.values set is turned into a list so we can just get one value.
+        module_logger.debug("self.input_only: {}".format(self.input_only))
         self.input_only_dict = {cons.key: list(cons.values)[0] for cons in self.input_only}
 
         # Output only constraints are effectively shared constraints and must be added to
@@ -127,44 +129,12 @@ class ArgumentCreator(object):
         """ This method checks and cleans up any problems with input and
             output constraints in a logical manner. """
 
-        # Check for repeated constraints.
-        # If a constraint appears multiple times, add it to
-        # the 'repeated_keys' list.
-        new_ins = set()
-        key_list = [cons.key for cons in in_cons]
-
-        key_counter = {}
-        for key in key_list:
-            try:
-                key_counter[key] += 1
-            except KeyError:
-                key_counter[key] = 1
-
-        repeated_keys = []
-        for cons in in_cons:
-            if key_counter[cons.key] == 1:
-                new_ins.add(cons)
-            else:
-                repeated_keys.append(cons.key)
-
         # Check that there are no empty constraints in the input - just
         # to make sure!
         for in_constraint in in_cons:
             if in_constraint.values == set():
                 module_logger.error("Constraint {0} has no values!".format(in_constraint))
             assert(in_constraint.values != set())
-
-        if repeated_keys:
-            module_logger.debug("Repeated keys are: {0}".format(repeated_keys))
-
-        # For repeated output keys, just get the shortest list.
-        for key in set(repeated_keys):
-            multi_cons = [cons for cons in in_cons
-                          if cons.key == key]
-            new_vals = set.intersection(*[set(con.values
-                                              for con in multi_cons)])
-            new_constraint = Constraint(key, new_vals)
-            new_ins.add(new_constraint)
 
         # Now fix up empty output constraints.
         new_outs = set()
@@ -182,7 +152,7 @@ class ArgumentCreator(object):
                                         .format(out_constraints))
                 new_outs.add(*new_cons)
 
-        return new_ins, new_outs
+        return in_cons, new_outs
 
     def __iter__(self):
         # Sets up the combinations in the argument_creator for looping.
