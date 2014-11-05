@@ -98,7 +98,7 @@ class FileCreator(object):
         module_logger.debug("After init, self.constraints: {}"
                             .format(self.constraints))
 
-    def get_files(self, att_dict, check=False, update=True, map_dict={}):
+    def get_files(self, att_dict, check=False, update=True):
         """ This method returns all possible MockClimateFiles from the
         FileCreator that match an input attribute dictionary.
 
@@ -114,10 +114,6 @@ class FileCreator(object):
         module_logger.debug("Before getting constraint, all constraints are: {}"
                             .format(self.constraints))
         
-        for mapping in map_dict:
-            map_val = att_dict.pop(mapping)
-            att_dict[map_dict[mapping]] = map_val
-
         # Get the keys of the input dictionary.
         search_keys = [att for att in att_dict.keys()]
 
