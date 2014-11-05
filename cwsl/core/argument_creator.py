@@ -114,9 +114,13 @@ class ArgumentCreator(object):
 
         # Output only constraints are effectively shared constraints and must be added to
         # the valid combinations and the shared_constraints set.
+        module_logger.debug("Input constraints are: {}"
+                            .format(self.input_cons))
         in_keys = [cons.key for cons in self.input_cons]
+        module_logger.debug("Input constraint keys are: {}"
+                            .format(in_keys))
         self.output_only = [cons for cons in self.output_cons
-                            if cons.key not in in_keys]
+                            if cons.key not in self.input_cons]
         
         self.shared_constraints = self.shared_constraints.union(self.output_only)
 
@@ -135,6 +139,34 @@ class ArgumentCreator(object):
             if in_constraint.values == set():
                 module_logger.error("Constraint {0} has no values!".format(in_constraint))
             assert(in_constraint.values != set())
+
+        count_dict = {}
+        # Check for repeated constraints in the input.
+        for cons in in_cons:
+            try:
+                count_dict[cons.key] += 1
+            except KeyError:
+                count_dict[cons.key] = 1
+        # If a constraint is repeated, merge into one constraint.
+        bad_names = []
+        for name, count in count_dict.items():
+            if count > 1:
+                module_logger.debug("Constraint on {} is found {} times"
+                                    .format(name, count))
+                bad_names.append(name)
+        for name in bad_names:
+            match_cons = [cons for cons in in_cons
+                          if cons.key == name]
+            module_logger.debug("Merging constraints: {}"
+                                .format(match_cons))
+            all_vals = set.union(*[cons.values for cons in match_cons])
+            new_constraint = Constraint(name, all_vals)
+            module_logger.debug("New constraint is: {}"
+                                .format(new_constraint))
+            in_cons.add(new_constraint)
+            for cons in match_cons:
+                in_cons.remove(cons)
+        
 
         # Now fix up empty output constraints.
         new_outs = set()
@@ -158,6 +190,9 @@ class ArgumentCreator(object):
         # Sets up the combinations in the argument_creator for looping.
 
         valids = [ds.valid_combinations for ds in self.inputs]
+        for combination in valids:
+            module_logger.debug("Valid combination: {}".format(combination))
+
         set_of_valids = set.union(*valids)
         
         if self.output_only:
@@ -175,6 +210,9 @@ class ArgumentCreator(object):
 
     def custom_iterator(self, valid_set, output_cons):
         """ This iterator adds any output_only constraints to the valid combinations from the input."""
+
+        module_logger.debug("Valid set is: {}, output_cons is: {}"
+                            .format(valid_set, output_cons))
         
         all_possibles = []
         for combination in itertools.product(*output_cons):
