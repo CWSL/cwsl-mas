@@ -81,8 +81,17 @@ class TestMapping(unittest.TestCase):
             
             first_pattern_ds = PatternDataSet("/a/fake/file_%date%_%colour%.nc",
                                               set([Constraint('date', ['1956'])]))
+
             second_pattern_ds = PatternDataSet("/a/fake/file_%date%_%colour%.nc",
                                                set([Constraint('date', ['1981'])]))
+
+            # Overwrite the valid combinations for these mock datasets.
+            first_pattern_ds.valid_combinations = set([frozenset([Constraint('colour', ['red']),
+                                                                  Constraint('date', ['1956'])])])
+
+            second_pattern_ds.valid_combinations = set([frozenset([Constraint('colour', ['red']),
+                                                                   Constraint('date', ['1981'])])])
+            
             
             the_process_unit = ProcessUnit([first_pattern_ds, second_pattern_ds],
                                            "/a/final/output/file_%start_date%_%end_date%_%colour%.txt",
@@ -94,5 +103,5 @@ class TestMapping(unittest.TestCase):
             outfiles = [file_thing for file_thing in ds_result.files]
             self.assertEqual(len(outfiles), 1)
 
-            expected_string = self.script_header + "mkdir -p /a/fake/output\necho /a/fake/file_1956_red.nc /a/fake/file_1981_red.nc /a/final/output/file_1956_1981_red.txt"     
+            expected_string = self.script_header + "mkdir -p /a/final/output\necho /a/fake/file_1956_red.nc /a/fake/file_1981_red.nc /a/final/output/file_1956_1981_red.txt\n"     
             self.assertEqual(expected_string, the_process_unit.scheduler.job.to_str())
