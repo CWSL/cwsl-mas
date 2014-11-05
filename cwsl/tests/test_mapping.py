@@ -24,6 +24,7 @@ import logging
 import mock
 
 from cwsl.configuration import configuration
+from cwsl.core.constraint import Constraint
 from cwsl.core.pattern_dataset import PatternDataSet
 from cwsl.core.process_unit import ProcessUnit
 
@@ -43,8 +44,8 @@ class TestMapping(unittest.TestCase):
             .format(configuration.cwsl_ctools_path, configuration.cwsl_ctools_path)
 
     def test_simple_mapping(self):
+        """ Test using constraints from the input in the output pattern. """
 
-        # Create a mock pattern dataset to use in process unit tests.
         with mock.patch('cwsl.core.pattern_dataset.PatternDataSet.glob_fs') as mock_glob:
 
             mock_file_1 = '/a/fake/ACCESS1-0_tas_netCDF'
@@ -59,7 +60,7 @@ class TestMapping(unittest.TestCase):
                                            'echo', map_dict={'obs_model': ('gcm_model', 0)})
             
             ds_result = the_process_unit.execute(simulate=True)
-            
+           
             outfiles = [file_thing for file_thing in ds_result.files]
             self.assertEqual(len(outfiles), 3)
 
@@ -69,3 +70,29 @@ class TestMapping(unittest.TestCase):
             
             self.assertEqual(expected_string, the_process_unit.scheduler.job.to_str())
 
+    def test_change_mapping(self):
+        """ Test using multiple input datasets, like if you were calculating a change. """
+
+        with mock.patch('cwsl.core.pattern_dataset.PatternDataSet.glob_fs') as mock_glob:
+            fake_file_1 = '/a/fake/file_1956_red.nc'
+            fake_file_2 = '/a/fake/file_1981_red.nc'
+
+            mock_glob.return_value = [fake_file_1, fake_file_2]
+            
+            first_pattern_ds = PatternDataSet("/a/fake/file_%date%_%colour%.nc",
+                                              set([Constraint('date', ['1956'])]))
+            second_pattern_ds = PatternDataSet("/a/fake/file_%date%_%colour%.nc",
+                                               set([Constraint('date', ['1981'])]))
+            
+            the_process_unit = ProcessUnit([first_pattern_ds, second_pattern_ds],
+                                           "/a/final/output/file_%start_date%_%end_date%_%colour%.txt",
+                                           'echo', map_dict={'start_date': ('date', 0),
+                                                             'end_date': ('date', 1)})
+        
+            ds_result = the_process_unit.execute(simulate=True)
+            
+            outfiles = [file_thing for file_thing in ds_result.files]
+            self.assertEqual(len(outfiles), 1)
+
+            expected_string = self.script_header + "mkdir -p /a/fake/output\necho /a/fake/file_1956_red.nc /a/fake/file_1981_red.nc /a/final/output/file_1956_1981_red.txt"     
+            self.assertEqual(expected_string, the_process_unit.scheduler.job.to_str())
