@@ -36,7 +36,7 @@ class TestMapping(unittest.TestCase):
     def setUp(self):
         
         self.input_pattern = '/a/fake/%gcm_model%_%variable%_%file_type%'
-        self.output_pattern = '/a/fake/%obs_model%_%variable%_%file_type%'
+        self.output_pattern = '/a/fake/output/%obs_model%_%variable%_%file_type%'
 
         # Constant header for the job scripts.
         self.script_header = "#!/bin/sh\nset -e\n\nmodule purge\nexport CWSL_CTOOLS={}\nexport PYTHONPATH=$PYTHONPATH:{}/pythonlib\n"\
@@ -62,7 +62,10 @@ class TestMapping(unittest.TestCase):
             
             outfiles = [file_thing for file_thing in ds_result.files]
             self.assertEqual(len(outfiles), 3)
-        
-            expected_string = self.script_header + "mkdir -p /another/file_1\necho test_file1 /another/file_1/pattern_1.txt\n"
 
+            expected_string = (self.script_header + "mkdir -p /a/fake/output\necho /a/fake/MIROC_tas_netCDF /a/fake/output/MIROC_tas_netCDF\n" +
+                               "echo /a/fake/ACCESS1-0_tas_netCDF /a/fake/output/ACCESS1-0_tas_netCDF\n" +
+                               "echo /a/fake/ACCESS1-0_pr_netCDF /a/fake/output/ACCESS1-0_pr_netCDF\n")
+            
+            self.assertEqual(expected_string, the_process_unit.scheduler.job.to_str())
 
