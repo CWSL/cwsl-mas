@@ -34,6 +34,7 @@ from cwsl.core.pattern_generator import PatternGenerator
 
 
 class BaseModule(object):
+    ''' An abstract class to build your own VisTrails modules. '''
 
     __metaclass__ = abc.ABCMeta
     
@@ -42,13 +43,12 @@ class BaseModule(object):
                     ('added_constraints', basic_modules.List, True,
                      {'defaults': ["[]"]})]
     
-    _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet'),
-                     ('out_constraints', basic_modules.String, True)]
+    _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
     
     _execution_options = {'required_modules': []}
 
     _module_setup = {'command': '',
-                     'user_authoritative': '',
+                     'user_or_authoritative': '',
                      'data_type': ''}
     _positional_args = []
     _added_cons = set([])
@@ -58,17 +58,17 @@ class BaseModule(object):
         
         super(BaseModule, self).__init__()
         
-        #Command Line Tool
-        tools_base_path = configuration.cwsl_ctools_path
         self.command = self._module_setup['command']
         # Output file structure declaration 
-        self.out_pattern = PatternGenerator(self._module_setup['user_authoritative'],
+        self.out_pattern = PatternGenerator(self._module_setup['user_or_authoritative'],
                                             self._module_setup['data_type']).pattern
         
-        # Set up the output command for this module, adding extra options.
         self.positional_args = self._positional_args
+        self.execution_options = self._execution_options
+
         
     def compute(self):
+
 
         # Required input
         in_dataset = self.getInputFromPort("in_dataset")
@@ -81,7 +81,7 @@ class BaseModule(object):
                                    self.command,
                                    cons_for_output,
                                    positional_args=self.positional_args,
-                                   execution_options=self._execution_options)
+                                   execution_options=self.execution_options)
 
         try:
             this_process.execute(simulate=configuration.simulate_execution)
