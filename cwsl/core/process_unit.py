@@ -149,6 +149,8 @@ class ProcessUnit(object):
 
             # Added the mapped constraint to the input self.cons_names
             self.inputlist[map_spec[1]].cons_names.append(map_name)
+            # Removed the now obsolete constraint.
+            self.inputlist[map_spec[1]].cons_names.remove(map_spec[0])
                 
             # Now alter the valid combinations of the input.
             fixed_combinations = set([])
