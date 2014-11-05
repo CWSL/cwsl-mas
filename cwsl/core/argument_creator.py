@@ -76,19 +76,19 @@ class ArgumentCreator(object):
 
         '''
 
-        self.input = input_datasets
+        self.inputs = input_datasets
         self.output = output_file_creators
 
         self.map_dict = map_dict
 
         # Put the inputs/outputs into lists if they are not iterable.
-        if not hasattr(self.input, '__iter__'):
-            self.input = [self.input]
+        if not hasattr(self.inputs, '__iter__'):
+            self.input = [self.inputs]
         if not hasattr(self.output, '__iter__'):
             self.output = [self.output]
 
         in_constraints = set.union(*[in_set.constraints
-                                     for in_set in self.input])
+                                     for in_set in self.inputs])
         out_constraints = set.union(*[out_set.constraints
                                       for out_set in self.output])
         module_logger.debug('All input constraints are: ' + str(in_constraints))
@@ -118,19 +118,8 @@ class ArgumentCreator(object):
         
         self.shared_constraints = self.shared_constraints.union(self.output_only)
 
-        # If a mapping exists, then the input mapping constraint must be added to
-        # the 'shared constraints'. (It effectively belongs to both input and output)
-        map_cons = set()
-        for mapping in map_dict:
-            for in_ds in self.input:
-                map_cons = map_cons.union(set([cons for cons in in_ds.constraints
-                                               if cons.key == mapping]))
-        self.shared_constraints = map_cons.union(self.shared_constraints)
-
         module_logger.debug("Shared input and output constraints are: {0}".
                             format(self.shared_constraints))
-        module_logger.debug("Different input and output constraints are: {0}".
-                            format(self.input_cons.symmetric_difference(self.output_cons)))
 
         self.shared_keys = set([cons.key for cons in self.shared_constraints])
 
@@ -198,7 +187,7 @@ class ArgumentCreator(object):
     def __iter__(self):
         # Sets up the combinations in the argument_creator for looping.
 
-        valids = [ds.valid_combinations for ds in self.input]
+        valids = [ds.valid_combinations for ds in self.inputs]
         set_of_valids = set.union(*valids)
         
         if self.output_only:
@@ -265,23 +254,28 @@ class ArgumentCreator(object):
                 module_logger.debug("The combination with hash {0} has already been processed".format(this_hash))
                 continue
 
-            # Get the matching queryset for the this combination of constraints.
+            # Get the matching files for this combination of constraints.
             in_metas = []
             out_metas = []
 
-            for input_ds in self.input:
+            for input_ds in self.inputs:
                 in_metas.append(input_ds.get_files(this_combination_dict,
                                 check=True))
 
             module_logger.debug("Found matching inputs: {0}".format(in_metas))
-            # We only need to look for outputs if there are inputs present.
+            # We only need to look for outputs if there is an input file present
+            # for every input dataset.
+            module_logger.debug("Length of in_metas: {}, length of self.inputs: {}"
+                                .format(len(in_metas), len(self.inputs)))
+            module_logger.debug("self.inputs: {}".format(self.inputs))
+            if len(in_metas) != len(self.inputs):
+                in_metas = []
 
             if in_metas[0]:
                 module_logger.debug("Searching for output metafiles.")
 
                 for output_ds in self.output:
                     these_files = output_ds.get_files(this_combination_dict,
-                                                      map_dict=self.map_dict,
                                                       check=False, update=True)
                     if these_files is not None:
                         out_metas.append(these_files)
