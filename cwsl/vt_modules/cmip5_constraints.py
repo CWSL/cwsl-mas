@@ -50,6 +50,7 @@ class CMIP5Constraints(Module):
                     ('experiment', String, {"defaults": str([''])}),
                     ('variable', String, {"defaults": str([''])}),
                     ('ensemble', String, {"defaults": str([''])}),
+                    ('realm', String, {"defaults": str([''])}),
                     ('institute', String, {"defaults": str([''])}),
                     ('frequency', String, {"defaults": str([''])}),
                     ('mip_table', String, {"defaults": str([''])})]
@@ -58,8 +59,8 @@ class CMIP5Constraints(Module):
     def compute(self):
         
         output_cons = []
-        con_names = ['model', 'variable', 'experiment', 'mip_table',
-                     'institute', 'ensemble', 'frequency']
+        con_names = ['model', 'realm', 'variable', 'experiment',
+                     'mip_table', 'institute', 'ensemble', 'frequency']
         
         for con_name in con_names:
             con_values = self.getInputFromPort(con_name)
