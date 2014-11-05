@@ -37,6 +37,7 @@ from cwsl.vt_modules.vt_general_command_pattern import GeneralCommandPattern
 from cwsl.vt_modules.vt_constraintbuilder import ConstraintBuilder
 from cwsl.vt_modules.vt_plot_timeseries import PlotTimeSeries
 from cwsl.vt_modules.imageviewer import ImageViewerPanel
+from cwsl.vt_modules.cmip5_constraints import CMIP5Constraints
 
 
 def initialize(*args, **keywords):
@@ -84,8 +85,10 @@ def initialize(*args, **keywords):
     reg.add_module(ImageViewerPanel, name='Image Viewer', namespace='Visualisation')
     reg.add_input_port(ImageViewerPanel, 'in_dataset', 'csiro.au.cwsl:VtDataSet')
 
-     #General
+    #General
     reg.add_module(ConstraintBuilder, name='Constraint Builder',
+                   namespace='Utilities')
+    reg.add_module(CMIP5Constraints, name='CMIP5 Constraints',
                    namespace='Utilities')
     reg.add_module(GeneralCommandPattern, name='General Command Line Program',
                    namespace='Utilities')
