@@ -127,45 +127,47 @@ class ProcessUnit(object):
                             .format(self.output_constraints))
 
     def apply_mappings(self):
-        # Read the input mappings. Create a constraint by pulling the values from the
-        # input and copying them to the output. The mappings are used again when calling
-        # the get_files method on the output file creator.
-
-        module_logger.debug("Before mapping, output_constraints are: {}"
+        module_logger.debug("Before applying mappings, output_constraints are: {}"
                             .format(self.output_constraints))
-        
-        output_names = [cons.key for cons in self.output_constraints]
 
-        to_add = []
-        replaced = []
-        for output_name, map_tuple in self.map_dict.items():
-            if output_name not in output_names:
-                raise Exception("Constraint name for mapping : {} is not found in {}"
-                                .format(output_name, output_names))
-            else:
-                # Grab the matching constraint from the input.
-                new_cons = self.inputlist[map_tuple[1]].get_constraint(map_tuple[0])
-                replacement = Constraint(output_name, new_cons.values)
-                replaced.append(map_tuple[0])
-                to_add += [new_cons, replacement]
-                # Replace the 'mapped' empty constraint values with the values from the input.
+        to_remove = []
+        for map_name, map_spec in self.map_dict.items():
+            # First update the outputs with values from the input.
+            found_con = self.inputlist[map_spec[1]].get_constraint(map_spec[0])
+            self.output_constraints.add(Constraint(map_name, found_con.values))
+            # Remove the empty constraint.
+            self.output_constraints.remove(Constraint(map_name, []))
 
-        module_logger.debug("to_add: {}".format(to_add))
-        module_logger.debug("replaced: {}".format(replaced))
+            # Update the subsets dictionary for the input.
+            for value in found_con.values:
+                module_logger.debug("Updating subsets for {}: {}"
+                                    .format(map_name, value))
+                found_files = self.inputlist[map_spec[1]].get_files({found_con.key: value})
+                module_logger.debug("Found files are: {}".format(found_files))
+                self.inputlist[map_spec[1]].subsets[map_name][value] = [file_ob.full_path
+                                                                        for file_ob in found_files]
+
+            # Added the mapped constraint to the input self.cons_names
+            self.inputlist[map_spec[1]].cons_names.append(map_name)
                 
-        # Remove replaced constraints.
-        to_remove = [cons for cons in self.output_constraints
-                     if cons.key in replaced]
-        for cons in to_remove:
-            self.output_constraints.remove(to_remove)
-            
-        # Add constraints to the set.
-        for cons in to_add:
-            self.output_constraints.add(cons)
+            # Now alter the valid combinations of the input.
+            fixed_combinations = set([])
+            for combination in self.inputlist[map_spec[1]].valid_combinations:
+                module_logger.debug("Original combination is: {}".format(combination))
+                new_list = []
+                for constraint in combination:
+                    if constraint.key == map_spec[0]:
+                        new_list.append(Constraint(map_name, constraint.values))
+                    new_list.append(constraint)
+                module_logger.debug("New combination is: {}".format(new_list))
+                fixed_combinations.add(frozenset(new_list))
+            self.inputlist[map_spec[1]].valid_combinations = fixed_combinations
 
-        module_logger.debug("After mapping, output_constraints are: {}"
+        module_logger.debug("After applying mappings, output_constraints are: {}"
                             .format(self.output_constraints))
 
+
+        
     def fill_constraints_from_extras(self):
 
         module_logger.debug("Before filling from extras, output constraints: {}"
