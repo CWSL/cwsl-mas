@@ -46,31 +46,26 @@ class CMIP5Constraints(Module):
     """
 
     # Define ports.
-    _input_ports = [('model', String),
-                    ('experiment', String),
-                    #('frequency', String), 
-                    #('realm', String), 
-                    ('variable', String),
-                    #('ensemble', String),
-                    ('mip_table', String)]
-
+    _input_ports = [('model', String, {"defaults": str([''])}),
+                    ('experiment', String, {"defaults": str([''])}),
+                    ('variable', String, {"defaults": str([''])}),
+                    ('ensemble', String, {"defaults": str([''])}),
+                    ('institute', String, {"defaults": str([''])}),
+                    ('frequency', String, {"defaults": str([''])}),
+                    ('mip_table', String, {"defaults": str([''])})]
     _output_ports = [('constraint_set', List)]
 
     def compute(self):
         
         output_cons = []
-        preset_cons = []
-        con_names = ['model', 'variable', 'experiment', 'mip_table']
-        #con_names = ['institute', 'model', 'experiment', 'mip_table',
-        #             'frequency', 'realm', 'variable', 'ensemble']
+        con_names = ['model', 'variable', 'experiment', 'mip_table',
+                     'institute', 'ensemble', 'frequency']
         
         for con_name in con_names:
             con_values = self.getInputFromPort(con_name)
-            val_list = con_values.split(',')
-            final_vals = [val.strip() for val in val_list]
-            output_cons.append(Constraint(con_name, final_vals))
+            if con_values:
+                val_list = con_values.split(',')
+                final_vals = [val.strip() for val in val_list]
+                output_cons.append(Constraint(con_name, final_vals))
 
-        print("Full constraints are: {}"
-              .format(preset_cons+output_cons))
-
-        self.setResult('constraint_set', preset_cons+output_cons)
+        self.setResult('constraint_set', output_cons)
