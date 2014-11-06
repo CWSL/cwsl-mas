@@ -120,7 +120,9 @@ class ArgumentCreator(object):
         module_logger.debug("Input constraint keys are: {}"
                             .format(in_keys))
         self.output_only = [cons for cons in self.output_cons
-                            if cons.key not in self.input_cons]
+                            if cons.key not in in_keys]
+        module_logger.debug("Output only constraints are: {}"
+                            .format(self.output_only))
         
         self.shared_constraints = self.shared_constraints.union(self.output_only)
 
@@ -221,7 +223,6 @@ class ArgumentCreator(object):
                 this_com_list.append(Constraint(cons[0], [cons[1]]))
             all_possibles.append(this_com_list)
                                      
-        module_logger.debug("All possible new constraints to be added are: {}".format(all_possibles))
         for items in itertools.product(iter(valid_set), all_possibles):
             input_list = list(items[0])
             input_list += items[1]
