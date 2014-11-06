@@ -80,10 +80,10 @@ class TestPassingData(unittest.TestCase):
                                      "echo", extra_constraints=extra_con)
         first_output = a_process_unit.execute(simulate=True)
 
-        # Now make a new output with an new value of %fake%.
+        # Now make a new output with an new value of %pattern%.
         new_process_unit = ProcessUnit([first_output], "/%fake%/%file%/%pattern%/%an_extra%.txt",
                                        "echo", extra_constraints=set([Constraint('pattern', ['OVERWRITE_PATTERN'])]))
         new_process_unit.execute(simulate=True)
         
-        expected_string = self.script_header + "mkdir -p /fake_1/file_1/pattern_1\necho /fake_1/file_1/pattern_1/new_value.txt /fake_1/file_1/OVERWRITE_PATTERN/new_value.txt\n" 
-        self.assertEqual(expected_string, a_process_unit.scheduler.job.to_str())
+        expected_string = self.script_header + "mkdir -p /fake_1/file_1/OVERWRITE_PATTERN\necho /fake_1/file_1/pattern_1/new_value.txt /fake_1/file_1/OVERWRITE_PATTERN/new_value.txt\n" 
+        self.assertEqual(expected_string, new_process_unit.scheduler.job.to_str())
