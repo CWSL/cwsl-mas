@@ -171,8 +171,6 @@ class FileCreator(object):
 
         for constraint in self.constraints:
             if constraint.key == attribute_name:
-                module_logger.debug("Returning constraint: {}"
-                                    .format(constraint))
                 return constraint
 
         # If it can't be found, return None.
@@ -304,8 +302,6 @@ class FileCreator(object):
 
         constraint_list = [Constraint(att_name, [])
                            for att_name in attribute_names]
-
-        module_logger.debug("Created constraint list: {0}".format(constraint_list))
 
         return set(constraint_list)
 
