@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-Tests for the ProcessUnit 'mapping' API - renaming constraints
+Tests for the ProcessUnit 'mapping' functions - renaming constraints
 between input and output.
 
 """
@@ -67,8 +67,7 @@ class TestMapping(unittest.TestCase):
                                                      'animal': 'monkey'})
 
             fake_file = MetaFile('blue_monkey.txt', '/a/file',
-                                 {'colour': 'blue',
-                                  'animal': 'monkey'})
+                                 {})
 
             self.assertEqual(fake_file.all_atts, mapped_files[0].all_atts)
             self.assertEqual(mapped_files, [fake_file])
@@ -77,11 +76,27 @@ class TestMapping(unittest.TestCase):
     def test_filecreator_mapping(self):
 
         # Create a file creator object.
-        the_file_creator = FileCreator("/a/file/%green%_%monkey%.txt",
+        the_file_creator = FileCreator("/a/file/%colour%_%animal%.txt",
                                        set([Constraint('animal', ['monkey']),
                                             Constraint('colour', ['green', 'blue'])]))
 
-        assert False
+        # Mark some of the files as existing!
+        the_file_creator.get_files({'colour': 'blue',
+                                    'animal': 'monkey'},
+                                   check=False, update=True)
+        the_file_creator.get_files({'colour': 'green',
+                                    'animal': 'monkey'},
+                                   check=False, update=True)
+
+        non_mapped_file = the_file_creator.get_files({'colour': 'green',
+                                                      'animal': 'monkey'})
+        the_file_creator.add_mapping('colour', 'new_colour')
+
+        mapped_file = the_file_creator.get_files({'new_colour': 'green',
+                                                      'animal': 'monkey'})
+
+        self.assertEqual(mapped_file, non_mapped_file)
+
 
     def test_simple_mapping(self):
         """ Test using constraints from the input in the output pattern. """

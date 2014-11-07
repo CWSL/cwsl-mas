@@ -101,6 +101,8 @@ class FileCreator(DataSet):
                             .format(self.constraints))
 
     def add_mapping(self, cons_name, alias):
+        """ This method must allow the FileCreator to alias constraints. """
+
         pass
 
     def get_files(self, att_dict, check=False, update=True):
