@@ -105,3 +105,30 @@ class TestMapping(unittest.TestCase):
 
             expected_string = self.script_header + "mkdir -p /a/final/output\necho /a/fake/file_1956_red.nc /a/fake/file_1981_red.nc /a/final/output/file_1956_1981_red.txt\n"     
             self.assertEqual(expected_string, the_process_unit.scheduler.job.to_str())
+
+    def test_mapping_after_passing(self):
+        """ Mapping of constraints should work if applied to the output of an earlier ProcessUnit. """
+
+        # First create a basic process unit.
+        with mock.patch('cwsl.core.pattern_dataset.PatternDataSet.glob_fs') as mock_glob:
+            
+            mock_glob.return_value = ['/a/fake/file/red_1986_2005_kangaroo.nc']
+
+            first_patternds = PatternDataSet('/a/fake/file/%colour%_%start%_%end%_%animal%.nc')
+            first_process = ProcessUnit([first_patternds], '/a/second/file_pattern/%colour%_%start%_%end%_%animal%.nc',
+                                        'echo')
+            result = first_process.execute(simulate=True)
+            
+            # Then take the output of that process and apply a mapping.
+            second_process = ProcessUnit([result], '/a/final/pattern/%colour%_%hist_start%_%hist_end%_%animal%.txt',
+                                         'echo', map_dict={'hist_start': ('start', 0),
+                                                           'hist_end': ('end', 0)})
+
+            final_out = second_process.execute(simulate=True)
+
+            expected_string = (self.script_header + "mkdir -p /a/final/output\necho" +
+                               "/a/second/file_pattern/red_1986_2005_kangaroo.nc " + 
+                               "/a/final/pattern/red_1986_2005_kangaroo.nc")
+
+            self.assertEqual(expected_string, the_process_unit.scheduler.job.to_str())
+            
