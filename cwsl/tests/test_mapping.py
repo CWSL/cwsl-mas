@@ -28,6 +28,7 @@ from cwsl.core.constraint import Constraint
 from cwsl.core.pattern_dataset import PatternDataSet
 from cwsl.core.process_unit import ProcessUnit
 from cwsl.core.metafile import MetaFile
+from cwsl.core.file_creator import FileCreator
 
 
 module_logger = logging.getLogger('cwsl.tests.test_mapping')
