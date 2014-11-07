@@ -86,7 +86,7 @@ class FileCreator(object):
                                            .format(constraint))
 
         # Set up the subset types (the attribute names present in the DataSet.
-        self.subset_types = [cons.key for cons in self.constraints]
+        self.cons_names = [cons.key for cons in self.constraints]
         self.huge_iterator = itertools.product(*[cons.values
                                                  for cons in self.constraints])
 
@@ -110,7 +110,6 @@ class FileCreator(object):
         """
 
         module_logger.debug("Search attribute dict is: {}".format(att_dict))
-        module_logger.debug("Subset types are: {}".format(self.subset_types))
         module_logger.debug("Before getting constraint, all constraints are: {}"
                             .format(self.constraints))
         
@@ -119,7 +118,7 @@ class FileCreator(object):
 
         to_loop = []
         existing_values = []
-        for key in self.subset_types:
+        for key in self.cons_names:
             # If a key is not in the att_dict, grab the existing constraint.
             if key not in search_keys:
                 existing_cons = self.get_constraint(key)
@@ -161,7 +160,7 @@ class FileCreator(object):
         """
         for combination in self.huge_iterator:
             # Create a set of constraints for this combination.
-            climate_file =  self.climate_file_from_combination(self.subset_types, combination,
+            climate_file =  self.climate_file_from_combination(self.cons_names, combination,
                                                                check=True, update=False)
             if climate_file:
                 yield climate_file
