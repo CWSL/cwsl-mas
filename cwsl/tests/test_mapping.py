@@ -27,6 +27,7 @@ from cwsl.configuration import configuration
 from cwsl.core.constraint import Constraint
 from cwsl.core.pattern_dataset import PatternDataSet
 from cwsl.core.process_unit import ProcessUnit
+from cwsl.core.metafile import MetaFile
 
 
 module_logger = logging.getLogger('cwsl.tests.test_mapping')
@@ -42,6 +43,44 @@ class TestMapping(unittest.TestCase):
         # Constant header for the job scripts.
         self.script_header = "#!/bin/sh\nset -e\n\nmodule purge\nexport CWSL_CTOOLS={}\nexport PYTHONPATH=$PYTHONPATH:{}/pythonlib\n"\
             .format(configuration.cwsl_ctools_path, configuration.cwsl_ctools_path)
+
+
+    def test_pattern_dataset_mapping(self):
+        
+        with mock.patch('cwsl.core.pattern_dataset.PatternDataSet.glob_fs') as mock_glob:
+            
+            # Add the mock fake glob function.
+            mock_glob.return_value = ["/a/file/green_monkey.txt",
+                                      "/a/file/blue_monkey.txt"]
+            
+            test_patternds = PatternDataSet("/a/file/%colour%_%animal%.txt")
+
+            # First get the files without mapping.
+            non_mapped_files = test_patternds.get_files({'colour': 'blue',
+                                                         'animal': 'monkey'})
+
+            # Add a mapping, get files for a different constraint set.
+            test_patternds.add_mapping('colour', 'new_colour')
+            
+            mapped_files = test_patternds.get_files({'new_colour': 'blue',
+                                                     'animal': 'monkey'})
+
+            fake_file = MetaFile('blue_monkey.txt', '/a/file',
+                                 {'colour': 'blue',
+                                  'animal': 'monkey'})
+
+            self.assertEqual(fake_file.all_atts, mapped_files[0].all_atts)
+            self.assertEqual(mapped_files, [fake_file])
+            self.assertEqual(mapped_files, non_mapped_files)
+
+    def test_filecreator_mapping(self):
+
+        # Create a file creator object.
+        the_file_creator = FileCreator("/a/file/%green%_%monkey%.txt",
+                                       set([Constraint('animal', ['monkey']),
+                                            Constraint('colour', ['green', 'blue'])]))
+
+        assert False
 
     def test_simple_mapping(self):
         """ Test using constraints from the input in the output pattern. """
