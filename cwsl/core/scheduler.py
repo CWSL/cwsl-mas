@@ -112,7 +112,7 @@ class SimpleJob(Job):
             self.add_pre_cmd(['mkdir', '-p'] + sorted(self.outdirs))
 
         if noexec:
-            log.warning("Would run script:\n\n========>\n%s\n<========\n\n" % self.to_str())
+            log.debug("Would run script:\n\n========>\n%s\n<========\n\n" % self.to_str())
         else:
             script_file, script_name = tempfile.mkstemp('.sh')
             script_file = os.fdopen(script_file, 'w+b')
