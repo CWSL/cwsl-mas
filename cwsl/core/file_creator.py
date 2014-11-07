@@ -22,16 +22,18 @@ import itertools
 import logging
 import os.path
 
+from cwsl.core.dataset import DataSet
 from cwsl.core.constraint import Constraint
 from cwsl.core.metafile import MetaFile
+
 
 module_logger = logging.getLogger('cwsl.core.file_creator')
 
 
 
-class FileCreator(object):
+class FileCreator(DataSet):
     '''
-    This class is an object that creates the output MockClimateFiles
+    This class is a DataSet that creates the output MockClimateFiles
     objects, given an output pattern and a set of Constraints.
 
     A FileCreator has a 'output_pattern' attribute which defines
@@ -97,6 +99,9 @@ class FileCreator(object):
 
         module_logger.debug("After init, self.constraints: {}"
                             .format(self.constraints))
+
+    def add_mapping(self, cons_name, alias):
+        pass
 
     def get_files(self, att_dict, check=False, update=True):
         """ This method returns all possible MockClimateFiles from the
