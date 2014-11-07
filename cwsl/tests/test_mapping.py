@@ -130,5 +130,5 @@ class TestMapping(unittest.TestCase):
                                "/a/second/file_pattern/red_1986_2005_kangaroo.nc " + 
                                "/a/final/pattern/red_1986_2005_kangaroo.nc")
 
-            self.assertEqual(expected_string, the_process_unit.scheduler.job.to_str())
+            self.assertEqual(expected_string, second_process.scheduler.job.to_str())
             
