@@ -37,3 +37,9 @@ class DataSet(object):
     def get_constraint(self, attribute_name):
         """ Given an attribute name, return the matching constraint."""
         return
+
+    @abc.abstractmethod
+    def add_mapping(self, cons_name, alias):
+        """ Add a mapping that allows a constraint on the DataSet to be
+        aliased to another. """
+        return
