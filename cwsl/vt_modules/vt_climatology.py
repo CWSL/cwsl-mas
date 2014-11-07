@@ -23,22 +23,64 @@ Part of the CWSLab Model Analysis Service VisTrails plugin.
 
 """
 
-from cwsl.vt_modules.base_module import BaseModule
+import subprocess
+
+from vistrails.core.modules import vistrails_module, basic_modules
+
+from cwsl.configuration import configuration
+from cwsl.core.constraint import Constraint
+from cwsl.core.process_unit import ProcessUnit
+from cwsl.core.pattern_generator import PatternGenerator
 
 
-class Climatology(BaseModule):
+class Climatology(vistrails_module.Module):
+
     ''' This module takes in a start and end year and performs time averaging on the input DataSet. '''
 
     # Define any extra module ports.
-    _input_ports += [('start_year', basic_modules.Integer,
-                      {'labels': str(['Begin at this year'])}),
-                     ('end_year', basic_modules.Integer,
-                      {'labels': str(['End at this year'])})]
-    
-    _execution_options['required_modules': ['cdo', 'nco']]
+    _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet'),
+                    ('start_year', basic_modules.Integer,
+                     {'labels': str(['Begin at this year'])}),
+                    ('end_year', basic_modules.Integer,
+                     {'labels': str(['End at this year'])})]
 
-    _module_setup['command': '${CWSL_CTOOLS}/aggregation/cdo_climatology.sh',
-                  'user_or_authoritative': 'user',
-                  'data_type': 'seasonal_aggregate']
+    _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
     
-    _positional_args = [('start_year', 0), ('end_year', 1)]]
+    _execution_options = {'required_modules': ['cdo', 'nco']}
+
+    _module_setup = {'command': '${CWSL_CTOOLS}/aggregation/cdo_climatology.sh',
+                     'user_or_authoritative': 'user',
+                     'data_type': 'seasonal_aggregate'}
+    
+    _positional_args = [('year_start', 0), ('year_end', 1)]
+
+    def compute(self):
+
+        self.out_pattern = PatternGenerator(self._module_setup['user_or_authoritative'],
+                                            self._module_setup['data_type']).pattern
+        self.command = self._module_setup['command']
+
+        in_dataset = self.getInputFromPort('in_dataset')
+        start_year = self.getInputFromPort('start_year')
+        end_year = self.getInputFromPort('end_year')
+
+        cons_for_output = set([Constraint('agg_type', ['clim']),
+                               Constraint('year_start', [start_year]),
+                               Constraint('year_end', [end_year])])
+        
+        # Execute the climatology process.
+        this_process = ProcessUnit([in_dataset],
+                                   self.out_pattern,
+                                   self.command,
+                                   cons_for_output,
+                                   execution_options=self._execution_options,
+                                   positional_args=self._positional_args)
+
+        try:
+            this_process.execute(simulate=configuration.simulate_execution)
+        except subprocess.CalledProcessError, e:
+            raise vistrails_module.ModuleError(self, e.output)
+            
+        process_output = this_process.file_creator
+
+        self.setResult('out_dataset', process_output)
