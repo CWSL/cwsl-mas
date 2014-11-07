@@ -17,76 +17,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 This module wraps the CDO command to create a climatology from input files.
+This is an experiment to test out the BaseModule inheritance class.
 
 Part of the CWSLab Model Analysis Service VisTrails plugin.
 
 """
 
-import os
-
-from vistrails.core.modules import vistrails_module
-from vistrails.core.modules import basic_modules
-
-from cwsl.configuration import configuration
-from cwsl.core.constraint import Constraint
-from cwsl.core.process_unit import ProcessUnit
-from cwsl.core.pattern_generator import PatternGenerator
+from cwsl.vt_modules.base_module import BaseModule
 
 
-class Climatology(vistrails_module.Module):
-    ''' This module creates climatogies from input seasonal files. '''
+class Climatology(BaseModule):
+    ''' This module takes in a start and end year and performs time averaging on the input DataSet. '''
 
-    # Define the module ports.
-    true_false = ["['true', 'false']"]
-    _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet',
-                     {'labels': str(['Input Dataset'])}),
-                    ('start_year', basic_modules.Integer,
-                     {'labels': str(['Begin at this year'])}),
-                    ('end_year', basic_modules.Integer,
-                     {'labels': str(['End at this year'])}),
-                    ('added_constraints', basic_modules.List, True,
-                     {'defaults': ["[]"]})]
+    # Define any extra module ports.
+    _input_ports += [('start_year', basic_modules.Integer,
+                      {'labels': str(['Begin at this year'])}),
+                     ('end_year', basic_modules.Integer,
+                      {'labels': str(['End at this year'])})]
+    
+    _execution_options['required_modules': ['cdo', 'nco']]
 
-    _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet'),
-                     ('out_constraints', basic_modules.String)]
-
-    def __init__(self):
-
-        super(Climatology, self).__init__()
-
-        self.simulate = configuration.simulate_execution
-
-        self.required_modules = ['cdo', 'cct_module', 'nco']
-
-        self.command = os.environ['CCT'] + '/manipulation/nc/cdo_climatology.sh'
-
-    def compute(self):
-
-        in_dataset = self.getInputFromPort("in_dataset")
-
-        start_year = self.getInputFromPort("start_year")
-        end_year = self.getInputFromPort("end_year")
-
-        added_constraints = self.getInputFromPort("added_constraints")
-
-        cons_for_output = set([Constraint('file_type', ['nc']),
-                               Constraint('seas_agg', ['seasavg'])])
-
-        # Add any extra constraints.
-        cons_for_output = set.union(cons_for_output, set(added_constraints))
-
-        out_pattern = PatternGenerator('user', 'seasonal_aggregate').pattern
-
-        command = self.command + ' ' + start_year + ' ' + end_year
-
-        # Execute the climatology process.
-        this_process = ProcessUnit([in_dataset],
-                                   out_pattern,
-                                   command,
-                                   cons_for_output)
-
-        this_process.execute(simulate=self.simulate)
-        process_output = this_process.file_creator
-
-        self.setResult('out_dataset', process_output)
-        self.setResult('out_constraints', str(process_output.constraints))
+    _module_setup['command': '${CWSL_CTOOLS}/aggregation/cdo_climatology.sh',
+                  'user_or_authoritative': 'user',
+                  'data_type': 'seasonal_aggregate']
+    
+    _positional_args = [('start_year', 0), ('end_year', 1)]]
