@@ -13,18 +13,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-This module contains the MetaFiles class.
+This module contains the MetaFile class.
 
 """
 
 import os
-
+import logging
 
 
 class MetaFile(object):
-    ''' This object represents a single file and it's stored attributes.
-
-    '''
+    """This object represents a single file and its stored attributes."""
 
     def __init__(self, filename, path_dir, all_atts):
 
@@ -48,6 +46,6 @@ class MetaFile(object):
         return val
 
     def __eq__(self, other):
-        # MetaFiles with the same hash are equal.
+        """ Two MetaFiles are equal if their hashs are equal."""
+        
         return(hash(self) == hash(other))
-            
