@@ -27,13 +27,11 @@ from cwsl.core.file_creator import FileCreator
 from cwsl.core.constraint import Constraint
 from cwsl.core.scheduler import SimpleExecManager
 
-
 module_logger = logging.getLogger('cwsl.core.process_unit')
 
 
 class ProcessUnit(object):
-    """ This class sets up the execution of an operation
-    performed on a DataSet.
+    """ This class sets up the execution of an operation performed on a DataSet.
 
     This class takes in a list of input DataSets, an output
     pattern to write files to, the shell command that needs to be
@@ -259,7 +257,6 @@ class ProcessUnit(object):
 
                 # The subprocess / queue submission is done here.
                 scheduler.add_cmd(final_command_list, out_files, annotation=annotation)
-                
 
         scheduler.submit()
 
@@ -270,7 +267,7 @@ class ProcessUnit(object):
 
     def apply_keyword_args(self, command_list, kw_cons_dict, prefix='--'):
         """ Add keywords from the keyword constraint dictionary to the command list."""
-        
+
         for keyword in self.cons_keywords:
             associated_cons_name = self.cons_keywords[keyword]
             this_att_value = kw_cons_dict[associated_cons_name]

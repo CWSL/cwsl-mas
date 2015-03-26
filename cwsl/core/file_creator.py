@@ -30,10 +30,8 @@ from cwsl.core.metafile import MetaFile
 module_logger = logging.getLogger('cwsl.core.file_creator')
 
 
-
 class FileCreator(DataSet):
-    '''
-    This class is a DataSet that creates the output MockClimateFiles
+    ''' This class is a DataSet that creates the output MockClimateFiles
     objects, given an output pattern and a set of Constraints.
 
     A FileCreator has a 'output_pattern' attribute which defines
@@ -71,7 +69,7 @@ class FileCreator(DataSet):
 
         self.output_pattern = output_pattern
 
-        # Make the constraints from the output pattern.
+        # Construct the initial constraints from the output pattern.
         self.constraints = FileCreator.constraints_from_pattern(output_pattern)
 
         # Add the extra constraints to the self.constraints, strip out any that
@@ -87,23 +85,28 @@ class FileCreator(DataSet):
                 raise EmptyConstraintError("Constraint {0} is empty - should be in canonical form!"
                                            .format(constraint))
 
-        # Set up the subset types (the attribute names present in the DataSet.
-        self.cons_names = [cons.key for cons in self.constraints]
-        self.huge_iterator = itertools.product(*[cons.values
-                                                 for cons in self.constraints])
-
         # A set to hold all the valid combinations of attributes.
         self.valid_combinations = set()
         # One to hold the valid_hashes
         self.valid_hashes = set()
 
+        # Dictionary to hold constraint mappings.
+        self.mapped_cons = {}
+
         module_logger.debug("After init, self.constraints: {}"
                             .format(self.constraints))
 
     def add_mapping(self, cons_name, alias):
-        """ This method must allow the FileCreator to alias constraints. """
+        """ This method allows the FileCreator to alias constraints.
 
-        pass
+        This means that when the FileCreator is asked for files, for
+        a particular constraint, it will instead get the alias Constraint.
+
+        """
+        
+        self.mapped_cons[alias] = cons_name
+        old_constraint = self.get_constraint(cons_name)
+        self.constraints.add(Constraint(alias, old_constraint.values))
 
     def get_files(self, att_dict, check=False, update=True):
         """ This method returns all possible MockClimateFiles from the
@@ -119,18 +122,22 @@ class FileCreator(DataSet):
         module_logger.debug("Search attribute dict is: {}".format(att_dict))
         module_logger.debug("Before getting constraint, all constraints are: {}"
                             .format(self.constraints))
-        
+
         # Get the keys of the input dictionary.
         search_keys = [att for att in att_dict.keys()]
 
+        cons_names = [cons.key for cons in self.constraints]
         to_loop = []
-        existing_values = []
-        for key in self.cons_names:
-            # If a key is not in the att_dict, grab the existing constraint.
-            if key not in search_keys:
+
+        # We do this for every constraint in the FileCreator
+        for key in cons_names:
+            if key in self.mapped_cons.values():
+                # This constraint has been aliased - skip it.
+                pass
+            elif key not in search_keys:
+                # If a key is not in the att_dict, grab the existing constraint.
                 existing_cons = self.get_constraint(key)
                 to_loop.append((existing_cons.key, existing_cons.values))
-                existing_values.append(existing_cons.values)
                 module_logger.debug("Adding {0} to to_loop: constraint from output"
                                     .format((existing_cons.key, existing_cons.values)))
                 assert(type(existing_cons.values == set))
@@ -165,13 +172,18 @@ class FileCreator(DataSet):
         that exist in this file_creator.
 
         """
-        for combination in self.huge_iterator:
+
+        huge_iterator = itertools.product(*[cons.values
+                                            for cons in self.constraints])
+        cons_names = [cons.key for cons in self.constraints]
+
+        for combination in huge_iterator:
             # Create a set of constraints for this combination.
-            climate_file =  self.climate_file_from_combination(self.cons_names, combination,
+            climate_file =  self.climate_file_from_combination(cons_names, combination,
                                                                check=True, update=False)
             if climate_file:
                 yield climate_file
-                
+
     def get_constraint(self, attribute_name):
         """ Get a particular constraint by name."""
 
@@ -192,7 +204,6 @@ class FileCreator(DataSet):
         module_logger.debug("existing cons names is: {}"
                             .format(existing_cons_names))
 
-        
         # Now add the constraints - only if they are in the pattern!
         module_logger.debug("new_constraints is: {}"
                             .format(new_constraints))
@@ -243,6 +254,13 @@ class FileCreator(DataSet):
         for key, value in zip(keys, next_combination):
             sub_dict[key] = value
             cons_list.append(Constraint(key, [value]))
+
+        # Apply the name mapping/aliasing
+        mapped = [key for key in sub_dict
+                  if key in self.mapped_cons]
+        for key in mapped:
+            old_cons = self.mapped_cons[key]
+            sub_dict[old_cons] = sub_dict[key]
 
         module_logger.debug("Substitution dictionary sub_dict = {0}".format(sub_dict))
         new_file = self.output_pattern
@@ -330,4 +348,3 @@ class ExtraConstraintError(Exception):
 
     def __repr__(self):
         return repr(self.constraint)
-
