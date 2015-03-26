@@ -27,11 +27,12 @@ from cwsl.core.file_creator import FileCreator
 from cwsl.core.constraint import Constraint
 from cwsl.core.scheduler import SimpleExecManager
 
+
 module_logger = logging.getLogger('cwsl.core.process_unit')
 
 
 class ProcessUnit(object):
-    """ This class sets up the execution of an operation performed on a DataSet.
+    """ This class sets up the execution of an operation performed on input DataSets.
 
     This class takes in a list of input DataSets, an output
     pattern to write files to, the shell command that needs to be
@@ -47,58 +48,100 @@ class ProcessUnit(object):
 
     """
 
-    def __init__(self, inputlist, output_pattern, 
-                 shell_command, extra_constraints=set([]), 
-                 map_dict={}, cons_keywords={}, 
-                 positional_args=[], execution_options={}):
+    def __init__(self, inputlist, output_pattern, shell_command,
+                 extra_constraints=None, map_dict=None, cons_keywords=None,
+                 positional_args=None, execution_options=None):
 
-        """ The class takes in a DataSet object, constraints to change and
-        the path to an executable. It has an self.execute() method that
-        returns a FileCreator to be used as input to the next module.
+        """ 
+        Arguments:
+        
+        inputlist: A list of input DataSets to get files from.
 
-        Extra constraints to be applied to the output are given by
-        extra_constraints.
+        output_pattern: A filename pattern to use for data output.
 
-        map_dict is a dictionary linking constraint names in the input DataSets
-        to new constraints in the output. e.g.
-        if map_dict = {"obs-model" ("model", 0)} then the "model" constraint in the
-        input position 0 is renamed to be the "obs-model" Constraint in the output.
+        shell_command: The base shell command for the process to run.
+
+        Optional:
+        
+        extra_constraints: Extra constraints to be applied to the output.
+
+        map_dict: a dictionary linking constraint names in the input DataSets
+                  to new constraints in the output. e.g.
+                  if map_dict = {"obs-model": ("model", 0)} then the "model" constraint in the
+                  input position 0 is renamed to be the "obs-model" Constraint in the output.
+        
+        cons_keywords: Used in building the command to be run, if a constraint has to
+                       be used as a keyword argument.
+
+        positional_args: Used in building the command to be run, if a constraint
+                         has to be used as a positional argument.
+
+        execution_options: A dictionary to pass options like required queues, walltime,
+                           required modules etc. to the process unit. Currently only
+                           required_modules is implemented.
 
         """
 
         self.inputlist = inputlist
+        self.shell_command = shell_command
+        self.execution_options = execution_options
+        
         self.cons_keywords = cons_keywords
         self.positional_args = positional_args
-        self.execution_options = execution_options
-        self.extra_constraints = extra_constraints
-        self.shell_command = shell_command
-
-        # Make a list of mappings between renamed constraints of the
-        # input and constraints in the output.
-        self.map_dict = map_dict
-        self.mapped_con_names = [cons_name for cons_name in map_dict]
-
+                
         # The initial Constraints for the output are built from the
         # output file pattern.
-        self.output_constraints = set(FileCreator.constraints_from_pattern(output_pattern))
+        pattern_constraints = set(FileCreator.constraints_from_pattern(output_pattern))
 
         # Apply mappings to copy the required Constraints from the input that will be used
         # in the output to the final collection of output constraints.
-        self.apply_mappings()
+        mapped_constraints = self.apply_mappings(pattern_constraints,
+                                                 map_dict)
 
         # Apply extra constraints given in constructor.
-        self.fill_constraints_from_extras()
-        
-        # Fill the empty output constraints from the input DataSets.
-        self.fill_from_input()        
-        
-        module_logger.debug("Final output constraints are: {0}".format(self.output_constraints))
+        filled_constraints = self.fill_constraints_from_extras(self.mapped_constraints,
+                                                               extra_constraints)
+
+        # Finallly fill the empty output constraints from the input DataSets.
+        self.final_constraints = self.fill_from_input(self.inputlist, filled_constraints)
+        module_logger.debug("Final output constraints are: {0}".format(self.final_constraints))
 
         # Make a file_creator from the new, fixed constraints.
-        self.file_creator = FileCreator(output_pattern, self.output_constraints)
+        self.file_creator = FileCreator(output_pattern, self.final_constraints)
+
+    def apply_mappings(self, input_cons, map_dict):
+        """ Apply the mapping dictionary to constraints.
+
+        This method applies the required mappings of input constraint to
+        output constraint for all the input datasets.
+
+        """
+
+        if map_dict is None:
+            return input_cons
+        
+        module_logger.debug("Before applying mappings, constraints for the output are: {}"
+                            .format(input_cons))
+
+        to_remove = []
+        for map_name, map_spec in map_dict.items():
+            
+            # First update the outputs with values from the input.
+            found_con = self.inputlist[map_spec[1]].get_constraint(map_spec[0])
+            
+            input_cons.add(Constraint(map_name, found_con.values))
+            input_cons.remove(Constraint(map_name, []))
+
+            self.inputlist[map_spec[1]].add_mapping(map_name, map_spec[0])
+
+        
+        module_logger.debug("After applying mappings, output_constraints are: {}"
+                            .format(input_cons))
+
+        return input_cons
 
     def fill_from_input(self):
-        
+
         module_logger.debug("Before filling from input, output_constraints are: {}"
                             .format(self.output_constraints))
 
@@ -124,66 +167,28 @@ class ProcessUnit(object):
         module_logger.debug("After filling from input, output_constraints are: {}"
                             .format(self.output_constraints))
 
-    def apply_mappings(self):
-        module_logger.debug("Before applying mappings, output_constraints are: {}"
-                            .format(self.output_constraints))
-
-        to_remove = []
-        for map_name, map_spec in self.map_dict.items():
-            # First update the outputs with values from the input.
-            found_con = self.inputlist[map_spec[1]].get_constraint(map_spec[0])
-            self.output_constraints.add(Constraint(map_name, found_con.values))
-            # Remove the empty constraint.
-            self.output_constraints.remove(Constraint(map_name, []))
-
-            # Update the subsets dictionary for the input.
-            for value in found_con.values:
-                module_logger.debug("Updating subsets for {}: {}"
-                                    .format(map_name, value))
-                found_files = self.inputlist[map_spec[1]].get_files({found_con.key: value})
-                module_logger.debug("Found files are: {}".format(found_files))
-                self.inputlist[map_spec[1]].subsets[map_name][value] = [file_ob.full_path
-                                                                        for file_ob in found_files]
-
-            # Added the mapped constraint to the input self.cons_names
-            self.inputlist[map_spec[1]].cons_names.append(map_name)
-            # Removed the now obsolete constraint.
-            self.inputlist[map_spec[1]].cons_names.remove(map_spec[0])
-                
-            # Now alter the valid combinations of the input.
-            fixed_combinations = set([])
-            for combination in self.inputlist[map_spec[1]].valid_combinations:
-                module_logger.debug("Original combination is: {}".format(combination))
-                new_list = []
-                for constraint in combination:
-                    if constraint.key == map_spec[0]:
-                        new_list.append(Constraint(map_name, constraint.values))
-                    new_list.append(constraint)
-                module_logger.debug("New combination is: {}".format(new_list))
-                fixed_combinations.add(frozenset(new_list))
-            self.inputlist[map_spec[1]].valid_combinations = fixed_combinations
-
-        module_logger.debug("After applying mappings, output_constraints are: {}"
-                            .format(self.output_constraints))
-
-
+    def fill_constraints_from_extras(self, output_constraints,
+                                     extra_constraints):
+        """ Fills the constraints generated from the file name
         
-    def fill_constraints_from_extras(self):
+        Returns a set of constraints fill with extras
+        given when constructing the class.
+        """
 
         module_logger.debug("Before filling from extras, output constraints: {}"
                             .format(self.output_constraints))
 
         module_logger.debug("Extra constraints to fill are: {}"
-                            .format(self.extra_constraints))
+                            .format(extra_constraints))
 
         # Make sure we are not overwriting with empty constraints.
-        for cons in self.extra_constraints:
+        for cons in extra_constraints:
             if not cons.values:
                 raise EmptyOverwriteError("Constraint {} is being used to overwrite"
                                           .format(cons))
 
         # Find the empty constraints to fill.
-        empty_cons_names = [cons.key for cons in self.output_constraints
+        empty_cons_names = [cons.key for cons in output_constraints
                             if not cons.values]
         module_logger.debug("Attempting to fill: {}"
                             .format(empty_cons_names))
@@ -191,25 +196,32 @@ class ProcessUnit(object):
         # Lists to hold constraints to add or remove.
         to_add = []
         to_remove = []
-        
+
         # Add the extra_constraints if they are found in the output.
-        for cons in self.extra_constraints:
+        for cons in extra_constraints:
             if cons.key in empty_cons_names:
                 to_add.append(cons)
                 # Remove the empty.
-                to_remove += [bad_cons for bad_cons in self.output_constraints
+                to_remove += [bad_cons for bad_cons in output_constraints
                               if bad_cons.key == cons.key]
 
         for cons in to_remove:
-            self.output_constraints.remove(cons)
+            output_constraints.remove(cons)
         for cons in to_add:
-            self.output_constraints.add(cons)
+            output_constraints.add(cons)
 
         module_logger.debug("After filling from extras, output constraints: {}"
-                            .format(self.output_constraints))
+                            .format(output_constraints))
+
+        return output_constraints
 
     def execute(self, simulate=False):
-        """ This method runs the actual process."""
+        """ This method runs the actual process.
+
+        This method returns a FileCreator to be used
+        as input to the next VisTrails module.
+
+        """
 
         # Check that cws_ctools_path is set
         if not configuration.cwsl_ctools_path or not os.path.exists(configuration.cwsl_ctools_path):
@@ -237,14 +249,14 @@ class ProcessUnit(object):
             if combination:
                 in_files, out_files = self.get_fullnames((combination[0], combination[1]))
                 this_dict = combination[2]
-                                
+
                 module_logger.info("in_files are:")
                 module_logger.info(in_files)
                 module_logger.info("out_files are:")
                 module_logger.info(out_files)
 
                 base_cmd_list = [self.shell_command] + in_files + out_files
-                
+
                 # Now apply any keyword arguments and positional args.
                 keyword_command_list = self.apply_keyword_args(base_cmd_list, this_dict)
                 final_command_list = self.apply_positional_args(keyword_command_list, this_dict)
@@ -275,10 +287,10 @@ class ProcessUnit(object):
             command_list.append(prefix + keyword + ' ' + this_att_value)
 
         return command_list
-    
+
     def apply_positional_args(self, arg_list, constraint_dict):
         """ Add positional args to a list of command arguments. """
-        
+
         for arg_tuple in self.positional_args:
             arg_name = arg_tuple[0]
             position = arg_tuple[1]
@@ -294,7 +306,7 @@ class ProcessUnit(object):
                 arg_list.insert(position, this_att_value)
             else:
                 arg_list.append(this_att_value)
-                
+
         return arg_list
 
     def get_fullnames(self, combination):
