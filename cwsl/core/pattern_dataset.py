@@ -32,37 +32,34 @@ from cwsl.core.file_creator import FileCreator
 module_logger = logging.getLogger('cwsl.core.pattern_dataset')
 
 
-
 class PatternDataSet(DataSet):
-    """ This implmentation of the DataSet abstract class builds a collection of 
-   
+    """ This implmentation of the DataSet abstract class builds a collection of
+
     files and attributes by scanning a pattern on the file system.
-
-    It takes in a filename pattern string in the command-line
-    pipeline format - e.g.:
-
-    pattern_to_glob = "/home/bed02b/test/%colour%/%texture%/%fruit%_%colour%.%file_type%"
 
     """
 
-    def __init__(self, pattern_to_glob,
-                 constraint_set=set()):
+    def __init__(self, pattern_to_glob, constraint_set=set()):
+        """ Arguments:
 
-        self._files = None
+        pattern_to_glob: this is a string filename pattern, with placeholders
+                         surrounding attribute names.
+                         e.g. "/home/billy/test/%colour%/%texture%/%fruit%_%colour%.%file_type%"
         
-        # Check that added constraints are also found in the input pattern.
-        generated_cons = FileCreator.constraints_from_pattern(pattern_to_glob)
-        gen_names = [cons.key for cons in generated_cons]
-        for cons in constraint_set:
-            if cons.key not in gen_names:
-                raise ConstraintNotFoundError("Constraint {} is not found in output pattern {}".
-                                              format(cons.key, pattern_to_glob))
+        constraint_set: A set of Constraint objects to restrict the values the
+                        attributes can take.
+        """
+        
+        self._files = None
+
+        self.check_filename_pattern(pattern_to_glob,
+                                    constraint_set)
 
         if constraint_set:
             self.restricted_patterns = []
             given_names, given_values = zip(*[(cons.key, cons.values)
                                               for cons in constraint_set])
-            
+
             # Generate all combinations
             for combination in itertools.product(*given_values):
                 new_pattern = pattern_to_glob
@@ -107,12 +104,22 @@ class PatternDataSet(DataSet):
         # If there are already files found, do not glob.
         if not self._files:
             self._files = self.glob_fs()
-                                        
+
         return self._files
-    
+
+    def check_filename_pattern(self, glob_pattern, constraints):
+        """ Check that added constraints are also found in the input pattern."""
+        
+        generated_cons = FileCreator.constraints_from_pattern(glob_pattern)
+        gen_names = [cons.key for cons in generated_cons]
+        for cons in constraints:
+            if cons.key not in gen_names:
+                raise ConstraintNotFoundError("Constraint {} is not found in output pattern {}".
+                                              format(cons.key, pattern_to_glob))
+
     def glob_fs(self):
         """ Returns a list of the files that match the
-                
+
         glob patterns.
 
         """
@@ -129,7 +136,7 @@ class PatternDataSet(DataSet):
         return iter(self.files)
 
     def add_mapping(self, cons_name, alias):
-        
+
         # Add the aliased constraints to self.constraints.
         old_cons = self.get_constraint(cons_name)
         new_cons = Constraint(alias, old_cons.values)
@@ -144,10 +151,10 @@ class PatternDataSet(DataSet):
             module_logger.debug("Found files are: {}".format(found_files))
             self.subsets[alias][value] = set([file_ob.full_path
                                               for file_ob in found_files])
-            
+
         # Update the constraint names.
         self.cons_names = [cons.key for cons in self.constraints]
-        
+
 
     def get_constraint(self, attribute_name):
         """ Get a particular constraint by name."""
@@ -249,7 +256,7 @@ class PatternDataSet(DataSet):
         for full_path in all_files:
             path, name = os.path.split(full_path)
             output.append(MetaFile(name, path, {}))
-        
+
         return output
 
     def create_subsets(self):

@@ -84,22 +84,31 @@ class ProcessUnit(object):
 
         self.inputlist = inputlist
         self.shell_command = shell_command
-        self.execution_options = execution_options
-        
-        self.cons_keywords = cons_keywords
-        self.positional_args = positional_args
+
+        # To avoid mutable defaults problems, set
+        # Nones to empty dicts.
+        if execution_options:
+            self.execution_options = execution_options
+        else:
+            self.execution_options = {}
+        if cons_keywords:
+            self.cons_keywords = cons_keywords
+        else:
+            self.cons_keywords = {}
+        if positional_args:
+            self.positional_args = positional_args
+        else:
+            self.positional_args = {}
                 
-        # The initial Constraints for the output are built from the
-        # output file pattern.
+        # The initial Constraints are built from the output file pattern.
         pattern_constraints = set(FileCreator.constraints_from_pattern(output_pattern))
 
-        # Apply mappings to copy the required Constraints from the input that will be used
-        # in the output to the final collection of output constraints.
+        # Apply mappings: Constraint name changes from input to output.
         mapped_constraints = self.apply_mappings(pattern_constraints,
                                                  map_dict)
 
-        # Apply extra constraints given in constructor.
-        filled_constraints = self.fill_constraints_from_extras(self.mapped_constraints,
+        # Apply extra constraints given in the constructor.
+        filled_constraints = self.fill_constraints_from_extras(mapped_constraints,
                                                                extra_constraints)
 
         # Finallly fill the empty output constraints from the input DataSets.
@@ -109,75 +118,67 @@ class ProcessUnit(object):
         # Make a file_creator from the new, fixed constraints.
         self.file_creator = FileCreator(output_pattern, self.final_constraints)
 
-    def apply_mappings(self, input_cons, map_dict):
+    def apply_mappings(self, constraints, map_dict):
         """ Apply the mapping dictionary to constraints.
 
         This method applies the required mappings of input constraint to
         output constraint for all the input datasets.
 
         """
-
+        
         if map_dict is None:
-            return input_cons
+            return constraints
         
         module_logger.debug("Before applying mappings, constraints for the output are: {}"
-                            .format(input_cons))
-
-        to_remove = []
+                            .format(constraints))
         for map_name, map_spec in map_dict.items():
-            
-            # First update the outputs with values from the input.
-            found_con = self.inputlist[map_spec[1]].get_constraint(map_spec[0])
-            
-            input_cons.add(Constraint(map_name, found_con.values))
-            input_cons.remove(Constraint(map_name, []))
+            self.inputlist[map_spec[1]].add_mapping(map_spec[0], map_name)
 
-            self.inputlist[map_spec[1]].add_mapping(map_name, map_spec[0])
-
-        
         module_logger.debug("After applying mappings, output_constraints are: {}"
-                            .format(input_cons))
+                            .format(constraints))
 
-        return input_cons
+        return constraints
 
-    def fill_from_input(self):
+    def fill_from_input(self, inputlist, constraints):
 
         module_logger.debug("Before filling from input, output_constraints are: {}"
-                            .format(self.output_constraints))
+                            .format(constraints))
 
         new_cons = set([])
         to_remove = []
-        for cons in self.output_constraints:
+        for cons in constraints:
             if not cons.values:
                 module_logger.debug("Trying to fill constraint: {}"
                                     .format(cons))
                 found_cons = set([input_ds.get_constraint(cons.key)
-                                  for input_ds in self.inputlist
+                                  for input_ds in inputlist
                                   if input_ds.get_constraint(cons.key)])
+                
                 module_logger.debug("Found constraints: {}"
                                     .format(found_cons))
                 new_cons = new_cons.union(found_cons)
                 to_remove.append(cons)
 
         for cons in to_remove:
-            self.output_constraints.remove(cons)
+            constraints.remove(cons)
 
-        self.output_constraints = self.output_constraints.union(new_cons)
+        constraints = constraints.union(new_cons)
 
         module_logger.debug("After filling from input, output_constraints are: {}"
-                            .format(self.output_constraints))
+                            .format(constraints))
 
-    def fill_constraints_from_extras(self, output_constraints,
+        return constraints
+
+    def fill_constraints_from_extras(self, constraints,
                                      extra_constraints):
-        """ Fills the constraints generated from the file name
+        """ Add extra constraints to a set of constraints."""
+
         
-        Returns a set of constraints fill with extras
-        given when constructing the class.
-        """
+        if extra_constraints is None:
+            extra_constraints = []
 
         module_logger.debug("Before filling from extras, output constraints: {}"
-                            .format(self.output_constraints))
-
+                            .format(constraints))
         module_logger.debug("Extra constraints to fill are: {}"
                             .format(extra_constraints))
 
@@ -188,7 +189,7 @@ class ProcessUnit(object):
                                           .format(cons))
 
         # Find the empty constraints to fill.
-        empty_cons_names = [cons.key for cons in output_constraints
+        empty_cons_names = [cons.key for cons in constraints
                             if not cons.values]
         module_logger.debug("Attempting to fill: {}"
                             .format(empty_cons_names))
@@ -197,23 +198,23 @@ class ProcessUnit(object):
         to_add = []
         to_remove = []
 
-        # Add the extra_constraints if they are found in the output.
         for cons in extra_constraints:
+            # Add the extra_constraints if they are found in the output.
             if cons.key in empty_cons_names:
                 to_add.append(cons)
                 # Remove the empty.
-                to_remove += [bad_cons for bad_cons in output_constraints
+                to_remove += [bad_cons for bad_cons in constraints
                               if bad_cons.key == cons.key]
 
         for cons in to_remove:
-            output_constraints.remove(cons)
+            constraints.remove(cons)
         for cons in to_add:
-            output_constraints.add(cons)
+            constraints.add(cons)
 
         module_logger.debug("After filling from extras, output constraints: {}"
-                            .format(output_constraints))
+                            .format(constraints))
 
-        return output_constraints
+        return constraints
 
     def execute(self, simulate=False):
         """ This method runs the actual process.
@@ -234,6 +235,7 @@ class ProcessUnit(object):
 
         #TODO determine scheduler from user options.
         scheduler = SimpleExecManager(noexec=simulate)
+        
         if self.execution_options.has_key('required_modules'):
             scheduler.add_module_deps(self.execution_options['required_modules'])
 
@@ -310,6 +312,7 @@ class ProcessUnit(object):
         return arg_list
 
     def get_fullnames(self, combination):
+        """ Generate the full file paths, given a tuple of metafile lists."""
 
         in_files = []
         for qs in combination[0]:
