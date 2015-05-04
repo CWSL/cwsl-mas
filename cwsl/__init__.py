@@ -44,5 +44,3 @@ def package_dependencies():
         return ['org.vistrails.vistrails.spreadsheet']
     else:
         return []
-
-
