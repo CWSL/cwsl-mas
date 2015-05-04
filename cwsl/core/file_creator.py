@@ -90,23 +90,8 @@ class FileCreator(DataSet):
         # One to hold the valid_hashes
         self.valid_hashes = set()
 
-        # Dictionary to hold constraint mappings.
-        self.mapped_cons = {}
-
         module_logger.debug("After init, self.constraints: {}"
                             .format(self.constraints))
-
-    def add_mapping(self, cons_name, alias):
-        """ This method allows the FileCreator to alias constraints.
-
-        This means that when the FileCreator is asked for files, for
-        a particular constraint, it will instead get the alias Constraint.
-
-        """
-        
-        self.mapped_cons[alias] = cons_name
-        old_constraint = self.get_constraint(cons_name)
-        self.constraints.add(Constraint(alias, old_constraint.values))
 
     def get_files(self, att_dict, check=False, update=True):
         """ This method returns all possible MockClimateFiles from the
@@ -131,10 +116,7 @@ class FileCreator(DataSet):
 
         # We do this for every constraint in the FileCreator
         for key in cons_names:
-            if key in self.mapped_cons.values():
-                # This constraint has been aliased - skip it.
-                pass
-            elif key not in search_keys:
+            if key not in search_keys:
                 # If a key is not in the att_dict, grab the existing constraint.
                 existing_cons = self.get_constraint(key)
                 to_loop.append((existing_cons.key, existing_cons.values))
@@ -254,13 +236,6 @@ class FileCreator(DataSet):
         for key, value in zip(keys, next_combination):
             sub_dict[key] = value
             cons_list.append(Constraint(key, [value]))
-
-        # Apply the name mapping/aliasing
-        mapped = [key for key in sub_dict
-                  if key in self.mapped_cons]
-        for key in mapped:
-            old_cons = self.mapped_cons[key]
-            sub_dict[old_cons] = sub_dict[key]
 
         module_logger.debug("Substitution dictionary sub_dict = {0}".format(sub_dict))
         new_file = self.output_pattern

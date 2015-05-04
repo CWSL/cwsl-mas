@@ -135,27 +135,6 @@ class PatternDataSet(DataSet):
 
         return iter(self.files)
 
-    def add_mapping(self, cons_name, alias):
-
-        # Add the aliased constraints to self.constraints.
-        old_cons = self.get_constraint(cons_name)
-        new_cons = Constraint(alias, old_cons.values)
-
-        self.constraints.add(new_cons)
-
-        # Update the subsets.
-        for value in old_cons.values:
-            module_logger.debug("Updating subsets for {}: {}"
-                                .format(cons_name, value))
-            found_files = self.get_files({cons_name: value})
-            module_logger.debug("Found files are: {}".format(found_files))
-            self.subsets[alias][value] = set([file_ob.full_path
-                                              for file_ob in found_files])
-
-        # Update the constraint names.
-        self.cons_names = [cons.key for cons in self.constraints]
-
-
     def get_constraint(self, attribute_name):
         """ Get a particular constraint by name."""
 
