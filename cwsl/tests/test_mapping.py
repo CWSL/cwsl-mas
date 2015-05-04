@@ -117,9 +117,6 @@ class TestMapping(unittest.TestCase):
 
             ds_result = the_process_unit.execute(simulate=True)
 
-            outfiles = [file_thing for file_thing in ds_result.files]
-            self.assertEqual(len(outfiles), 3)
-
             expected_string = (self.script_header +
                                "mkdir -p /a/fake/output\necho /a/fake/MIROC_tas_netCDF /a/fake/output/MIROC_tas_netCDF\n" +
                                "echo /a/fake/ACCESS1-0_tas_netCDF /a/fake/output/ACCESS1-0_tas_netCDF\n" +

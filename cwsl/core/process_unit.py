@@ -129,13 +129,8 @@ class ProcessUnit(object):
         if map_dict is None:
             return constraints
         
-        module_logger.debug("Before applying mappings, constraints for the output are: {}"
-                            .format(constraints))
         for map_name, map_spec in map_dict.items():
             self.inputlist[map_spec[1]].add_mapping(map_spec[0], map_name)
-
-        module_logger.debug("After applying mappings, output_constraints are: {}"
-                            .format(constraints))
 
         return constraints
 
@@ -229,7 +224,7 @@ class ProcessUnit(object):
             raise Exception("cwsl_ctools_path is not set in package options")
 
         # We now create a looper to compare all the input Datasets with
-        # the output fileCreators.
+        # the output FileCreators.
         this_looper = ArgumentCreator(self.inputlist, self.file_creator)
         module_logger.debug("Created ArgumentCreator: {0}".format(this_looper))
 
@@ -247,6 +242,7 @@ class ProcessUnit(object):
         # For every valid possible combination, apply any positional and
         # keyword args, then add the command to the scheduler.
         for combination in this_looper:
+            print("Combination: " + str(combination))
             module_logger.debug("Combination: " + str(combination))
             if combination:
                 in_files, out_files = self.get_fullnames((combination[0], combination[1]))

@@ -115,7 +115,7 @@ class PatternDataSet(DataSet):
         for cons in constraints:
             if cons.key not in gen_names:
                 raise ConstraintNotFoundError("Constraint {} is not found in output pattern {}".
-                                              format(cons.key, pattern_to_glob))
+                                              format(cons.key, glob_pattern))
 
     def glob_fs(self):
         """ Returns a list of the files that match the
