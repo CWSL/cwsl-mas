@@ -242,7 +242,7 @@ class ProcessUnit(object):
         # For every valid possible combination, apply any positional and
         # keyword args, then add the command to the scheduler.
         for combination in this_looper:
-            print("Combination: " + str(combination))
+            #print("Combination: " + str(combination))
             module_logger.debug("Combination: " + str(combination))
             if combination:
                 in_files, out_files = self.get_fullnames((combination[0], combination[1]))

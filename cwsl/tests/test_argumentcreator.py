@@ -84,6 +84,3 @@ class TestArgumentCreator(unittest.TestCase):
         # There are three animals.
         self.assertEqual(3, len(all_outs))
 
-        print("\n")
-        print(all_outs)
-
