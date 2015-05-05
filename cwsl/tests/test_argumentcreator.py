@@ -108,3 +108,32 @@ class TestArgumentCreator(unittest.TestCase):
             all_things.append(combination)
 
         self.assertEqual(3, len(all_things))
+
+    def test_two_inputs(self):
+        """ Test that the ArgumentCreator works with multiple input datasets."""
+
+        multi_ds_creator = FileCreator("/output/%animal%.output",
+                                       [self.test_patternds_1.get_constraint("animal")])
+        
+        looper = ArgumentCreator([self.test_patternds_1, self.test_patternds_2],
+                                 multi_ds_creator)
+
+        all_outs = []
+        for thing in looper:
+            self.assertGreaterEqual(len(thing[0]), len(thing[1]))
+            all_outs.append(thing)
+            
+        # There are three animals.
+        self.assertEqual(3, len(all_outs))
+
+        # The order is rabbit, bilby, moose
+        # Rabbit: 2 ins, 1 in,  1 out.
+        self.assertEqual(len(all_outs[0][0][0]), 2)
+        self.assertEqual(len(all_outs[0][0][1]), 1)
+        self.assertEqual(len(all_outs[0][1]), 1)
+
+        # Bilby: 1 in, 1 in, 1 out
+        self.assertEqual(len(all_outs[1][0][0]), 1)
+        self.assertEqual(len(all_outs[1][0][1]), 1)
+        self.assertEqual(len(all_outs[1][1]), 1)
+
