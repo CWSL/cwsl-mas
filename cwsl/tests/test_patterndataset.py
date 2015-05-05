@@ -118,3 +118,27 @@ class TestPatternDataSet(unittest.TestCase):
 
             self.assertEqual(pattern_ds.constraints, self.fake_constraints)
 
+    def test_alias_constraints(self):
+        """ The PatternDataSet should be able to alias Constraints.
+
+        This means when asked to get files for the aliased Constraint, it should
+        return files from another Constraints.
+        
+        """
+
+        with mock.patch('cwsl.core.pattern_dataset.PatternDataSet.glob_fs') as mock_glob:
+            mock_glob.return_value = self.mock_file_list
+
+            pattern_ds = PatternDataSet(self.mock_file_pattern)
+            
+            # Apply the constraint alias - when asked for hue,
+            # it will give you colour.
+            pattern_ds.alias_constraint("colour", "hue")
+            
+            found_files = pattern_ds.get_files({'hue': 'red',
+                                                'animal': 'kangaroo'})
+
+            self.assertEqual(1, len(found_files))
+            self.assertEqual("/fake/red_kangaroo.txt",
+                             found_files[0].full_path)
+            

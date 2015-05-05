@@ -224,9 +224,22 @@ class PatternDataSet(DataSet):
 
         files_returned = []
 
+        all_valid_names = self.cons_names
+        try:
+            all_valid_names += self.alias_map.keys()
+        except:
+            pass
+
         for key in reqs_dict:
-            if key in self.cons_names:
-                att_value = reqs_dict[key]
+            if key in all_valid_names:
+
+                try:
+                    old_key = key
+                    key = self.alias_map[key]
+                except:
+                    old_key = key
+
+                att_value = reqs_dict[old_key]
                 files_returned.append(self.subsets[key][att_value])
 
         if not files_returned:

@@ -37,3 +37,12 @@ class DataSet(object):
     def get_constraint(self, attribute_name):
         """ Given an attribute name, return the matching constraint."""
         return
+
+    def alias_constraint(self, existing_constraint, alias):
+        """ Alias a constraint for masking purposes. """
+        
+        try:
+            self.alias_map[alias] = existing_constraint
+        except AttributeError:
+            self.alias_map = {}
+            self.alias_map[alias] = existing_constraint
