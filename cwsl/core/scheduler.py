@@ -54,7 +54,9 @@ class Job(object):
         @param args: Command line to be added.
         @type  args: string
         """
-        self.cmds.append(args)
+        
+        str_args = [str(arg) for arg in args]
+        self.cmds.append(str_args)
 
     def __repr__(self):
         return self.to_str()
