@@ -36,7 +36,7 @@ class ArgumentCreator(object):
     1. The ArgumentCreator adds/removes no attributes.
         In this case, there is a one-to-one mapping between input and output.
 
-        Here the ArgumentCreator should return the a tuple (inputfile, outputfile),
+        Here the ArgumentCreator should return a tuple (inputfile, outputfile),
         one output file (from the file creator) for each file
         in the input DataSet.
 
@@ -62,9 +62,7 @@ class ArgumentCreator(object):
 
     '''
 
-    def __init__(self, input_datasets, output_file_creators,
-                 map_dict={}):
-
+    def __init__(self, input_datasets, output_file_creators):
         ''' The class takes in a list of DataSet objects for its input and
         a list of FileCreator objects for output.
 
@@ -78,8 +76,6 @@ class ArgumentCreator(object):
 
         self.inputs = input_datasets
         self.output = output_file_creators
-
-        self.map_dict = map_dict
 
         # Put the inputs/outputs into lists if they are not iterable.
         if not hasattr(self.inputs, '__iter__'):
@@ -168,7 +164,6 @@ class ArgumentCreator(object):
             in_cons.add(new_constraint)
             for cons in match_cons:
                 in_cons.remove(cons)
-        
 
         # Now fix up empty output constraints.
         new_outs = set()
@@ -229,11 +224,8 @@ class ArgumentCreator(object):
             module_logger.debug("Input list is: {}".format(input_list))
             yield(set(input_list))
         
-
     def next(self):
-        """ Return the next group of input and output file/metafile objects.
-
-        """
+        """ Return the next group of input and output file/metafile objects."""
 
         next_in = None
         next_out = None
@@ -294,13 +286,12 @@ class ArgumentCreator(object):
             next_in = in_metas
             next_out = out_metas
 
-            # This combination is done, at its hash to the list.
+            # This combination is done, add its hash to the list.
             self.done_combinations.append(this_hash)
 
             # Returns a tuple of lists if a file exists, otherwise loop again.
             if next_in and next_out:
                 full_return = dict(this_combination_dict.items() + self.input_only_dict.items())
-                print(full_return)
                 return (next_in, next_out, full_return)
             else:
                 # If there is no input metafiles,
