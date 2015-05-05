@@ -62,17 +62,20 @@ class ArgumentCreator(object):
 
     '''
 
-    def __init__(self, input_datasets, output_file_creators):
+    def __init__(self, input_datasets, output_file_creators,
+                 map_dict=None):
         ''' The class takes in a list of DataSet objects for its input and
         a list of FileCreator objects for output.
 
         Optionally a map_dict can be passed in which maps a constraint in the
         input with one from the output.
 
-        The FileCreator is associated with a DataSet to check
-        if files already exist.
-
         '''
+
+        if map_dict:
+            self.map_dict = map_dict
+        else:
+            self.map_dict = {}
 
         self.inputs = input_datasets
         self.output = output_file_creators
@@ -87,6 +90,13 @@ class ArgumentCreator(object):
                                      for in_set in self.inputs])
         out_constraints = set.union(*[out_set.constraints
                                       for out_set in self.output])
+
+        # Mapping: add the input Constraint to the output.
+        for key, value in self.map_dict.items():
+            for cons in in_constraints:
+                if cons.key == key:
+                    out_constraints.add(cons)
+
         module_logger.debug('All input constraints are: ' + str(in_constraints))
         module_logger.debug('All output constraints are: ' + str(out_constraints))
 
@@ -184,7 +194,7 @@ class ArgumentCreator(object):
         return in_cons, new_outs
 
     def __iter__(self):
-        # Sets up the combinations in the argument_creator for looping.
+        """ Sets up the combinations in the argument_creator for looping."""
 
         valids = [ds.valid_combinations for ds in self.inputs]
         for combination in valids:
@@ -236,7 +246,7 @@ class ArgumentCreator(object):
             this_combination_vals = self.valid_iter.next()
             module_logger.debug("This combination values are: {}"
                                 .format(this_combination_vals))
-            
+
             # Get the subset of this combination which is in the shared
             # constraints.
             this_shared = [cons for cons in this_combination_vals
@@ -289,9 +299,17 @@ class ArgumentCreator(object):
             # This combination is done, add its hash to the list.
             self.done_combinations.append(this_hash)
 
+            # Build the full return dictionary of constraints.
+            full_return = dict(this_combination_dict.items() + self.input_only_dict.items())
+
+            # Check for a map_conflict - if so, clear the
+            # next_in and next_out and get some new files.
+            for key, value in self.map_dict.items():
+                if full_return[key] != full_return[value]:
+                    next_in, next_out = None, None
+
             # Returns a tuple of lists if a file exists, otherwise loop again.
             if next_in and next_out:
-                full_return = dict(this_combination_dict.items() + self.input_only_dict.items())
                 return (next_in, next_out, full_return)
             else:
                 # If there is no input metafiles,

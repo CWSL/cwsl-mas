@@ -229,6 +229,9 @@ class PatternDataSet(DataSet):
                 att_value = reqs_dict[key]
                 files_returned.append(self.subsets[key][att_value])
 
+        if not files_returned:
+            return []
+
         all_files = set.intersection(*files_returned)
 
         output = []
