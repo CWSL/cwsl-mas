@@ -82,6 +82,11 @@ class ProcessUnit(object):
 
         """
 
+        if map_dict:
+            self.map_dict = map_dict
+        else:
+            self.map_dict = None
+
         self.inputlist = inputlist
         self.shell_command = shell_command
 
@@ -103,12 +108,8 @@ class ProcessUnit(object):
         # The initial Constraints are built from the output file pattern.
         pattern_constraints = set(FileCreator.constraints_from_pattern(output_pattern))
 
-        # Apply mappings: Constraint name changes from input to output.
-        mapped_constraints = self.apply_mappings(pattern_constraints,
-                                                 map_dict)
-
         # Apply extra constraints given in the constructor.
-        filled_constraints = self.fill_constraints_from_extras(mapped_constraints,
+        filled_constraints = self.fill_constraints_from_extras(pattern_constraints,
                                                                extra_constraints)
 
         # Finallly fill the empty output constraints from the input DataSets.
@@ -117,22 +118,6 @@ class ProcessUnit(object):
 
         # Make a file_creator from the new, fixed constraints.
         self.file_creator = FileCreator(output_pattern, self.final_constraints)
-
-    def apply_mappings(self, constraints, map_dict):
-        """ Apply the mapping dictionary to constraints.
-
-        This method applies the required mappings of input constraint to
-        output constraint for all the input datasets.
-
-        """
-        
-        if map_dict is None:
-            return constraints
-        
-        for map_name, map_spec in map_dict.items():
-            self.inputlist[map_spec[1]].add_mapping(map_spec[0], map_name)
-
-        return constraints
 
     def fill_from_input(self, inputlist, constraints):
 
@@ -225,7 +210,7 @@ class ProcessUnit(object):
 
         # We now create a looper to compare all the input Datasets with
         # the output FileCreators.
-        this_looper = ArgumentCreator(self.inputlist, self.file_creator)
+        this_looper = ArgumentCreator(self.inputlist, self.file_creator, self.map_dict)
         module_logger.debug("Created ArgumentCreator: {0}".format(this_looper))
 
         #TODO determine scheduler from user options.

@@ -104,7 +104,6 @@ class TestArgumentCreator(unittest.TestCase):
         
         all_things = []
         for combination in looper:
-            print(combination)
             self.assertTrue(combination)
             all_things.append(combination)
 
