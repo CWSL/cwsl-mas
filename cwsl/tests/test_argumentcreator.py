@@ -100,7 +100,7 @@ class TestArgumentCreator(unittest.TestCase):
                                       [pet_con])
 
         looper = ArgumentCreator([self.test_patternds_1], mapping_creator,
-                                 map_dict={'animal': 'pet'})
+                                 map_dict={'animal': ('pet', 0)})
         
         all_things = []
         for combination in looper:
