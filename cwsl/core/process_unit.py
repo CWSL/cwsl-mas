@@ -85,7 +85,9 @@ class ProcessUnit(object):
         if map_dict:
             self.map_dict = map_dict
         else:
-            self.map_dict = None
+            self.map_dict = {}
+
+        self.mapped_con_names = [cons_name for cons_name in self.map_dict]
 
         self.inputlist = inputlist
         self.shell_command = shell_command
@@ -108,8 +110,10 @@ class ProcessUnit(object):
         # The initial Constraints are built from the output file pattern.
         pattern_constraints = set(FileCreator.constraints_from_pattern(output_pattern))
 
+        mapped_constraints = self.apply_mappings(pattern_constraints)
+
         # Apply extra constraints given in the constructor.
-        filled_constraints = self.fill_constraints_from_extras(pattern_constraints,
+        filled_constraints = self.fill_constraints_from_extras(mapped_constraints,
                                                                extra_constraints)
 
         # Finallly fill the empty output constraints from the input DataSets.
@@ -118,6 +122,56 @@ class ProcessUnit(object):
 
         # Make a file_creator from the new, fixed constraints.
         self.file_creator = FileCreator(output_pattern, self.final_constraints)
+
+    def apply_mappings(self, constraints):
+        
+        module_logger.debug("Before applying mappings, output_constraints are: {}"
+                            .format(constraints))
+
+        to_remove = []
+        for map_name, map_spec in self.map_dict.items():
+            # First update the outputs with values from the input.
+            found_con = self.inputlist[map_spec[1]].get_constraint(map_spec[0])
+            constraints.add(Constraint(map_name, found_con.values))
+            # Remove the empty constraint.
+            constraints.remove(Constraint(map_name, []))
+
+            # Update the subsets dictionary for the input.
+            # this will fail for a FileCreator.
+            try:
+                for value in found_con.values:
+                    module_logger.debug("Updating subsets for {}: {}"
+                                        .format(map_name, value))
+                    found_files = self.inputlist[map_spec[1]].get_files({found_con.key: value})
+                    module_logger.debug("Found files are: {}".format(found_files))
+                    self.inputlist[map_spec[1]].subsets[map_name][value] = [file_ob.full_path
+                                                                            for file_ob in found_files]
+            except AttributeError:
+                pass
+
+            # Added the mapped constraint to the input self.cons_names
+            self.inputlist[map_spec[1]].cons_names.append(map_name)
+            # Removed the now obsolete constraint.
+            self.inputlist[map_spec[1]].cons_names.remove(map_spec[0])
+                
+            # Now alter the valid combinations of the input.
+            fixed_combinations = set([])
+            for combination in self.inputlist[map_spec[1]].valid_combinations:
+                module_logger.debug("Original combination is: {}".format(combination))
+                new_list = []
+                for constraint in combination:
+                    if constraint.key == map_spec[0]:
+                        new_list.append(Constraint(map_name, constraint.values))
+                    new_list.append(constraint)
+                module_logger.debug("New combination is: {}".format(new_list))
+                fixed_combinations.add(frozenset(new_list))
+            self.inputlist[map_spec[1]].valid_combinations = fixed_combinations
+
+        module_logger.debug("After applying mappings, output_constraints are: {}"
+                            .format(constraints))
+        
+        return constraints
+
 
     def fill_from_input(self, inputlist, constraints):
 
