@@ -305,7 +305,7 @@ class ArgumentCreator(object):
             # Check for a map_conflict - if so, clear the
             # next_in and next_out and get some new files.
             for key, value in self.map_dict.items():
-                if full_return[key] != full_return[value]:
+                if full_return[key] != full_return[value[0]]:
                     next_in, next_out = None, None
 
             # Returns a tuple of lists if a file exists, otherwise loop again.
