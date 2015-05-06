@@ -92,6 +92,7 @@ class FileCreator(DataSet):
 
         module_logger.debug("After init, self.constraints: {}"
                             .format(self.constraints))
+        self.cons_names = [cons.key for cons in self.constraints]
 
     def get_files(self, att_dict, check=False, update=True):
         """ This method returns all possible MockClimateFiles from the
