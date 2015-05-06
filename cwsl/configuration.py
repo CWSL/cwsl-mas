@@ -45,7 +45,7 @@ try:
         #Path to QA/QC processed data
         authoritative_basepath='',
         #Path to put user files
-        user_basepath='/short/%s/%s/' % (PROJECT, USER),
+        user_basepath='/local/%s/%s/' % (PROJECT, USER),
         #Execution Manager
         execution_manager='SimpleExecManager',
         #Execution Options

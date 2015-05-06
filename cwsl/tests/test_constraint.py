@@ -141,7 +141,7 @@ class TestConstraint(unittest.TestCase):
         unsorted_list = list(some_constraints)
         sorted_list = sorted(unsorted_list)
 
-        print("Unsorted = {0}\nSorted = {1}".format(unsorted_list, sorted_list))
+        #print("Unsorted = {0}\nSorted = {1}".format(unsorted_list, sorted_list))
 
     def test_hash_and_equality(self):
         """ Test to see that constraint objects have the same hash and

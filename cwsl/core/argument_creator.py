@@ -36,7 +36,7 @@ class ArgumentCreator(object):
     1. The ArgumentCreator adds/removes no attributes.
         In this case, there is a one-to-one mapping between input and output.
 
-        Here the ArgumentCreator should return the a tuple (inputfile, outputfile),
+        Here the ArgumentCreator should return a tuple (inputfile, outputfile),
         one output file (from the file creator) for each file
         in the input DataSet.
 
@@ -63,23 +63,22 @@ class ArgumentCreator(object):
     '''
 
     def __init__(self, input_datasets, output_file_creators,
-                 map_dict={}):
-
+                 map_dict=None):
         ''' The class takes in a list of DataSet objects for its input and
         a list of FileCreator objects for output.
 
         Optionally a map_dict can be passed in which maps a constraint in the
         input with one from the output.
 
-        The FileCreator is associated with a DataSet to check
-        if files already exist.
-
         '''
+
+        if map_dict:
+            self.map_dict = map_dict
+        else:
+            self.map_dict = {}
 
         self.inputs = input_datasets
         self.output = output_file_creators
-
-        self.map_dict = map_dict
 
         # Put the inputs/outputs into lists if they are not iterable.
         if not hasattr(self.inputs, '__iter__'):
@@ -91,6 +90,13 @@ class ArgumentCreator(object):
                                      for in_set in self.inputs])
         out_constraints = set.union(*[out_set.constraints
                                       for out_set in self.output])
+
+        # Mapping: add the input Constraint to the output.
+        for key, value in self.map_dict.items():
+            for cons in in_constraints:
+                if cons.key == key:
+                    out_constraints.add(cons)
+
         module_logger.debug('All input constraints are: ' + str(in_constraints))
         module_logger.debug('All output constraints are: ' + str(out_constraints))
 
@@ -168,7 +174,6 @@ class ArgumentCreator(object):
             in_cons.add(new_constraint)
             for cons in match_cons:
                 in_cons.remove(cons)
-        
 
         # Now fix up empty output constraints.
         new_outs = set()
@@ -189,7 +194,7 @@ class ArgumentCreator(object):
         return in_cons, new_outs
 
     def __iter__(self):
-        # Sets up the combinations in the argument_creator for looping.
+        """ Sets up the combinations in the argument_creator for looping."""
 
         valids = [ds.valid_combinations for ds in self.inputs]
         for combination in valids:
@@ -229,11 +234,8 @@ class ArgumentCreator(object):
             module_logger.debug("Input list is: {}".format(input_list))
             yield(set(input_list))
         
-
     def next(self):
-        """ Return the next group of input and output file/metafile objects.
-
-        """
+        """ Return the next group of input and output file/metafile objects."""
 
         next_in = None
         next_out = None
@@ -244,7 +246,7 @@ class ArgumentCreator(object):
             this_combination_vals = self.valid_iter.next()
             module_logger.debug("This combination values are: {}"
                                 .format(this_combination_vals))
-            
+
             # Get the subset of this combination which is in the shared
             # constraints.
             this_shared = [cons for cons in this_combination_vals
@@ -294,13 +296,20 @@ class ArgumentCreator(object):
             next_in = in_metas
             next_out = out_metas
 
-            # This combination is done, at its hash to the list.
+            # This combination is done, add its hash to the list.
             self.done_combinations.append(this_hash)
+
+            # Build the full return dictionary of constraints.
+            full_return = dict(this_combination_dict.items() + self.input_only_dict.items())
+
+            # Check for a map_conflict - if so, clear the
+            # next_in and next_out and get some new files.
+            for key, value in self.map_dict.items():
+                if full_return[key] != full_return[value[0]]:
+                    next_in, next_out = None, None
 
             # Returns a tuple of lists if a file exists, otherwise loop again.
             if next_in and next_out:
-                full_return = dict(this_combination_dict.items() + self.input_only_dict.items())
-                print(full_return)
                 return (next_in, next_out, full_return)
             else:
                 # If there is no input metafiles,

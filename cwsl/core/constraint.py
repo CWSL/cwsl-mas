@@ -27,11 +27,11 @@ class Constraint(object):
     A DataSet owns a set of Constraints.
 
     Each Constraint has a key and a set with zero or more values.
-    new_Constraint.key = 'variable' newConstraint.values = set(['tas','pr'])
+    new_constraint.key = 'variable' new_constraint.values = set(['tas','pr'])
     or,
-    new_Constraint.key = 'model' newConstraint.values = set(['ACCESS1-0'])
+    new_constraint.key = 'model' new_constraint.values = set(['ACCESS1-0'])
     or,
-    new_Constraint.key = 'perturbed_physics_number' newConstraint.values = set([])
+    new_constraint.key = 'perturbed_physics_number' new_constraint.values = set([])
 
 
     '''
@@ -109,4 +109,4 @@ class Constraint(object):
 class ConstraintNotFoundError(Exception):
     ''' Raised if you try and remove a Constraint that doesn't exist. '''
     pass
-        
+

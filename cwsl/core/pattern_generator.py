@@ -28,7 +28,7 @@ class PatternGenerator(object):
     a VisTrails module.
 
     """
-
+    
     def __init__(self, destination, data_type):
         self.destination = destination
         self.data_type = data_type
@@ -39,10 +39,10 @@ class PatternGenerator(object):
         except KeyError:
             self.project = "NoProjectSet"
         self.user = os.environ["USER"]
-
+        
         self.pbas = self.load_pbas()
         self.paths = self.load_paths()
-
+        
         # Check the inputs to make sure that they make sense.
         self.check_inputs()
 
@@ -82,11 +82,11 @@ class PatternGenerator(object):
         fullpath_dict["monthly_ts"] = os.path.join("%mip%/%product%/%grid%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
                                                    "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%year_start%-%year_end%_%grid%.%suffix%")
         fullpath_dict["seasonal_indices"] = os.path.join("%mip%/%product%/%grid%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
-                                                "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%year_start%-%year_end%-%seas_agg%_%index%_%grid%.%suffix%")
+                                                         "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%year_start%-%year_end%-%seas_agg%_%index%_%grid%.%suffix%")
         fullpath_dict["monthly_indices"] = os.path.join("%mip%/%product%/%grid%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
-                                                "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%year_start%-%year_end%_%index%_%grid%.%suffix%")
+                                                        "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%year_start%-%year_end%_%index%_%grid%.%suffix%")
         fullpath_dict["downloaded"] = os.path.join("%mip%/%product%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
-                                                   "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%origstart%-%origend%.nc")    
+                                                   "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%origstart%-%origend%.nc")
         fullpath_dict["timeseries"] = os.path.join("%mip%/%product%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
                                                    "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_cdat-5-1-0.xml")
         fullpath_dict["cdat_lite_catalogue"] = os.path.join("%mip%/%product%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
@@ -101,17 +101,12 @@ class PatternGenerator(object):
 
 # Here are some exceptions that get raised if the patterns are not correct.
 class BadCombinationError(Exception):
-    """ To be raised if a combination that doesn't make sense is requested:
-
-    for example, user downloaded data .
-
-    """
-    # TODO (TB): actually, user downloaded data could be useful.
+    """ Raised if a combination that doesn't make sense is requested."""
 
     pass
 
 
 class PatternNotFoundError(Exception):
-    """ Raised if a requested pattern is not found. """
+    """ Raised if a requested pattern is not found."""
 
     pass

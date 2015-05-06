@@ -54,7 +54,9 @@ class Job(object):
         @param args: Command line to be added.
         @type  args: string
         """
-        self.cmds.append(args)
+        
+        str_args = [str(arg) for arg in args]
+        self.cmds.append(str_args)
 
     def __repr__(self):
         return self.to_str()
@@ -112,7 +114,7 @@ class SimpleJob(Job):
             self.add_pre_cmd(['mkdir', '-p'] + sorted(self.outdirs))
 
         if noexec:
-            log.warning("Would run script:\n\n========>\n%s\n<========\n\n" % self.to_str())
+            log.debug("Would run script:\n\n========>\n%s\n<========\n\n" % self.to_str())
         else:
             script_file, script_name = tempfile.mkstemp('.sh')
             script_file = os.fdopen(script_file, 'w+b')

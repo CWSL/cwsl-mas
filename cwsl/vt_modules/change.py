@@ -54,7 +54,7 @@ class TimesliceChange(vistrails_module.Module):
         
         # Command Line Tool
         tools_base_path = configuration.cwsl_ctools_path
-        self.command = '${CWSL_CTOOLS}/change_script_path'
+        self.command = 'echo ${CWSL_CTOOLS}/change_script_path'
         # Output file structure declaration 
         self.out_pattern = PatternGenerator('user', 'timeslice_change').pattern
         
@@ -65,9 +65,11 @@ class TimesliceChange(vistrails_module.Module):
         baseline_dataset = self.getInputFromPort("baseline_dataset")
 
         # Execute the process.
+        new_constraints = [Constraint('change_type', ['abs-change'])]
         this_process = ProcessUnit([future_dataset, baseline_dataset],
                                    self.out_pattern,
                                    self.command,
+                                   extra_constraints=new_constraints,
                                    execution_options=self._execution_options,
                                    map_dict={'fut_start': ('year_start', 0),
                                              'fut_end': ('year_end', 0),
@@ -76,7 +78,7 @@ class TimesliceChange(vistrails_module.Module):
 
         try:
             this_process.execute(simulate=configuration.simulate_execution)
-        except Exception, e:
+        except Exception as e:
             raise vistrails_module.ModuleError(self, e.output)
 
         process_output = this_process.file_creator
