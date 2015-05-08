@@ -20,6 +20,7 @@ VT Module to build a DataSet from the COD files.
 """
 
 from vistrails.core.modules import vistrails_module
+from vistrails.core.modules.basic_modules import String
 
 from cwsl.core.constraint import Constraint
 from cwsl.core.pattern_dataset import PatternDataSet
@@ -28,8 +29,12 @@ from cwsl.core.pattern_dataset import PatternDataSet
 class ChangeOfDate(vistrails_module.Module):
     ''' DataSet getting the change_of_date files.'''
 
-    # Define the module ports.
-    _input_ports = [('cod_dataset', 'csiro.au.cwsl:VtDataSet')]
+    _input_ports = [('model', String, {"defaults": str([''])}),
+                    ('experiment', String, {"defaults": str([''])}),
+                    ('variable', String, {"defaults": str([''])}),
+                    ('season_number', String, {"defaults": str([''])}),
+                    ('region', String, {"defaults": str([''])})]
+
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
 
     def __init__(self):
@@ -39,8 +44,14 @@ class ChangeOfDate(vistrails_module.Module):
         self.required_modules = ['python']
 
     def compute(self):
-
-        file_pattern = "/short/dk7/yxw548/datastore/cod/CMIP5_v2/GFDL-ESM2G_rcp85/mec/rain/season_3/rawfield_analog_3"
-        output_ds = PatternDataSet(file_pattern)
         
+        cons_list = ['model', 'experiment', 'variable',
+                     'season_number', 'region']
+        in_cons = set([Constraint(cons_name, [self.getInputFromPort(cons_name)])
+                       for cons_name in cons_list
+                       if self.getInputFromPort(cons_name)])
+
+        file_pattern = "/home/548/teb548/cod/CMIP5_v2/%model%_%experiment%/%region%/%variable%/season_%season_number%/rawfield_analog_%season_number%"
+        output_ds = PatternDataSet(file_pattern, in_cons)
+
         self.setResult('out_dataset', output_ds)
