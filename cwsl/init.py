@@ -39,6 +39,10 @@ from cwsl.vt_modules.vt_constraintbuilder import ConstraintBuilder
 from cwsl.vt_modules.vt_plot_timeseries import PlotTimeSeries
 from cwsl.vt_modules.imageviewer import ImageViewerPanel
 from cwsl.vt_modules.cmip5_constraints import CMIP5Constraints
+from cwsl.vt_modules.sdm_extract import SDMDataExtract
+from cwsl.vt_modules.cod_dataset import ChangeOfDate
+
+
 
 
 def initialize(*args, **keywords):
@@ -98,6 +102,12 @@ def initialize(*args, **keywords):
                    namespace='Utilities')
     reg.add_module(GeneralCommandPattern, name='General Command Line Program',
                    namespace='Utilities')
+
+    # Statistical Downscaling.
+    reg.add_module(ChangeOfDate, name='Change of Date Files',
+                   namespace='Statistical Downscaling')
+    reg.add_module(SDMDataExtract, name='Data Extraction',
+                   namespace='Statistical Downscaling')
 
 
 def menu_items():
