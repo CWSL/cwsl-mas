@@ -31,9 +31,11 @@ from cwsl.core.constraint import Constraint
 
 
 class SDMDataExtract(vistrails_module.Module):
-    '''
-    This module gives users freedom to run what ever command they want
-    on some data.
+    ''' This module extracts the relevant SDM data
+
+    from an observational it does this by re-ordering
+    daily data from a specially formatted AWAP dataset.
+
     '''
 
     # Define the module ports.
@@ -45,23 +47,26 @@ class SDMDataExtract(vistrails_module.Module):
 
         super(SDMDataExtract, self).__init__()
         
-        self.required_modules = ['python']
+        self._required_modules = {'required_modules': ['python']}
 
     def compute(self):
 
         in_dataset = self.getInputFromPort('cod_dataset')
 
-        output_pattern = "This/Is/The/Output/Pattern."
+        print([thing for thing in in_dataset.files])
+
+        command = "echo This is the command to run."
         
+        # The data is written out to the default
+        # location.
+        output_pattern = FileCreator.default_pattern(in_dataset.constraints, temp=True)
         this_process = ProcessUnit([in_dataset],
                                    output_pattern,
                                    command,
-                                   in_dataset.constraints)
+                                   in_dataset.constraints,
+                                   execution_options=self._required_modules)
 
         this_process.execute(simulate=configuration.simulate_execution)
         process_output = this_process.file_creator
 
         self.setResult('out_dataset', process_output)
-        
-        # Unload the modules at the end.
-        self.module_loader.unload(self.required_modules)
