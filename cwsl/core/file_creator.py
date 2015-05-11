@@ -17,10 +17,10 @@ Contains the FileCreator class.
 
 """
 
+import os
 import re
 import itertools
 import logging
-import os.path
 
 from cwsl.core.dataset import DataSet
 from cwsl.core.constraint import Constraint
@@ -276,7 +276,7 @@ class FileCreator(DataSet):
         return new_climate_file
 
     @staticmethod
-    def default_pattern(out_constraints):
+    def default_pattern(out_constraints, temp=False):
         """ Creates a default pattern from a set of constraints.
 
         Mostly for testing - we could extend this to use real patterns.
@@ -288,7 +288,12 @@ class FileCreator(DataSet):
         for cons in out_constraints:
             out_pattern += '%' + cons.key + '%_'
 
-        return out_pattern[:-1]
+        output = out_pattern[:-1]
+
+        if temp:
+            output = os.path.join(os.environ["TMPDIR"], output)
+
+        return output
 
     @staticmethod
     def constraints_from_pattern(pattern_string):
