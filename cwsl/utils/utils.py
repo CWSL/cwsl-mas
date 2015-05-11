@@ -51,6 +51,10 @@ def get_git_status(ifile):
         status = subprocess.check_output(['git','status',filename])
         version = subprocess.check_output(['git','log',filename])
         
+        if not version:
+            log.error("%s not in git repository" % ifile)
+            return "Could not determine file version."
+
         version = re.search('commit (.*?)\n',version)
         modified = re.search('Changed',status)
         if modified:
