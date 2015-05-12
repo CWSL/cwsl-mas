@@ -63,6 +63,7 @@ def get_git_status(ifile):
             git_version = "Git info: %s" % version.group(1)
     
     except subprocess.CalledProcessError:
+        log.error("Status called process failed.")
         git_version = "Could not determine file version."
         
     os.chdir(cwd)
@@ -74,9 +75,17 @@ def get_vistrails_info():
     """
     Return a tuple with the VisTrails vt file and version information.
 
-    """
+    
+    There is a possible API bug/confusion: This function is failing
+    when run in headless / batch mode.
 
-    this_controller = vistrails.api.get_current_controller()
+    """
+    
+    try:
+        this_controller = vistrails.api.get_current_controller()
+    except vistrails.api.NoVistrail:
+        # This API call raises a NoVisTrail error in headless mode.
+        return (None, None)
     
     filename = this_controller.vistrail.locator.name
     current_version = this_controller.current_version
