@@ -85,7 +85,7 @@ class DataReferenceSyntax(NotCacheable, Module):
         if not dataset.files:
             error_string = "No files found for this dataset with constraints: {}".format(constraints)
             error_string = error_string.replace('],', '],\n')
-            print(error_string)
+            logger.error(error_string)
             raise ModuleError(self, error_string)
 
         self.setResult('out_dataset', dataset)

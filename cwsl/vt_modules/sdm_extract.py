@@ -53,8 +53,6 @@ class SDMDataExtract(vistrails_module.Module):
 
         in_dataset = self.getInputFromPort('cod_dataset')
 
-        print([thing for thing in in_dataset.files])
-
         command = "echo This is the command to run."
         
         # The data is written out to the default
