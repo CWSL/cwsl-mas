@@ -1,5 +1,4 @@
 """
-
 Authors: Tim Bedin, Tim Erwin
 
 Copyright 2014 CSIRO
@@ -20,12 +19,13 @@ import sys
 import logging
 
 module_logger = logging.getLogger('cwsl')
-ch = logging.StreamHandler()
-# When not testing, only log WARNING and above.
-ch.setLevel(logging.WARNING)
-formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
-ch.setFormatter(formatter)
-module_logger.addHandler(ch)
+
+# If the logger doesn't have a handler, add one.
+if not module_logger.handlers:
+    ch = logging.StreamHandler()
+    formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    module_logger.addHandler(ch)
 
 #Initialise project path
 PROJECT_PATH = os.path.split(os.path.abspath(os.path.dirname(__file__)))[0]
