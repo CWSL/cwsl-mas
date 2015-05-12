@@ -19,7 +19,7 @@ import os
 import sys
 import logging
 
-module_logger = logging.getLogger('cswl')
+module_logger = logging.getLogger('cwsl')
 ch = logging.StreamHandler()
 # When not testing, only log WARNING and above.
 ch.setLevel(logging.WARNING)
