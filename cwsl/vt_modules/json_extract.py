@@ -50,13 +50,10 @@ class ExtractTimeseries(vistrails_module.Module):
 
         command = "echo"
         
-        # The data is written out to the default
-        # location.
+        # The data is written out to the default location.
         output_pattern = FileCreator.default_pattern(in_dataset.constraints, temp=True) + ".json"
-        this_process = ProcessUnit([in_dataset],
-                                   output_pattern,
-                                   command,
-                                   in_dataset.constraints,
+        this_process = ProcessUnit([in_dataset], output_pattern,
+                                   command, in_dataset.constraints,
                                    execution_options=self._required_modules,
                                    positional_args=[(x_value, 1, 'raw'), (y_value, 2, 'raw')])
 
