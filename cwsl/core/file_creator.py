@@ -80,10 +80,7 @@ class FileCreator(DataSet):
         # be in canonical form.
         for constraint in self.constraints:
             if not constraint.values:
-                module_logger.error("Constraint {0} is empty - should be in canonical form!"
-                                    .format(constraint))
-                raise EmptyConstraintError("Constraint {0} is empty - should be in canonical form!"
-                                           .format(constraint))
+                constraint.values = set(['na'])
 
         # A set to hold all the valid combinations of attributes.
         self.valid_combinations = set()
