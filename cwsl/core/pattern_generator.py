@@ -74,17 +74,31 @@ class PatternGenerator(object):
         return pba_dict
 
     def load_paths(self):
-        """ The patterns live here! """
+        """ The patterns live here. 
+        
+        You should use the "default" pattern unless you have a good reason not to. 
+
+        All fields in a pattern are compulsory (i.e. there must be a constraint matching each) 
+        except for the %x_info% fields (e.g. %lat_info%). If there is no matching constraint a
+        placeholder value is inserted (e.g. %lat_info% becomes "origlat") to indicate that
+        that field is unaltered from the original data file.
+        
+        The %extra_info% field in the default pattern is a good place to store information
+        like the name of your index.
+         
+        """
 
         fullpath_dict = {}
         fullpath_dict["seasonal"] = os.path.join("%mip%/%product%/%grid%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
                                                  "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%year_start%-%year_end%-%seas_agg%_%grid%.%suffix%")
-        fullpath_dict["monthly_ts"] = os.path.join("%mip%/%product%/%grid%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
-                                                   "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%year_start%-%year_end%_%grid%.%suffix%")
+        fullpath_dict["monthly_ts"] = os.path.join("%mip%/%product%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
+                                                   "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%startdate_info%-%enddate_info%_%grid_info%.%suffix%")
         fullpath_dict["seasonal_indices"] = os.path.join("%mip%/%product%/%grid%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
                                                          "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%year_start%-%year_end%-%seas_agg%_%index%_%grid%.%suffix%")
         fullpath_dict["monthly_indices"] = os.path.join("%mip%/%product%/%grid%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
                                                         "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%year_start%-%year_end%_%index%_%grid%.%suffix%")
+        fullpath_dict["default"] = os.path.join("%mip%/%product%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
+                                                "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%startdate_info%-%enddate_info%-%anomaly_info%-%timeagg_info%_%bottomlevel_info%-%toplevel_info%-%levelagg_info%_%westlon_info%-%eastlon_info%-%lonagg_info%_%southlat_info%-%northlat_info%-%latagg_info%_%grid_info%_%extra_info%.%suffix%")
         fullpath_dict["downloaded"] = os.path.join("%mip%/%product%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
                                                    "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%origstart%-%origend%.nc")
         fullpath_dict["timeseries"] = os.path.join("%mip%/%product%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
