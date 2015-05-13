@@ -19,6 +19,7 @@ Contains the ArgumentCreator class.
 
 import logging
 import itertools
+import hashlib
 
 from cwsl.core.constraint import Constraint
 
@@ -75,6 +76,8 @@ class ArgumentCreator(object):
     def get_combinations(self):
         """ Return the next group of input and output file/metafile objects."""
 
+        processed_hashes = []
+
         for comb in self.all_combinations:
         
             this_dict = {key: value for key, value in zip(self.all_names,
@@ -87,8 +90,13 @@ class ArgumentCreator(object):
         
             # For every output file, grab the corresponding input files.
             for output in all_outs:
+                out_hash = hashlib.md5(str(output)).hexdigest()
                 module_logger.debug("Output file is: {}"
                                     .format(output))
+                
+                if out_hash in processed_hashes:
+                    continue
+                
                 in_list = []
                 all_atts = {}
                 for ds in self.input_datasets:
@@ -96,8 +104,9 @@ class ArgumentCreator(object):
                     for thing, value in output.all_atts.items():
                         if thing in ds.cons_names:
                             good_atts[thing] = value
-                        
+                                
                     in_list += ds.get_files(good_atts)
                     all_atts.update(good_atts)
 
+                processed_hashes.append(out_hash)
                 yield (in_list, [output], all_atts)

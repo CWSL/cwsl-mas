@@ -78,8 +78,9 @@ class TestArgumentCreator(unittest.TestCase):
 
         all_outs = []
         for thing in looper.get_combinations():
-            self.assertGreaterEqual(len(thing[0]), len(thing[1]))
             all_outs.append(thing)
+
+        module_logger.debug("All outs are: {}".format(all_outs))
 
         # There are three animals.
         self.assertEqual(3, len(all_outs))
