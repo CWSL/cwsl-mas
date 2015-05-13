@@ -51,7 +51,7 @@ class IndicesNino34(vistrails_module.Module):
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet'),
                      ('out_constraints', basic_modules.String, True)]
     
-    _execution_options = {'required_modules': ['cdo', 'cct', 'nco', 
+    _execution_options = {'required_modules': ['cdo', 'nco', 
                                                'python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5']}
 
     def __init__(self):
@@ -62,7 +62,7 @@ class IndicesNino34(vistrails_module.Module):
         tools_base_path = configuration.cwsl_ctools_path
         self.command = '${CWSL_CTOOLS}/indices/nino34.sh'
         #Output file structure declaration 
-        self.out_pattern = PatternGenerator('user', 'monthly_indices').pattern
+        self.out_pattern = PatternGenerator('user', 'default').pattern
         
         # Set up the output command for this module, adding extra options.
         self.positional_args = [('year_start', 2), ('year_end', 3)]
@@ -71,8 +71,18 @@ class IndicesNino34(vistrails_module.Module):
 
         # Required input
         in_dataset = self.getInputFromPort("in_dataset")
-        
-        new_cons = set([Constraint('index', ['nino34'])])
+
+        new_cons = set([Constraint('extra_info', ['nino34']),
+                        Constraint('southlat_info', ['5S']),
+                        Constraint('northlat_info', ['5N']),
+                        Constraint('latagg_info', ['fldavg']),
+                        Constraint('westlon_info', ['190E']),
+                        Constraint('eastlon_info', ['240E']),
+                        Constraint('lonagg_info', ['fldavg']),
+                        Constraint('toplevel_info', ['surface']),
+                        Constraint('bottomlevel_info', ['surface']),
+                        Constraint('anomaly_info', ['anom-wrt-unknown']),
+                       ])
         
         cons_for_output = new_cons
         

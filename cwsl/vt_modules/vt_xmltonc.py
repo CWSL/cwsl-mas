@@ -66,7 +66,7 @@ class XmlToNc(vistrails_module.Module):
         tools_base_path = configuration.cwsl_ctools_path
         self.command = '${CWSL_CTOOLS}/utils/xml_to_nc.py'
         #Output file structure declaration ??
-        self.out_pattern = PatternGenerator('user', 'monthly_ts').pattern
+        self.out_pattern = PatternGenerator('user', 'default').pattern
         
         # Set up the output command for this module, adding extra options.
         self.positional_args = [('variable', 0), ('--force', -1, 'raw')]
@@ -80,10 +80,9 @@ class XmlToNc(vistrails_module.Module):
         year_start = self.getInputFromPort("start_year")
         year_end = self.getInputFromPort("end_year")
         
-        new_cons = set([Constraint('year_start', [year_start]),
-                        Constraint('year_end', [year_end]),
-                        Constraint('suffix', ['nc']),
-                        Constraint('grid', ['native'])])
+        new_cons = set([Constraint('startdate_info', [year_start]),
+                        Constraint('enddate_info', [year_end]),
+                        Constraint('suffix', ['nc']),])
 
         cons_for_output = new_cons
 
