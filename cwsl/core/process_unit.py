@@ -280,10 +280,10 @@ class ProcessUnit(object):
 
         # For every valid possible combination, apply any positional and
         # keyword args, then add the command to the scheduler.
-        for combination in this_looper:
-            #print("Combination: " + str(combination))
+        for combination in this_looper.get_combinations():
             module_logger.debug("Combination: " + str(combination))
             if combination:
+
                 in_files, out_files = self.get_fullnames((combination[0], combination[1]))
                 this_dict = combination[2]
 
@@ -350,14 +350,12 @@ class ProcessUnit(object):
         """ Generate the full file paths, given a tuple of metafile lists."""
 
         in_files = []
-        for qs in combination[0]:
-            in_files += [infile.full_path for infile in qs]
+        out_file = []
+        in_files += [infile.full_path for infile in combination[0]]
+            
+        out_file += [outfile.full_path for outfile in combination[1]]
 
-        out_files = []
-        for qs in combination[1]:
-            out_files += [outfile.full_path for outfile in qs]
-
-        return in_files, out_files
+        return in_files, out_file
 
 
 # Exception Classes

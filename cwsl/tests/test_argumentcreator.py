@@ -61,7 +61,7 @@ class TestArgumentCreator(unittest.TestCase):
         looper = ArgumentCreator([self.test_patternds_2], one_to_one_creator)
         
         all_outs = []
-        for thing in looper:
+        for thing in looper.get_combinations():
             self.assertEqual(len(thing[0]), len(thing[1]))
             all_outs.append(thing)
 
@@ -77,7 +77,7 @@ class TestArgumentCreator(unittest.TestCase):
         looper = ArgumentCreator([self.test_patternds_1], many_to_one_creator)
 
         all_outs = []
-        for thing in looper:
+        for thing in looper.get_combinations():
             self.assertGreaterEqual(len(thing[0]), len(thing[1]))
             all_outs.append(thing)
 
@@ -103,7 +103,7 @@ class TestArgumentCreator(unittest.TestCase):
                                  map_dict={'animal': ('pet', 0)})
         
         all_things = []
-        for combination in looper:
+        for combination in looper.get_combinations():
             self.assertTrue(combination)
             all_things.append(combination)
 
@@ -119,21 +119,24 @@ class TestArgumentCreator(unittest.TestCase):
                                  multi_ds_creator)
 
         all_outs = []
-        for thing in looper:
+        for thing in looper.get_combinations():
             self.assertGreaterEqual(len(thing[0]), len(thing[1]))
             all_outs.append(thing)
             
         # There are three animals.
         self.assertEqual(3, len(all_outs))
 
-        # The order is rabbit, bilby, moose
-        # Rabbit: 2 ins, 1 in,  1 out.
-        self.assertEqual(len(all_outs[0][0][0]), 2)
-        self.assertEqual(len(all_outs[0][0][1]), 1)
+        print(all_outs)
+
+        # The order is moose, then rabbit
+        # Moose: 2 ins, 1 out.
+        module_logger.debug("All outs[0]: {}".format(all_outs[0]))
+        self.assertEqual(len(all_outs[0][0]), 2)
         self.assertEqual(len(all_outs[0][1]), 1)
 
-        # Bilby: 1 in, 1 in, 1 out
-        self.assertEqual(len(all_outs[1][0][0]), 1)
-        self.assertEqual(len(all_outs[1][0][1]), 1)
+        # Rabbit: 3 in, 1 out
+        module_logger.debug("All outs[1]: {}".format(all_outs[1]))
+        self.assertEqual(len(all_outs[1][0]), 3)
         self.assertEqual(len(all_outs[1][1]), 1)
+
 
