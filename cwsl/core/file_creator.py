@@ -78,12 +78,20 @@ class FileCreator(DataSet):
 
         # This object must create files, so after merging all constraints must
         # be in canonical form.
+        # "extra" and "info" are keywords for non-compulsory constraints that 
+        # are replaced by a placeholder value.
         for constraint in self.constraints:
             if not constraint.values:
-                module_logger.error("Constraint {0} is empty - should be in canonical form!"
-                                    .format(constraint))
-                raise EmptyConstraintError("Constraint {0} is empty - should be in canonical form!"
-                                           .format(constraint))
+                split_key = constraint.key.split('_')
+                if 'extra' in split_key:
+                    constraint.values = set(['noextras'])
+                elif 'info' in split_key:
+                    constraint.values = set(['orig'+split_key[0]])
+                else:
+                    module_logger.error("Constraint {0} is empty - should be in canonical form!"
+                                        .format(constraint))
+                    raise EmptyConstraintError("Constraint {0} is empty - should be in canonical form!"
+                                               .format(constraint))                
 
         # A set to hold all the valid combinations of attributes.
         self.valid_combinations = set()

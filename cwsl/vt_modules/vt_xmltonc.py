@@ -66,12 +66,12 @@ class XmlToNc(vistrails_module.Module):
         tools_base_path = configuration.cwsl_ctools_path
         self.command = '${CWSL_CTOOLS}/utils/xml_to_nc.py'
         #Output file structure declaration ??
-        self.out_pattern = PatternGenerator('user', 'monthly_ts').pattern
+        self.out_pattern = PatternGenerator('user', 'default').pattern
         
         # Set up the output command for this module, adding extra options.
         self.positional_args = [('variable', 0), ('--force', -1, 'raw')]
-        self.keyword_args = {'start_year': 'year_start',
-                             'end_year': 'year_end'}
+        self.keyword_args = {'start_year': 'startdate_info',
+                             'end_year': 'enddate_info'}
                                 
     def compute(self):
 
@@ -80,14 +80,13 @@ class XmlToNc(vistrails_module.Module):
         year_start = self.getInputFromPort("start_year")
         year_end = self.getInputFromPort("end_year")
         
-        new_cons = set([Constraint('year_start', [year_start]),
-                        Constraint('year_end', [year_end]),
-                        Constraint('suffix', ['nc']),
-                        Constraint('grid', ['native'])])
+        new_cons = set([Constraint('startdate_info', [year_start]),
+                        Constraint('enddate_info', [year_end]),
+                        Constraint('suffix', ['nc']),])
 
         cons_for_output = new_cons
 
-        # Execute the seas_vars process.
+        # Execute the xml_to_nc process.
         this_process = ProcessUnit([in_dataset],
                                    self.out_pattern,
                                    self.command,
@@ -98,8 +97,8 @@ class XmlToNc(vistrails_module.Module):
 
         try:
             this_process.execute(simulate=configuration.simulate_execution)
-        except Exception, e:
-            raise vistrails_module.ModuleError(self, e.output)
+        except Exception as e:
+            raise vistrails_module.ModuleError(self, repr(e))
 
         process_output = this_process.file_creator
 
