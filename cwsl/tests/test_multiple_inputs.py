@@ -43,9 +43,9 @@ class TestMultipleInputs(unittest.TestCase):
 
         self.observational_pattern = "/base/obs/%variable%_%obs_model%.nc"
         self.model_pattern = "/base/model/%variable%_%model%.nc"
-    
+
     def test_model_correllation(self):
-        
+
         with mock.patch('cwsl.core.pattern_dataset.PatternDataSet.glob_fs') as mock_glob:
             mock_glob.return_value = self.mock_obs_files
             test_obsds = PatternDataSet(self.observational_pattern)
@@ -53,11 +53,17 @@ class TestMultipleInputs(unittest.TestCase):
         with mock.patch('cwsl.core.pattern_dataset.PatternDataSet.glob_fs') as mock_glob:
             mock_glob.return_value = self.mock_model_files
             test_model_ds = PatternDataSet(self.model_pattern)
-            
+
         output_pattern = "/%variable%_%obs_model%_%model%.nc"
         our_process = ProcessUnit([test_obsds, test_model_ds],
                                   output_pattern, "echo")
 
         output = our_process.execute()
-        
-        assert False
+
+        all_outs = [thing.full_path for thing in output.files]
+
+        good_names = ["/tas_HadISST_BadModel.nc", "/tas_AWAP_BadModel.nc",
+                      "/tas_HadISST_GoodModel.nc", "/tas_AWAP_GoodModel.nc"]
+
+        self.assertItemsEqual(good_names, all_outs)
+
