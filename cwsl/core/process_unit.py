@@ -52,9 +52,9 @@ class ProcessUnit(object):
                  extra_constraints=None, map_dict=None, cons_keywords=None,
                  positional_args=None, execution_options=None):
 
-        """ 
+        """
         Arguments:
-        
+
         inputlist: A list of input DataSets to get files from.
 
         output_pattern: A filename pattern to use for data output.
@@ -62,14 +62,14 @@ class ProcessUnit(object):
         shell_command: The base shell command for the process to run.
 
         Optional:
-        
+
         extra_constraints: Extra constraints to be applied to the output.
 
         map_dict: a dictionary linking constraint names in the input DataSets
                   to new constraints in the output. e.g.
                   if map_dict = {"obs-model": ("model", 0)} then the "model" constraint in the
                   input position 0 is renamed to be the "obs-model" Constraint in the output.
-        
+
         cons_keywords: Used in building the command to be run, if a constraint has to
                        be used as a keyword argument.
 
@@ -106,7 +106,10 @@ class ProcessUnit(object):
             self.positional_args = positional_args
         else:
             self.positional_args = {}
-                
+
+        # Overwrite any required Constraints in the input.
+        self.overwrite_constraints(extra_constraints)
+
         # The initial Constraints are built from the output file pattern.
         pattern_constraints = set(FileCreator.constraints_from_pattern(output_pattern))
 
@@ -123,8 +126,22 @@ class ProcessUnit(object):
         # Make a file_creator from the new, fixed constraints.
         self.file_creator = FileCreator(output_pattern, self.final_constraints)
 
+    def overwrite_constraints(self, new_cons):
+        """ If new constraints with different values are given, overwrite
+
+        constraints in the input.
+        """
+
+        if new_cons:
+            new_cons_names = [cons.key for cons in new_cons]
+            for ds in self.inputlist:
+                for constraint in new_cons:
+                    if constraint.key in ds.cons_names:
+                        old_constraint = ds.get_constraint(constraint.key)
+                        ds.overwrite_constraint(old_constraint, constraint)
+
     def apply_mappings(self, constraints):
-        
+
         module_logger.debug("Before applying mappings, output_constraints are: {}"
                             .format(constraints))
 
@@ -153,7 +170,7 @@ class ProcessUnit(object):
             self.inputlist[map_spec[1]].cons_names.append(map_name)
             # Removed the now obsolete constraint.
             self.inputlist[map_spec[1]].cons_names.remove(map_spec[0])
-                
+
             # Now alter the valid combinations of the input.
             fixed_combinations = set([])
             for combination in self.inputlist[map_spec[1]].valid_combinations:
@@ -169,7 +186,7 @@ class ProcessUnit(object):
 
         module_logger.debug("After applying mappings, output_constraints are: {}"
                             .format(constraints))
-        
+
         return constraints
 
 
@@ -187,7 +204,7 @@ class ProcessUnit(object):
                 found_cons = set([input_ds.get_constraint(cons.key)
                                   for input_ds in inputlist
                                   if input_ds.get_constraint(cons.key)])
-                
+
                 module_logger.debug("Found constraints: {}"
                                     .format(found_cons))
                 new_cons = new_cons.union(found_cons)
@@ -207,7 +224,7 @@ class ProcessUnit(object):
                                      extra_constraints):
         """ Add extra constraints to a set of constraints."""
 
-        
+
         if extra_constraints is None:
             extra_constraints = []
 
@@ -269,7 +286,7 @@ class ProcessUnit(object):
 
         #TODO determine scheduler from user options.
         scheduler = SimpleExecManager(noexec=simulate)
-        
+
         if self.execution_options.has_key('required_modules'):
             scheduler.add_module_deps(self.execution_options['required_modules'])
 
@@ -352,7 +369,7 @@ class ProcessUnit(object):
         in_files = []
         out_file = []
         in_files += [infile.full_path for infile in combination[0]]
-            
+
         out_file += [outfile.full_path for outfile in combination[1]]
 
         return in_files, out_file
