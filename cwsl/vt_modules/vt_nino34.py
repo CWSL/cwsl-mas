@@ -65,7 +65,7 @@ class IndicesNino34(vistrails_module.Module):
         self.out_pattern = PatternGenerator('user', 'default').pattern
         
         # Set up the output command for this module, adding extra options.
-        self.positional_args = [('year_start', 2), ('year_end', 3)]
+        self.positional_args = [('startdate_info', 2), ('enddate_info', 3)]
         
     def compute(self):
 
@@ -96,8 +96,8 @@ class IndicesNino34(vistrails_module.Module):
 
         try:
             this_process.execute(simulate=configuration.simulate_execution)
-        except Exception, e:
-            raise vistrails_module.ModuleError(self, e.output)
+        except Exception as e:
+            raise vistrails_module.ModuleError(self, repr(e))
 
         process_output = this_process.file_creator
 

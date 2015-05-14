@@ -70,8 +70,8 @@ class XmlToNc(vistrails_module.Module):
         
         # Set up the output command for this module, adding extra options.
         self.positional_args = [('variable', 0), ('--force', -1, 'raw')]
-        self.keyword_args = {'start_year': 'year_start',
-                             'end_year': 'year_end'}
+        self.keyword_args = {'start_year': 'startdate_info',
+                             'end_year': 'enddate_info'}
                                 
     def compute(self):
 
@@ -86,7 +86,7 @@ class XmlToNc(vistrails_module.Module):
 
         cons_for_output = new_cons
 
-        # Execute the seas_vars process.
+        # Execute the xml_to_nc process.
         this_process = ProcessUnit([in_dataset],
                                    self.out_pattern,
                                    self.command,
@@ -97,8 +97,8 @@ class XmlToNc(vistrails_module.Module):
 
         try:
             this_process.execute(simulate=configuration.simulate_execution)
-        except Exception, e:
-            raise vistrails_module.ModuleError(self, e.output)
+        except Exception as e:
+            raise vistrails_module.ModuleError(self, repr(e))
 
         process_output = this_process.file_creator
 
