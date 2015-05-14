@@ -44,22 +44,19 @@ class FieldAggregation(vistrails_module.Module):
     
     _execution_options = {'required_modules': ['cdo',]}
 
-    _data_type = 'default'
-
     command = '${CWSL_CTOOLS}/aggregation/cdo_field_agg.sh'
-    keyword_args = {}
 
     def __init__(self):
 
         super(FieldAggregation, self).__init__()
-        self.out_pattern = PatternGenerator('user', self._data_type).pattern
+        self.out_pattern = PatternGenerator('user', 'default').pattern
 
     def compute(self):
 
         in_dataset = self.getInputFromPort('in_dataset')
         method = self.getInputFromPort('method')
 
-        self.positional_args = [('method', 0), ]
+        self.positional_args = [(method, 0, 'raw'), ]
         self.keyword_args = {}
 
         if len(method.split(',')) > 1:
@@ -81,8 +78,8 @@ class FieldAggregation(vistrails_module.Module):
 
         try:
             this_process.execute(simulate=configuration.simulate_execution)
-        except subprocess.CalledProcessError, e:
-            raise vistrails_module.ModuleError(self, e.output)
+        except Exception as e:
+            raise vistrails_module.ModuleError(self, repr(e))
             
         process_output = this_process.file_creator
 
