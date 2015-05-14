@@ -45,6 +45,9 @@ class TestProcessUnit(unittest.TestCase):
         mock_file = mock.MagicMock()
         mock_file.full_path = 'test_file1'
         mock_file.__str__.return_value = 'test_file1'
+        mock_file.all_atts = {"fake": "fake_1",
+                              "file": "file_1",
+                              "pattern": "pattern_1"}
         self.a_pattern_ds.get_files = mock.Mock(return_value=[mock_file])
 
         # Create a valid set of contraints for the mock.
@@ -94,10 +97,10 @@ class TestProcessUnit(unittest.TestCase):
         outfiles = [file_thing for file_thing in ds_result.files]
         self.assertEqual(len(outfiles), 1)
         
-        expected_string = self.script_header + "mkdir -p /another_file_1\necho fake_1 test_file1 /another/file_1/pattern_1.txt\n"
+        expected_string = self.script_header + "mkdir -p /another/file_1\necho fake_1 test_file1 /another/file_1/pattern_1.txt\n"
         self.assertEqual(expected_string, the_process_unit.scheduler.job.to_str())
 
-    def test_positionalargs_2(self):
+    def test_positionalargs_3(self):
         """ Test that positional arguments work if the constraint is part of the output only. """
 
         extra_cons = set([Constraint('animal', ['moose', 'kangaroo'])])
@@ -113,7 +116,7 @@ class TestProcessUnit(unittest.TestCase):
         expected_string = self.script_header + 'mkdir -p /another/file_1\necho moose test_file1 /another/file_1/pattern_1_moose.txt\necho kangaroo test_file1 /another/file_1/pattern_1_kangaroo.txt\n'
         self.assertEqual(expected_string, the_process_unit.scheduler.job.to_str())
 
-    def test_positionalargs_3(self):
+    def test_positionalargs_4(self):
         """ Test that positional arguments work if multiple extra constraints found only in the output are added. """
 
         extra_cons = set([Constraint('animal', ['moose', 'kangaroo']),
