@@ -81,7 +81,7 @@ class IndicesNino34(vistrails_module.Module):
                         Constraint('lonagg_info', ['fldavg']),
                         Constraint('toplevel_info', ['surface']),
                         Constraint('bottomlevel_info', ['surface']),
-                        Constraint('anomaly_info', ['anom-wrt-unknown']),
+                        Constraint('anomaly_info', ['anom']),
                        ])
         
         cons_for_output = new_cons
