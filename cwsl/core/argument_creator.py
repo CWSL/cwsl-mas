@@ -45,13 +45,13 @@ class ArgumentCreator(object):
         # Find the Constraint names shared across input.
         all_constraints = [set(dataset.cons_names) for dataset in input_datasets]
         self.shared_constraints = set.intersection(*all_constraints)
-        
+
         # Now get the values for the shared names.
         all_values = []
         for name in self.shared_constraints:
             for ds in input_datasets:
                 all_values.append(ds.get_constraint(name))
-                                 
+
         module_logger.debug("All values are: {}"
                             .format(all_values))
 
@@ -63,6 +63,15 @@ class ArgumentCreator(object):
                 if constraint.key == name:
                     temp_list.append(constraint.values)
             self.final_shared.append(Constraint(name, set.intersection(*temp_list)))
+
+        # Check for Constraint overwrites.
+        for constraint in self.final_shared:
+            out_cons = output_file_creator.get_constraint(constraint.key)
+            if out_cons and (out_cons.values != constraint.values):
+                module_logger.debug("Repeated Constraint found - removing.\n" +
+                                    "old constraint: {}, new constraint: {}"
+                                    .format(constraint, out_cons))
+                self.final_shared.remove(constraint)
 
         module_logger.debug("Final shared constraints are: {}"
                             .format(self.final_shared))
@@ -79,34 +88,46 @@ class ArgumentCreator(object):
         processed_hashes = []
 
         for comb in self.all_combinations:
-        
+
             this_dict = {key: value for key, value in zip(self.all_names,
                                                           comb)}
-        
+
             module_logger.debug("This constraint dictionary is: {}"
                                 .format(this_dict))
 
+            module_logger.debug("About to get files from output with Constraints: {}"
+                                .format(self.output_file_creator.constraints))
             all_outs = self.output_file_creator.get_files(this_dict)
-        
+
             # For every output file, grab the corresponding input files.
             for output in all_outs:
                 out_hash = hashlib.md5(str(output)).hexdigest()
                 module_logger.debug("Output file is: {}"
                                     .format(output))
-                
+
                 if out_hash in processed_hashes:
                     continue
-                
+
                 in_list = []
-                all_atts = {}
+                all_atts = output.all_atts
+                module_logger.debug("Original output attributes are: {}"
+                                    .format(all_atts))
                 for ds in self.input_datasets:
                     good_atts = {}
                     for thing, value in output.all_atts.items():
                         if thing in ds.cons_names:
-                            good_atts[thing] = value
-                                
-                    in_list += ds.get_files(good_atts)
-                    all_atts.update(good_atts)
+                            in_con = ds.get_constraint(thing)
+                            if value in in_con.values:
+                                good_atts[thing] = value
+
+                    module_logger.debug("Getting files from input - dictionary is: {}"
+                                        .format(good_atts))
+                    returned_files = ds.get_files(good_atts)
+                    in_list += returned_files
+                    # Update the attribute dictionary for keyword arguments
+                    for returned_file in returned_files:
+                        print(returned_file.all_atts)
+                        all_atts.update(returned_file.all_atts)
 
                 processed_hashes.append(out_hash)
                 yield (in_list, [output], all_atts)
