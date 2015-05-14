@@ -40,9 +40,18 @@ class DataSet(object):
 
     def alias_constraint(self, existing_constraint, alias):
         """ Alias a constraint for masking purposes. """
-        
+
         try:
             self.alias_map[alias] = existing_constraint
         except AttributeError:
             self.alias_map = {}
             self.alias_map[alias] = existing_constraint
+
+    def overwrite_constraint(self, old_constraint, new_constraint):
+        """ Replace an existing Constraint with a new one. """
+
+        self.constraints.remove(old_constraint)
+        self.constraints.add(new_constraint)
+
+        self.cons_names.remove(old_constraint.key)
+        self.cons_names.append(new_constraint.key)
