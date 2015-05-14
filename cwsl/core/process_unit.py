@@ -107,9 +107,6 @@ class ProcessUnit(object):
         else:
             self.positional_args = {}
 
-        # Overwrite any required Constraints in the input.
-        self.overwrite_constraints(extra_constraints)
-
         # The initial Constraints are built from the output file pattern.
         pattern_constraints = set(FileCreator.constraints_from_pattern(output_pattern))
 
@@ -123,22 +120,13 @@ class ProcessUnit(object):
         self.final_constraints = self.fill_from_input(self.inputlist, filled_constraints)
         module_logger.debug("Final output constraints are: {0}".format(self.final_constraints))
 
+        for ds in inputlist:
+            module_logger.debug("Input constraints are: {}"
+                                .format(ds.constraints))
+
+
         # Make a file_creator from the new, fixed constraints.
         self.file_creator = FileCreator(output_pattern, self.final_constraints)
-
-    def overwrite_constraints(self, new_cons):
-        """ If new constraints with different values are given, overwrite
-
-        constraints in the input.
-        """
-
-        if new_cons:
-            new_cons_names = [cons.key for cons in new_cons]
-            for ds in self.inputlist:
-                for constraint in new_cons:
-                    if constraint.key in ds.cons_names:
-                        old_constraint = ds.get_constraint(constraint.key)
-                        ds.overwrite_constraint(old_constraint, constraint)
 
     def apply_mappings(self, constraints):
 
@@ -280,7 +268,9 @@ class ProcessUnit(object):
             raise Exception("cwsl_ctools_path is not set in package options")
 
         # We now create a looper to compare all the input Datasets with
-        # the output FileCreators.
+        # the output FileCreator.
+        module_logger.debug("Before ArgumentCreator, FileCreator constraints are: {0}"
+                            .format(self.file_creator.constraints))
         this_looper = ArgumentCreator(self.inputlist, self.file_creator, self.map_dict)
         module_logger.debug("Created ArgumentCreator: {0}".format(this_looper))
 
