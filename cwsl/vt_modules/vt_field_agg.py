@@ -42,7 +42,7 @@ class FieldAggregation(vistrails_module.Module):
 
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
     
-    _execution_options = {'required_modules': ['cdo',]}
+    _execution_options = {'required_modules': ['cdo', 'python/2.7.5', 'python-cdat-lite/6.0rc2-py2.7.5']}
 
     command = '${CWSL_CTOOLS}/aggregation/cdo_field_agg.sh'
 
@@ -66,6 +66,7 @@ class FieldAggregation(vistrails_module.Module):
 
         new_constraints_for_output = set([Constraint('lonagg_info', [agg_constraint]),
                                           Constraint('latagg_info', [agg_constraint]),
+                                          Constraint('suffix', ['nc']),
                                           ])
         
         this_process = ProcessUnit([in_dataset],
