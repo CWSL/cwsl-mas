@@ -126,7 +126,6 @@ class ArgumentCreator(object):
                     in_list += returned_files
                     # Update the attribute dictionary for keyword arguments
                     for returned_file in returned_files:
-                        print(returned_file.all_atts)
                         all_atts.update(returned_file.all_atts)
 
                 processed_hashes.append(out_hash)
