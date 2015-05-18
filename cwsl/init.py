@@ -38,6 +38,9 @@ from cwsl.vt_modules.vt_general_command_pattern import GeneralCommandPattern
 from cwsl.vt_modules.vt_constraintbuilder import ConstraintBuilder
 from cwsl.vt_modules.vt_plot_timeseries import PlotTimeSeries
 from cwsl.vt_modules.vt_field_agg import FieldAggregation
+from cwsl.vt_modules.vt_meridional_agg import MeridionalAggregation
+from cwsl.vt_modules.vt_zonal_agg import ZonalAggregation
+from cwsl.vt_modules.vt_vertical_agg import VerticalAggregation
 from cwsl.vt_modules.imageviewer import ImageViewerPanel
 from cwsl.vt_modules.cmip5_constraints import CMIP5Constraints
 from cwsl.vt_modules.sdm_extract import SDMDataExtract
@@ -83,6 +86,12 @@ def initialize(*args, **keywords):
     reg.add_module(Climatology, name="Climatology",
                    namespace='Aggregation')
     reg.add_module(FieldAggregation, name="Field Aggregation",
+                   namespace="Aggregation")
+    reg.add_module(MeridionalAggregation, name="Meridional Aggregation",
+                   namespace="Aggregation")
+    reg.add_module(ZonalAggregation, name="Zonal Aggregation",
+                   namespace="Aggregation")
+    reg.add_module(VerticalAggregation, name="Vertical Aggregation",
                    namespace="Aggregation")
 
     #Change
