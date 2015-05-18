@@ -97,7 +97,7 @@ class ArgumentCreator(object):
 
             module_logger.debug("About to get files from output with Constraints: {}"
                                 .format(self.output_file_creator.constraints))
-            all_outs = self.output_file_creator.get_files(this_dict)
+            all_outs = self.output_file_creator.get_files(this_dict, update=True)
 
             # For every output file, grab the corresponding input files.
             for output in all_outs:
@@ -122,7 +122,7 @@ class ArgumentCreator(object):
 
                     module_logger.debug("Getting files from input - dictionary is: {}"
                                         .format(good_atts))
-                    returned_files = ds.get_files(good_atts)
+                    returned_files = ds.get_files(good_atts, check=True)
                     in_list += returned_files
                     # Update the attribute dictionary for keyword arguments
                     for returned_file in returned_files:
