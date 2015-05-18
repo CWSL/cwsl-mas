@@ -65,13 +65,20 @@ class ArgumentCreator(object):
             self.final_shared.append(Constraint(name, set.intersection(*temp_list)))
 
         # Check for Constraint overwrites.
+        to_remove = []
         for constraint in self.final_shared:
             out_cons = output_file_creator.get_constraint(constraint.key)
+            module_logger.debug("Shared Constraint is: {}".format(constraint))
+            module_logger.debug("Found Constraint is: {}".format(constraint))
             if out_cons and (out_cons.values != constraint.values):
                 module_logger.debug("Repeated Constraint found - removing.\n" +
                                     "old constraint: {}, new constraint: {}"
                                     .format(constraint, out_cons))
-                self.final_shared.remove(constraint)
+                to_remove.append(constraint)
+
+        # Remove the bad constraints.
+        for constraint in to_remove:
+            self.final_shared.remove(constraint)
 
         module_logger.debug("Final shared constraints are: {}"
                             .format(self.final_shared))
