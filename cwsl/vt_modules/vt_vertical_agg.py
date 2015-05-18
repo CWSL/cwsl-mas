@@ -59,12 +59,7 @@ class VerticalAggregation(vistrails_module.Module):
         self.positional_args = [(method, 0, 'raw'), ]
         self.keyword_args = {}
 
-        if len(method.split(',')) > 1:
-            agg_constraint = "".join(method.split(','))
-        else:
-            agg_constraint = method
-
-        new_constraints_for_output = set([Constraint('levelagg_info', [agg_constraint]),
+        new_constraints_for_output = set([Constraint('levelagg_info', [method]),
                                           Constraint('suffix', ['nc']),
                                           ])
         
