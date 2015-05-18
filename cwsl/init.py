@@ -42,6 +42,7 @@ from cwsl.vt_modules.vt_meridional_agg import MeridionalAggregation
 from cwsl.vt_modules.vt_zonal_agg import ZonalAggregation
 from cwsl.vt_modules.vt_vertical_agg import VerticalAggregation
 from cwsl.vt_modules.vt_remap import Remap
+from cwsl.vt_modules.vt_dataset_arithmetic import DatasetArithmetic
 from cwsl.vt_modules.imageviewer import ImageViewerPanel
 from cwsl.vt_modules.cmip5_constraints import CMIP5Constraints
 from cwsl.vt_modules.sdm_extract import SDMDataExtract
@@ -116,6 +117,8 @@ def initialize(*args, **keywords):
     reg.add_module(GeneralCommandPattern, name='General Command Line Program',
                    namespace='Utilities')
     reg.add_module(Remap, name='Remap horizontal grid',
+                   namespace='Utilities')
+    reg.add_module(DatasetArithmetic, name='Dataset Arithmetic',
                    namespace='Utilities')
 
     # Statistical Downscaling.
