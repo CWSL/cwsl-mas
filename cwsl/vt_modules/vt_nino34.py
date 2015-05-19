@@ -84,13 +84,11 @@ class IndicesNino34(vistrails_module.Module):
                         Constraint('anomaly_info', ['anom']),
                        ])
         
-        cons_for_output = new_cons
-        
         # Execute the process.
         this_process = ProcessUnit([in_dataset],
                                    self.out_pattern,
                                    self.command,
-                                   cons_for_output,
+                                   new_cons,
                                    positional_args=self.positional_args,
                                    execution_options=self._execution_options)
 

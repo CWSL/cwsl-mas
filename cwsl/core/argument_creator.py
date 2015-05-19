@@ -65,13 +65,20 @@ class ArgumentCreator(object):
             self.final_shared.append(Constraint(name, set.intersection(*temp_list)))
 
         # Check for Constraint overwrites.
+        to_remove = []
         for constraint in self.final_shared:
             out_cons = output_file_creator.get_constraint(constraint.key)
+            module_logger.debug("Shared Constraint is: {}".format(constraint))
+            module_logger.debug("Found Constraint is: {}".format(constraint))
             if out_cons and (out_cons.values != constraint.values):
                 module_logger.debug("Repeated Constraint found - removing.\n" +
                                     "old constraint: {}, new constraint: {}"
                                     .format(constraint, out_cons))
-                self.final_shared.remove(constraint)
+                to_remove.append(constraint)
+
+        # Remove the bad constraints.
+        for constraint in to_remove:
+            self.final_shared.remove(constraint)
 
         module_logger.debug("Final shared constraints are: {}"
                             .format(self.final_shared))
@@ -97,7 +104,7 @@ class ArgumentCreator(object):
 
             module_logger.debug("About to get files from output with Constraints: {}"
                                 .format(self.output_file_creator.constraints))
-            all_outs = self.output_file_creator.get_files(this_dict)
+            all_outs = self.output_file_creator.get_files(this_dict, update=True)
 
             # For every output file, grab the corresponding input files.
             for output in all_outs:
@@ -122,7 +129,7 @@ class ArgumentCreator(object):
 
                     module_logger.debug("Getting files from input - dictionary is: {}"
                                         .format(good_atts))
-                    returned_files = ds.get_files(good_atts)
+                    returned_files = ds.get_files(good_atts, check=True)
                     in_list += returned_files
                     # Update the attribute dictionary for keyword arguments
                     for returned_file in returned_files:

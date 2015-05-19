@@ -32,11 +32,11 @@ from cwsl.core.pattern_generator import PatternGenerator
 
 
 class XmlToNc(vistrails_module.Module):
-    """ 
+    """
     This module selects a time period from a single netCDF file or cdml catalogue file
 
     Requires: year_start - Start date of time selection, format YYYY[[MM][DD]]
-              year_end   - End date of time selection, format YYYY[[MM][DD]] 
+              year_end   - End date of time selection, format YYYY[[MM][DD]]
 
     """
 
@@ -53,9 +53,8 @@ class XmlToNc(vistrails_module.Module):
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet'),
                      ('out_constraints', basic_modules.String, True)]
 
-    _execution_options = {'required_modules': ['cdo', 'cct', 'nco', 
+    _execution_options = {'required_modules': ['cdo', 'cct', 'nco',
                                                'python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5']}
-                          
 
 
     def __init__(self):
@@ -67,19 +66,27 @@ class XmlToNc(vistrails_module.Module):
         self.command = '${CWSL_CTOOLS}/utils/xml_to_nc.py'
         #Output file structure declaration ??
         self.out_pattern = PatternGenerator('user', 'default').pattern
-        
+
         # Set up the output command for this module, adding extra options.
-        self.positional_args = [('variable', 0), ('--force', -1, 'raw')]
-        self.keyword_args = {'start_year': 'startdate_info',
-                             'end_year': 'enddate_info'}
-                                
+        self.positional_args = [('variable', 0)]
+        # This means that we will now have the positional arguments on form
+        # ./script variable infile outfile.
+
+        # Add the --time_bounds argument as positional, because it is of
+        # list form (--option ARG ARG)
+        self.positional_args += [('--time_bounds', 3, 'raw'),
+                                 ('startdate_info', 4),
+                                 ('enddate_info', 5)]
+
+        self.keyword_args = {}
+
     def compute(self):
 
         # Required input
         in_dataset = self.getInputFromPort("in_dataset")
         year_start = self.getInputFromPort("start_year")
         year_end = self.getInputFromPort("end_year")
-        
+
         new_cons = set([Constraint('startdate_info', [year_start]),
                         Constraint('enddate_info', [year_end]),
                         Constraint('suffix', ['nc']),])
