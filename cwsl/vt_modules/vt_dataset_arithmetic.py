@@ -61,11 +61,11 @@ class DatasetArithmetic(vistrails_module.Module):
         self.positional_args = [(operation, 0, 'raw'), ]
         self.keyword_args = {}
 
-        new_constraints_for_output = set([Constraint('extra_info', [method]),
+        new_constraints_for_output = set([Constraint('extra_info', [operation]),
                                           Constraint('suffix', ['nc']),
                                           ])
         
-        this_process = ProcessUnit([in_dataset],
+        this_process = ProcessUnit([in_dataset1, in_dataset2],
                                    self.out_pattern,
                                    self.command,
                                    new_constraints_for_output,
