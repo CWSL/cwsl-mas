@@ -64,9 +64,6 @@ class FileCreator(DataSet):
 
         '''
 
-        module_logger.debug("Building FileCreator with pattern: {0} and extra_constraints: {1}"
-                            .format(output_pattern, extra_constraints))
-
         self.output_pattern = output_pattern
 
         # Construct the initial constraints from the output pattern.
@@ -98,8 +95,7 @@ class FileCreator(DataSet):
         # One to hold the valid_hashes
         self.valid_hashes = set()
 
-        module_logger.debug("After init, self.constraints: {}"
-                            .format(self.constraints))
+
         self.cons_names = [cons.key for cons in self.constraints]
 
     def get_files(self, att_dict, check=False, update=True):
@@ -113,10 +109,6 @@ class FileCreator(DataSet):
 
         """
 
-        module_logger.debug("Search attribute dict is: {}".format(att_dict))
-        module_logger.debug("Before getting constraint, all constraints are: {}"
-                            .format(self.constraints))
-
         # Get the keys of the input dictionary.
         search_keys = [att for att in att_dict.keys()]
 
@@ -129,23 +121,14 @@ class FileCreator(DataSet):
                 # If a key is not in the att_dict, grab the existing constraint.
                 existing_cons = self.get_constraint(key)
                 to_loop.append((existing_cons.key, existing_cons.values))
-                module_logger.debug("Adding {0} to to_loop: constraint from output"
-                                    .format((existing_cons.key, existing_cons.values)))
                 assert(type(existing_cons.values == set))
             else:
                 new_cons = Constraint(key, [att_dict[key]])
                 to_loop.append((new_cons.key, new_cons.values))
-                module_logger.debug("Adding {0} to to_loop: constraint from input"
-                                    .format((new_cons.key, new_cons.values)))
-
-        module_logger.debug("to_loop is: {0}".format(to_loop))
 
         keys = [cons[0] for cons in to_loop]
         values = [cons[1] for cons in to_loop]
 
-        module_logger.debug("Keys to search for are: {0}".format(keys))
-        module_logger.debug("Building itertools product for values: {0}"
-                            .format(values))
         new_iter = itertools.product(*values)
 
         outfiles = []
@@ -192,12 +175,8 @@ class FileCreator(DataSet):
         """
 
         existing_cons_names = [cons.key for cons in self.constraints]
-        module_logger.debug("existing cons names is: {}"
-                            .format(existing_cons_names))
 
         # Now add the constraints - only if they are in the pattern!
-        module_logger.debug("new_constraints is: {}"
-                            .format(new_constraints))
         for cons in new_constraints:
             if cons.key in existing_cons_names:
                 self.constraints.add(cons)
@@ -216,26 +195,18 @@ class FileCreator(DataSet):
         for cons in to_remove:
             new_cons_dict[cons.key] = set([])
 
-        module_logger.debug("Constraints to remove: {0}"
-                            .format(to_remove))
-
         for cons in to_remove:
             new_cons_dict[cons.key] = new_cons_dict[cons.key].union(cons.values)
             self.constraints.remove(cons)
 
-        module_logger.debug("New Constraints Dictionary: {0}"
-                            .format(new_cons_dict))
-
         for key in new_cons_dict:
             self.constraints.add(Constraint(key, new_cons_dict[key]))
-
-        module_logger.debug("New output constraints are: {0}"
-                            .format(self.constraints))
 
     def climate_file_from_combination(self, keys, next_combination,
                                       check, update):
         """ Make a possible output ClimateFiles object from
         a combination of attributes.
+
         """
 
         # Turn the combination tuple into a dictionary with
@@ -246,7 +217,6 @@ class FileCreator(DataSet):
             sub_dict[key] = value
             cons_list.append(Constraint(key, [value]))
 
-        module_logger.debug("Substitution dictionary sub_dict = {0}".format(sub_dict))
         new_file = self.output_pattern
         for key in sub_dict:
             att_sub = "%" + key + "%"
@@ -259,26 +229,18 @@ class FileCreator(DataSet):
                                     filename=file_name,
                                     all_atts=sub_dict)
 
-        file_hash = hash(new_climate_file)
-
         if check:
             # Hash the climate file and see if it is in the dictionary.
             # If it is not, return None.
-            if file_hash not in self.valid_hashes:
-                module_logger.debug("Hash check failed - file hash not in self.valid_hashes")
-                module_logger.debug("Climate file is: {0}".format(new_climate_file))
-                module_logger.debug("Hash is: {0}".format(file_hash))
+            if frozenset(cons_list) not in self.valid_combinations:
+                module_logger.debug("This combination: {0} is not found in {1}"
+                                    .format(cons_list, self.valid_combinations))
                 return None
 
         if update:
             # Add the hash to the 'valid_hashes' set.
+            file_hash = hash(new_climate_file)
             self.valid_hashes.add(file_hash)
-            module_logger.debug("Adding file hash to self.valid_hashes")
-            module_logger.debug("Climate file is: {0}".format(new_climate_file))
-            module_logger.debug("Hash is: {0}".format(file_hash))
-            # Add this set of constraints it to the self.valid_combinations set
-            # for looping.
-
             self.valid_combinations.add(frozenset(cons_list))
 
         return new_climate_file

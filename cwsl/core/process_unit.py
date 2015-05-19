@@ -287,7 +287,7 @@ class ProcessUnit(object):
 
         # For every valid possible combination, apply any positional and
         # keyword args, then add the command to the scheduler.
-        for combination in this_looper.get_combinations():
+        for combination in this_looper:
             module_logger.debug("Combination: " + str(combination))
             if combination:
 

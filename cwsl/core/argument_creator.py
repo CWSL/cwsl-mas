@@ -68,25 +68,22 @@ class ArgumentCreator(object):
         to_remove = []
         for constraint in self.final_shared:
             out_cons = output_file_creator.get_constraint(constraint.key)
-            module_logger.debug("Shared Constraint is: {}".format(constraint))
-            module_logger.debug("Found Constraint is: {}".format(constraint))
             if out_cons and (out_cons.values != constraint.values):
-                module_logger.debug("Repeated Constraint found - removing.\n" +
-                                    "old constraint: {}, new constraint: {}"
-                                    .format(constraint, out_cons))
                 to_remove.append(constraint)
 
         # Remove the bad constraints.
         for constraint in to_remove:
             self.final_shared.remove(constraint)
 
-        module_logger.debug("Final shared constraints are: {}"
-                            .format(self.final_shared))
-
         self.all_names = [cons.key for cons in self.final_shared]
 
         all_vals = [cons.values for cons in self.final_shared]
         self.all_combinations = itertools.product(*all_vals)
+
+    def __iter__(self):
+        "Set up ArgumentCreator as an iterator"
+
+        return self.get_combinations()
 
 
     def get_combinations(self):
@@ -99,16 +96,12 @@ class ArgumentCreator(object):
             this_dict = {key: value for key, value in zip(self.all_names,
                                                           comb)}
 
-            module_logger.debug("This constraint dictionary is: {}"
-                                .format(this_dict))
-
-            module_logger.debug("About to get files from output with Constraints: {}"
-                                .format(self.output_file_creator.constraints))
-            all_outs = self.output_file_creator.get_files(this_dict, update=True)
+            all_outs = self.output_file_creator.get_files(this_dict, update=False,
+                                                          check=False)
 
             # For every output file, grab the corresponding input files.
             for output in all_outs:
-                out_hash = hashlib.md5(str(output)).hexdigest()
+                out_hash = hash(output)
                 module_logger.debug("Output file is: {}"
                                     .format(output))
 
@@ -129,11 +122,17 @@ class ArgumentCreator(object):
 
                     module_logger.debug("Getting files from input - dictionary is: {}"
                                         .format(good_atts))
-                    returned_files = ds.get_files(good_atts, check=True)
+                    returned_files = ds.get_files(good_atts, check=True, update=False)
                     in_list += returned_files
                     # Update the attribute dictionary for keyword arguments
                     for returned_file in returned_files:
                         all_atts.update(returned_file.all_atts)
 
                 processed_hashes.append(out_hash)
-                yield (in_list, [output], all_atts)
+                if in_list:
+                    # This is a good combination - update the output.
+                    self.output_file_creator.get_files(this_dict, update=True)
+                    module_logger.debug("Yielding a combination of input and output")
+                    yield (in_list, [output], all_atts)
+                else:
+                    module_logger.debug("No combination found!")

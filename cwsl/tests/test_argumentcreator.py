@@ -25,6 +25,7 @@ import mock
 from cwsl.core.argument_creator import ArgumentCreator
 from cwsl.core.pattern_dataset import PatternDataSet
 from cwsl.core.file_creator import FileCreator
+from cwsl.core.constraint import Constraint
 
 module_logger = logging.getLogger('cwsl.tests.test_argumentcreator')
 
@@ -42,7 +43,7 @@ class TestArgumentCreator(unittest.TestCase):
         mock_file_pattern_2 = "/fake/%animal%.file"
         mock_file_list_2 = ["/fake/moose.file", "/fake/rabbit.file",
                             "/fake/bilby.file"]
-        
+
         with mock.patch('cwsl.core.pattern_dataset.PatternDataSet.glob_fs') as mock_glob:
             mock_glob.return_value = mock_file_list_1
             self.test_patternds_1 = PatternDataSet(mock_file_pattern_1)
@@ -57,11 +58,11 @@ class TestArgumentCreator(unittest.TestCase):
         one_to_one_creator = FileCreator("/output/%animal%.output",
                                          [self.test_patternds_2.get_constraint("animal")])
 
-        
+
         looper = ArgumentCreator([self.test_patternds_2], one_to_one_creator)
-        
+
         all_outs = []
-        for thing in looper.get_combinations():
+        for thing in looper:
             self.assertEqual(len(thing[0]), len(thing[1]))
             all_outs.append(thing)
 
@@ -70,14 +71,14 @@ class TestArgumentCreator(unittest.TestCase):
 
     def test_many_looping(self):
         """ Test that simple many-to-one looping works."""
-        
+
         many_to_one_creator = FileCreator("/output/%animal%.output",
                                           [self.test_patternds_1.get_constraint("animal")])
-        
+
         looper = ArgumentCreator([self.test_patternds_1], many_to_one_creator)
 
         all_outs = []
-        for thing in looper.get_combinations():
+        for thing in looper:
             all_outs.append(thing)
 
         module_logger.debug("All outs are: {}".format(all_outs))
@@ -102,28 +103,69 @@ class TestArgumentCreator(unittest.TestCase):
 
         looper = ArgumentCreator([self.test_patternds_1], mapping_creator,
                                  map_dict={'animal': ('pet', 0)})
-        
+
         all_things = []
-        for combination in looper.get_combinations():
+        for combination in looper:
             self.assertTrue(combination)
             all_things.append(combination)
 
         self.assertEqual(3, len(all_things))
+
+    def test_multi_model(self):
+        """ Test for the case when there are groups on Constraints.
+
+        This seems to fail when people use FileCreators.
+        """
+
+        institute_model_pattern = "/fake/%variable%_%model%_%institute%.file"
+        in_constraints = [Constraint('model', ['model_1', 'model_2']),
+                          Constraint('variable', ['variable_1']),
+                          Constraint('institute', ['institute_1', 'institute_2'])]
+        test_filecreator = FileCreator(institute_model_pattern, in_constraints)
+
+        # Set the valid combinations.
+        dummy_file_1 = test_filecreator.get_files({'model': 'model_1',
+                                                   'institute': 'institute_1'},
+                                                  update=True)
+        dummy_file_2 = test_filecreator.get_files({'model': 'model_2',
+                                                   'institute': 'institute_2'},
+                                                  update=True)
+
+        # Now create a FileCreator to use as output.
+        output_pattern = "/an/output/fake/%variable%_%model%_%institute%.file"
+        out_constraints = [Constraint('model', ['model_1', 'model_2']),
+                           Constraint('variable', ['variable_1']),
+                           Constraint('institute', ['institute_1', 'institute_2'])]
+        test_output_filecreator = FileCreator(output_pattern, out_constraints)
+
+        print("Valid input combinations are: {0}".format(test_filecreator.valid_combinations))
+        self.assertEqual(2, len(test_filecreator.valid_hashes))
+
+        test_argument_creator = ArgumentCreator([test_filecreator],
+                                                test_output_filecreator)
+
+        outputs = [combination for combination in test_argument_creator]
+
+        print("Output is: {0}".format(outputs))
+
+        # There should only be two outputs - not 4!
+        self.assertEqual(len(outputs), 2)
+
 
     def test_two_inputs(self):
         """ Test that the ArgumentCreator works with multiple input datasets."""
 
         multi_ds_creator = FileCreator("/output/%animal%.output",
                                        [self.test_patternds_1.get_constraint("animal")])
-        
+
         looper = ArgumentCreator([self.test_patternds_1, self.test_patternds_2],
                                  multi_ds_creator)
 
         all_outs = []
-        for thing in looper.get_combinations():
+        for thing in looper:
             self.assertGreaterEqual(len(thing[0]), len(thing[1]))
             all_outs.append(thing)
-            
+
         # There are three animals.
         self.assertEqual(3, len(all_outs))
 
