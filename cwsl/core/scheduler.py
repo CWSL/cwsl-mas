@@ -35,7 +35,7 @@ class Job(object):
            1. Resources defined in L{__valid_resources}.
            2. Fields in L{__req_fields}.
         """
-    
+
         self.precmds = []
         self.cmds = []
         self.outdirs = set()
@@ -45,8 +45,12 @@ class Job(object):
 
         @param args: Command line to be added.
         @type  args: string
+
+        Does not add repeated commands if they are identical.
         """
-        self.precmds.append(args)
+
+        if args not in self.precmds:
+            self.precmds.append(args)
 
     def queue_cmd(self, args):
         """Add a command to the list of commands to be executed by the Job.
@@ -54,13 +58,13 @@ class Job(object):
         @param args: Command line to be added.
         @type  args: string
         """
-        
+
         str_args = [str(arg) for arg in args]
         self.cmds.append(str_args)
 
     def __repr__(self):
         return self.to_str()
-    
+
     def escape(self, s):
         return s #:s.replace('"', '\"')
 
@@ -95,9 +99,9 @@ class SimpleJob(Job):
         cmdlines = [self.escape(' '.join(args)) for args in self.precmds + self.cmds]
         cmds = '\n'.join(cmdlines) + '\n'
         d['cmds'] = cmds
-        
+
         return t % d
-        
+
     def submit(self, deps=True, noexec=False):
         """Submit the job to the queue.
 
@@ -114,15 +118,15 @@ class SimpleJob(Job):
             self.add_pre_cmd(['mkdir', '-p'] + sorted(self.outdirs))
 
         if noexec:
-            log.debug("Would run script:\n\n========>\n%s\n<========\n\n" % self.to_str())
+            log.warning("Would run script:\n\n========>\n%s\n<========\n\n" % self.to_str())
         else:
             script_file, script_name = tempfile.mkstemp('.sh')
             script_file = os.fdopen(script_file, 'w+b')
             script_file.write(self.to_str() + '\n')
             script_file.close()
-            
+
             args = ['sh', script_name]
-            
+
             try:
                 output = subprocess.check_output(args, stderr=subprocess.STDOUT)
             except subprocess.CalledProcessError, e:
@@ -146,7 +150,7 @@ class AbstractExecManager(object):
 
     def add_pre_cmd(self, job, allargs):
         job.add_pre_cmd(allargs)
- 
+
     def queue_cmd(self, job, allargs):
         job.queue_cmd(allargs)
 
@@ -189,11 +193,11 @@ class SimpleExecManager(AbstractExecManager):
             self.job.outdirs.add(os.path.dirname(ofile))
 
         self.queue_cmd(self.job, cmd_list)
-        
+
         # If there is an annotation, add a second job that annotates the outfile.
         if annotation:
             self.add_annotation(annotation, out_files)
-            
+
     def add_annotation(self, annotation, out_files):
         """ Annotate the vistrails_history metadata tag with an annotation string."""
         self.add_module_deps(['nco'])
@@ -204,12 +208,12 @@ class SimpleExecManager(AbstractExecManager):
                 self.queue_cmd(self.job, annotate_list)
             else:
                 log.warning("Not annotating file '%s' - not NetCDF" % out_file)
-            
+
     def submit(self):
         """Creates a simple shell script with all the commands to be executed.
            Uses Popen to run the script.
 
-           Popen isn't used directly for each command as otherwise the 
+           Popen isn't used directly for each command as otherwise the
            "module load" commands have no effect as each command is run in its
            own subshell....
 
