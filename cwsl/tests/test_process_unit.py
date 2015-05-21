@@ -191,5 +191,13 @@ class TestProcessUnit(unittest.TestCase):
         self.assertEqual(len(all_files), 1)
         self.assertEqual(all_files[0].full_path, '/a/new/pattern/fake_1/file_1/pattern_1.file')
 
+    def test_kwstrings(self):
+        """ Test to check that multi-constraint keyword arguments can be created. """
 
+        the_process_unit = ProcessUnit([self.a_pattern_ds], '/a/new/pattern/%fake%/%file%/%pattern%.file',
+                                       'echo', kw_string="--title $fake-$file")
+        output = the_process_unit.execute(simulate=True)
 
+        expected_string = self.script_header + 'mkdir -p /a/new/pattern/fake_1/file_1\necho test_file1 /a/new/pattern/fake_1/file_1/pattern_1.file --title fake_1-file_1\n'
+
+        self.assertEqual(expected_string, the_process_unit.scheduler.job.to_str())

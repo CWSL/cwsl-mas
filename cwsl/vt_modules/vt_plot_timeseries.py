@@ -75,7 +75,7 @@ class PlotTimeSeries(vistrails_module.Module):
         in_dataset = self.getInputFromPort("in_dataset")
 
         variable_name = self.getInputFromPort("variable_name")
-        self.positional_args=[(variable_name, 0, 'raw'), ('model', 1)]
+        self.positional_args=[(variable_name, 0, 'raw')]
 
         cons_for_output = set([Constraint('suffix', ['png'])])
 
@@ -85,7 +85,8 @@ class PlotTimeSeries(vistrails_module.Module):
                                    self.command,
                                    cons_for_output,
                                    execution_options=self._execution_options,
-                                   positional_args=self.positional_args)
+                                   positional_args=self.positional_args,
+                                   kw_string="--title '${model}_${experiment}'")
 
         try:
             process_output = this_process.execute(simulate=configuration.simulate_execution)

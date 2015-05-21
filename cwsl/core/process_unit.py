@@ -19,6 +19,7 @@ This module contains the ProcessUnit class.
 
 import os
 import logging
+import string
 
 from cwsl.configuration import configuration
 from cwsl.utils import utils
@@ -50,7 +51,7 @@ class ProcessUnit(object):
 
     def __init__(self, inputlist, output_pattern, shell_command,
                  extra_constraints=None, map_dict=None, cons_keywords=None,
-                 positional_args=None, execution_options=None):
+                 positional_args=None, execution_options=None, kw_string=None):
 
         """
         Arguments:
@@ -80,6 +81,10 @@ class ProcessUnit(object):
                            required modules etc. to the process unit. Currently only
                            required_modules is implemented.
 
+        kw_string: A string used for composite constraint keyword arguments, i.e.
+                   using multiple attribute values in a single keyword argument.
+                   example - kw_string="--title $model_$variable"
+
         """
 
         if map_dict:
@@ -106,6 +111,11 @@ class ProcessUnit(object):
             self.positional_args = positional_args
         else:
             self.positional_args = {}
+
+        if kw_string:
+            self.kw_string = kw_string
+        else:
+            self.kw_string = None
 
         # The initial Constraints are built from the output file pattern.
         pattern_constraints = set(FileCreator.constraints_from_pattern(output_pattern))
@@ -303,7 +313,8 @@ class ProcessUnit(object):
 
                 # Now apply any keyword arguments and positional args.
                 keyword_command_list = self.apply_keyword_args(base_cmd_list, this_dict)
-                final_command_list = self.apply_positional_args(keyword_command_list, this_dict)
+                positional_list = self.apply_positional_args(keyword_command_list, this_dict)
+                final_command_list = self.apply_kwstring(positional_list, this_dict)
 
                 # Generate the annotation string.
                 try:
@@ -331,6 +342,19 @@ class ProcessUnit(object):
             command_list.append(prefix + keyword + ' ' + this_att_value)
 
         return command_list
+
+    def apply_kwstring(self, command_list, cons_dict):
+        """ Use a string template to build a composite keyword argument. """
+
+        if not self.kw_string:
+            return command_list
+
+        outstring = string.Template(self.kw_string).substitute(cons_dict)
+
+        command_list.append(outstring)
+
+        return(command_list)
+
 
     def apply_positional_args(self, arg_list, constraint_dict):
         """ Add positional args to a list of command arguments. """
