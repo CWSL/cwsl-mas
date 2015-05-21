@@ -271,7 +271,7 @@ class ProcessUnit(object):
         # the output FileCreator.
         module_logger.debug("Before ArgumentCreator, FileCreator constraints are: {0}"
                             .format(self.file_creator.constraints))
-        this_looper = ArgumentCreator(self.inputlist, self.file_creator, self.map_dict)
+        this_looper = ArgumentCreator(self.inputlist, self.file_creator)
         module_logger.debug("Created ArgumentCreator: {0}".format(this_looper))
 
         #TODO determine scheduler from user options.

@@ -29,8 +29,7 @@ module_logger = logging.getLogger('cwsl.core.argument_creator')
 class ArgumentCreator(object):
     """ The ArgumentCreator. """
 
-    def __init__(self, input_datasets, output_file_creator,
-                 map_dict=None):
+    def __init__(self, input_datasets, output_file_creator):
         ''' The class takes in a list of DataSet objects for its input and
         a FileCreator object for output.
 
@@ -50,7 +49,9 @@ class ArgumentCreator(object):
         all_values = []
         for name in self.shared_constraints:
             for ds in input_datasets:
-                all_values.append(ds.get_constraint(name))
+                new_con = ds.get_constraint(name)
+                if new_con:
+                    all_values.append(new_con)
 
         module_logger.debug("All values are: {}"
                             .format(all_values))
@@ -62,7 +63,9 @@ class ArgumentCreator(object):
             for constraint in all_values:
                 if constraint.key == name:
                     temp_list.append(constraint.values)
-            self.final_shared.append(Constraint(name, set.intersection(*temp_list)))
+
+            if(temp_list):
+                self.final_shared.append(Constraint(name, set.intersection(*temp_list)))
 
         # Check for Constraint overwrites.
         to_remove = []
@@ -117,7 +120,7 @@ class ArgumentCreator(object):
                     for thing, value in output.all_atts.items():
                         if thing in ds.cons_names:
                             in_con = ds.get_constraint(thing)
-                            if value in in_con.values:
+                            if in_con and (value in in_con.values):
                                 good_atts[thing] = value
 
                     module_logger.debug("Getting files from input - dictionary is: {}"

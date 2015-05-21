@@ -38,7 +38,7 @@ class TestProcessUnit(unittest.TestCase):
         test_cons = set([Constraint('fake', ['fake_1']),
                          Constraint('file', ['file_1']),
                          Constraint('pattern', ['pattern_1'])])
-        
+
         self.a_pattern_ds = PatternDataSet('/a/%fake%/%file%/%pattern%',
                                            constraint_set=test_cons)
         # Mock the get_files method - we will only return a single, mock file object.
@@ -56,7 +56,7 @@ class TestProcessUnit(unittest.TestCase):
         # Constant header for the job scripts.
         self.script_header = "#!/bin/sh\nset -e\n\nmodule purge\nexport CWSL_CTOOLS={}\nexport PYTHONPATH=$PYTHONPATH:{}/pythonlib\n"\
             .format(configuration.cwsl_ctools_path, configuration.cwsl_ctools_path)
-        
+
     def test_execution(self):
         """ Test that a process unit can execute a basic process without falling over. """
 
@@ -77,12 +77,12 @@ class TestProcessUnit(unittest.TestCase):
 
         the_process_unit = ProcessUnit([self.a_pattern_ds], '/another/%file%/%pattern%.txt',
                                        'echo', positional_args=[('pattern', 0)])
-        
+
         ds_result = the_process_unit.execute(simulate=True)
-        
+
         outfiles = [file_thing for file_thing in ds_result.files]
         self.assertEqual(len(outfiles), 1)
-        
+
         expected_string = self.script_header + "mkdir -p /another/file_1\necho pattern_1 test_file1 /another/file_1/pattern_1.txt\n"
         self.assertEqual(expected_string, the_process_unit.scheduler.job.to_str())
 
@@ -91,12 +91,12 @@ class TestProcessUnit(unittest.TestCase):
 
         the_process_unit = ProcessUnit([self.a_pattern_ds], '/another/%file%/%pattern%.txt',
                                        'echo', positional_args=[('fake', 0)])
-        
+
         ds_result = the_process_unit.execute(simulate=True)
-        
+
         outfiles = [file_thing for file_thing in ds_result.files]
         self.assertEqual(len(outfiles), 1)
-        
+
         expected_string = self.script_header + "mkdir -p /another/file_1\necho fake_1 test_file1 /another/file_1/pattern_1.txt\n"
         self.assertEqual(expected_string, the_process_unit.scheduler.job.to_str())
 
@@ -107,12 +107,12 @@ class TestProcessUnit(unittest.TestCase):
         the_process_unit = ProcessUnit([self.a_pattern_ds], '/another/%file%/%pattern%_%animal%.txt',
                                        'echo', extra_constraints=extra_cons,
                                        positional_args=[('animal', 0)])
-        
+
         ds_result = the_process_unit.execute(simulate=True)
-        
+
         outfiles = [file_thing for file_thing in ds_result.files]
         self.assertEqual(len(outfiles), 2)
-        
+
         expected_string = self.script_header + 'mkdir -p /another/file_1\necho moose test_file1 /another/file_1/pattern_1_moose.txt\necho kangaroo test_file1 /another/file_1/pattern_1_kangaroo.txt\n'
         self.assertEqual(expected_string, the_process_unit.scheduler.job.to_str())
 
@@ -153,7 +153,7 @@ class TestProcessUnit(unittest.TestCase):
         """ Test that ProcessUnit throw an exception if a constraint is overwritten with nothing."""
 
         extra_con = set([Constraint('fake', [])])
-        
+
         self.assertRaises(EmptyOverwriteError, ProcessUnit, [self.a_pattern_ds], '/%fake%/%file%/%pattern%.txt',
                           'echo', extra_constraints=extra_con)
 
@@ -167,7 +167,7 @@ class TestProcessUnit(unittest.TestCase):
 
         self.assertEqual(expected_string_1, the_process_unit_1.scheduler.job.to_str())
 
-        
+
         # Now try both keyword and positional.
         the_process_unit_2 = ProcessUnit([self.a_pattern_ds], '/%fake%/%file%/%pattern%.txt',
                                          'echo', cons_keywords={'fake_name': 'fake'},
@@ -176,3 +176,20 @@ class TestProcessUnit(unittest.TestCase):
         expected_string_2 = self.script_header + 'mkdir -p /fake_1/file_1\necho --input test_file1 --output /fake_1/file_1/pattern_1.txt --fake_name fake_1\n'
 
         self.assertEqual(expected_string_2, the_process_unit_2.scheduler.job.to_str())
+
+    def test_mapping(self):
+        """ Test to allow simple mapping of a constraint in the input to one in the output. """
+
+        # Input PatternDS has constraints fake, file and pattern.
+        # Use fake from first input as animal constraint.
+        the_process_unit = ProcessUnit([self.a_pattern_ds], '/a/new/pattern/%animal%/%file%/%pattern%.file',
+                                       'echo', map_dict={'animal': ('fake', 0)})
+        output = the_process_unit.execute(simulate=True)
+
+        all_files = [thing for thing in output.files]
+
+        self.assertEqual(len(all_files), 1)
+        self.assertEqual(all_files[0].full_path, '/a/new/pattern/fake_1/file_1/pattern_1.file')
+
+
+

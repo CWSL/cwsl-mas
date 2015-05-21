@@ -86,31 +86,6 @@ class TestArgumentCreator(unittest.TestCase):
         # There are three animals.
         self.assertEqual(3, len(all_outs))
 
-    def test_mapping(self):
-        """ Test that a 'mapping' can be applied
-
-        This means that a Constraint on the input dataset
-        is used for a differently named constraint on the
-        output.
-
-        """
-
-        pet_con = self.test_patternds_2.get_constraint("animal")
-        pet_con.key = 'pet'
-
-        mapping_creator = FileCreator("/output/%pet%.output",
-                                      [pet_con])
-
-        looper = ArgumentCreator([self.test_patternds_1], mapping_creator,
-                                 map_dict={'animal': ('pet', 0)})
-
-        all_things = []
-        for combination in looper:
-            self.assertTrue(combination)
-            all_things.append(combination)
-
-        self.assertEqual(3, len(all_things))
-
     def test_multi_model(self):
         """ Test for the case when there are groups on Constraints.
 
