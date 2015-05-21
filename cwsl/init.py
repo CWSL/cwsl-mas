@@ -83,8 +83,6 @@ def initialize(*args, **keywords):
     reg.add_module(CDScan, name='Merge Timeseries', namespace='Aggregation')
     reg.add_module(SeasVars, name='Seasonal Timeseries',
                    namespace='Aggregation')
-    reg.add_module(XmlToNc, name='Timeslice',
-                   namespace='Aggregation')
     reg.add_module(Climatology, name="Climatology",
                    namespace='Aggregation')
     reg.add_module(FieldAggregation, name="Field Aggregation",
@@ -114,8 +112,10 @@ def initialize(*args, **keywords):
                    namespace='Utilities')
     reg.add_module(CMIP5Constraints, name='CMIP5 Constraints',
                    namespace='Utilities')
-    reg.add_module(GeneralCommandPattern, name='General Command Line Program',
+    reg.add_module(XmlToNc, name='Crop',
                    namespace='Utilities')
+#    reg.add_module(GeneralCommandPattern, name='General Command Line Program',
+#                   namespace='Utilities')
     reg.add_module(Remap, name='Remap horizontal grid',
                    namespace='Utilities')
     reg.add_module(DatasetArithmetic, name='Dataset Arithmetic',
