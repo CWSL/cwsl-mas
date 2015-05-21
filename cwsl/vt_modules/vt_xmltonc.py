@@ -35,26 +35,25 @@ class XmlToNc(vistrails_module.Module):
     """
     This module selects a time period from a single netCDF file or cdml catalogue file
 
-    Requires: year_start - Start date of time selection, format YYYY[[MM][DD]]
-              year_end   - End date of time selection, format YYYY[[MM][DD]]
+    Requires: date_start - Start date of time selection, format YYYY-MM-DD
+              date_end   - End date of time selection, format YYYY-MM-DD
 
     """
 
     # Define the module ports.
     _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet',
                      {'labels': str(['Input Dataset'])}),
-                    ('start_year', basic_modules.Integer,
-                     {'labels': str(['Start Date (YYYY[[MM][DD]])'])}),
-                    ('end_year', basic_modules.Integer,
-                     {'labels': str(['End Date (YYYY[[MM][DD]])'])}),
+                    ('start_date', basic_modules.Integer,
+                     {'labels': str(['Start Date (YYYY-MM-DD)'])}),
+                    ('end_date', basic_modules.Integer,
+                     {'labels': str(['End Date (YYYY-MM-DD)'])}),
                     ('added_constraints', basic_modules.List, True,
                      {'defaults': ["[]"]})]
 
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet'),
                      ('out_constraints', basic_modules.String, True)]
 
-    _execution_options = {'required_modules': ['cdo', 'cct', 'nco',
-                                               'python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5']}
+    _execution_options = {'required_modules': ['cdo', 'python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5']}
 
 
     def __init__(self):
@@ -76,7 +75,7 @@ class XmlToNc(vistrails_module.Module):
         # list form (--option ARG ARG)
         self.positional_args += [('--time_bounds', 3, 'raw'),
                                  ('startdate_info', 4),
-                                 ('enddate_info', 5)]
+                                 ('enddate_info', 5),]
 
         self.keyword_args = {}
 
@@ -84,11 +83,11 @@ class XmlToNc(vistrails_module.Module):
 
         # Required input
         in_dataset = self.getInputFromPort("in_dataset")
-        year_start = self.getInputFromPort("start_year")
-        year_end = self.getInputFromPort("end_year")
+        date_start = self.getInputFromPort("start_date")
+        date_end = self.getInputFromPort("end_date")
 
-        new_cons = set([Constraint('startdate_info', [year_start]),
-                        Constraint('enddate_info', [year_end]),
+        new_cons = set([Constraint('startdate_info', [date_start]),
+                        Constraint('enddate_info', [date_end]),
                         Constraint('suffix', ['nc']),])
 
         cons_for_output = new_cons
