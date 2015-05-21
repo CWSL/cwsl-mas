@@ -35,9 +35,6 @@ class XmlToNc(vistrails_module.Module):
     """
     This module selects a time period from a single netCDF file or cdml catalogue file
 
-    Requires: date_start - Start date of time selection, format YYYY-MM-DD
-              date_end   - End date of time selection, format YYYY-MM-DD
-
     """
 
     # Define the module ports.
@@ -45,8 +42,20 @@ class XmlToNc(vistrails_module.Module):
                      {'labels': str(['Input Dataset'])}),
                     ('start_date', basic_modules.Integer,
                      {'labels': str(['Start Date (YYYY-MM-DD)'])}),
-                    ('end_date', basic_modules.Integer,
+                    ('end_date', basic_modules.String,
                      {'labels': str(['End Date (YYYY-MM-DD)'])}),
+                    ('west_lon', basic_modules.String,
+                     {'labels': str(['Western longitude'])}),
+                    ('east_lon', basic_modules.Float,
+                     {'labels': str(['Eastern longitude'])}),
+                    ('south_lat', basic_modules.Float,
+                     {'labels': str(['Southern Latitude'])}),
+                    ('north_lat', basic_modules.Float,
+                     {'labels': str(['Northern Latitude'])}),
+                    ('bottom_level', basic_modules.Float,
+                     {'labels': str(['Bottom level'])}),
+                    ('top_level', basic_modules.Float,
+                     {'labels': str(['Top level'])}),
                     ('added_constraints', basic_modules.List, True,
                      {'defaults': ["[]"]})]
 
@@ -76,6 +85,15 @@ class XmlToNc(vistrails_module.Module):
         self.positional_args += [('--time_bounds', 3, 'raw'),
                                  ('startdate_info', 4),
                                  ('enddate_info', 5),]
+        self.positional_args += [('--lon_bounds', 6, 'raw'),
+                                 ('westlon_info', 7),
+                                 ('eastlon_info', 8),]
+        self.positional_args += [('--lat_bounds', 9, 'raw'),
+                                 ('southlat_info', 10),
+                                 ('northlat_info', 11),]
+        self.positional_args += [('--level_bounds', 12, 'raw'),
+                                 ('bottomlevel_info', 13),
+                                 ('toplevel_info', 14),]
 
         self.keyword_args = {}
 
@@ -85,9 +103,21 @@ class XmlToNc(vistrails_module.Module):
         in_dataset = self.getInputFromPort("in_dataset")
         date_start = self.getInputFromPort("start_date")
         date_end = self.getInputFromPort("end_date")
+        west_lon = self.getInputFromPort("west_lon")
+        east_lon = self.getInputFromPort("east_lon")
+        south_lat = self.getInputFromPort("south_lat")
+        north_lat = self.getInputFromPort("north_lat")
+        bottom_level = self.getInputFromPort("bottom_level")
+        top_level = self.getInputFromPort("top_level")
 
         new_cons = set([Constraint('startdate_info', [date_start]),
                         Constraint('enddate_info', [date_end]),
+                        Constraint('westlon_info', [west_lon]),
+                        Constraint('eastlon_info', [east_end]),
+                        Constraint('southlat_info', [south_lat]),
+                        Constraint('northlat_info', [north_lat]),
+                        Constraint('bottomlevel_info', [bottom_level]),
+                        Constraint('toplevel_info', [top_level]),
                         Constraint('suffix', ['nc']),])
 
         cons_for_output = new_cons
