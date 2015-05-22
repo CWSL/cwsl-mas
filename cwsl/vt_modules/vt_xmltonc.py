@@ -40,11 +40,11 @@ class XmlToNc(vistrails_module.Module):
     # Define the module ports.
     _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet',
                      {'labels': str(['Input Dataset'])}),
-                    ('startdate', basic_modules.Integer,
+                    ('startdate', basic_modules.String,
                      {'labels': str(['Start Date (YYYY-MM-DD)']),'optional': True}),
                     ('enddate', basic_modules.String,
                      {'labels': str(['End Date (YYYY-MM-DD)']), 'optional': True}),
-                    ('west_lon', basic_modules.String,
+                    ('westlon', basic_modules.String,
                      {'labels': str(['Western longitude']), 'optional': True}),
                     ('eastlon', basic_modules.Float,
                      {'labels': str(['Eastern longitude']), 'optional': True}),
@@ -111,24 +111,24 @@ class XmlToNc(vistrails_module.Module):
                                 ('westlon_info', arg_number+1),
                                 ('eastlon_info', arg_number+2)]
             arg_number += 3
-            cons_for_output |= set([Constraint('westlon_info', [westlon_info]),
-                                    Constraint('eastlon_info', [eastlon_info])])
+            cons_for_output |= set([Constraint('westlon_info', [port_vals["westlon_info"]]),
+                                    Constraint('eastlon_info', [port_vals["eastlon_info"]])])
 
         if port_vals["southlat_info"] and port_vals["northlat_info"]:
             positional_args += [('--lat_bounds', arg_number, 'raw'),
                                 ('southlat_info', arg_number+1),
                                 ('northlat_info', arg_number+2)]
             arg_number += 3
-            cons_for_output |= set([Constraint('southlat_info', [southlat_info]),
-                                    Constraint('northlat_info', [northlat_info])])
+            cons_for_output |= set([Constraint('southlat_info', [port_vals["southlat_info"]]),
+                                    Constraint('northlat_info', [port_vals["northlat_info"]])])
 
         if port_vals["bottomlevel_info"] and port_vals["toplevel_info"]:
             positional_args += [('--level_bounds', arg_number, 'raw'),
                                 ('bottomlevel_info', arg_number+1),
                                 ('toplevel_info', arg_number+2)]
             arg_number += 3
-            cons_for_output |= set([Constraint('bottomlevel_info', [bottomlevel_info]),
-                                    Constraint('toplevel_info', [toplevel_info])])
+            cons_for_output |= set([Constraint('bottomlevel_info', [port_vals["bottomlevel_info"]]),
+                                    Constraint('toplevel_info', [port_vals["toplevel_info"]])])
 
         # keyword_args = {}
 
