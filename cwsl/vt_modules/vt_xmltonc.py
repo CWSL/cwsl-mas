@@ -46,15 +46,15 @@ class XmlToNc(vistrails_module.Module):
                      {'labels': str(['End Date (YYYY-MM-DD)']), 'optional': True}),
                     ('westlon', basic_modules.String,
                      {'labels': str(['Western longitude']), 'optional': True}),
-                    ('eastlon', basic_modules.Float,
+                    ('eastlon', basic_modules.String,
                      {'labels': str(['Eastern longitude']), 'optional': True}),
-                    ('southlat', basic_modules.Float,
+                    ('southlat', basic_modules.String,
                      {'labels': str(['Southern Latitude']), 'optional': True}),
-                    ('northlat', basic_modules.Float,
+                    ('northlat', basic_modules.String,
                      {'labels': str(['Northern Latitude']), 'optional': True}),
-                    ('bottomlevel', basic_modules.Float,
+                    ('bottomlevel', basic_modules.String,
                      {'labels': str(['Bottom level']), 'optional': True}),
-                    ('toplevel', basic_modules.Float,
+                    ('toplevel', basic_modules.String,
                      {'labels': str(['Top level']), 'optional': True})]
 
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
@@ -130,15 +130,12 @@ class XmlToNc(vistrails_module.Module):
             cons_for_output |= set([Constraint('bottomlevel_info', [port_vals["bottomlevel_info"]]),
                                     Constraint('toplevel_info', [port_vals["toplevel_info"]])])
 
-        # keyword_args = {}
-
         # Execute the xml_to_nc process.
         this_process = ProcessUnit([in_dataset],
                                    self.out_pattern,
                                    self.command,
                                    cons_for_output,
                                    positional_args=positional_args,
-                                   # cons_keywords=keyword_args,
                                    execution_options=self._execution_options)
 
         try:
