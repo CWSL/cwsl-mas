@@ -90,12 +90,7 @@ class XmlToNc(vistrails_module.Module):
             except vistrails_module.ModuleError as e:
                 port_vals[name+"_info"] = None
 
-        # Add the --time_bounds argument as positional, because it is of
-        # list form (--option ARG ARG)
-        # This means that we will now have the positional arguments on form
-        # ./script variable infile outfile - other arguments start at 3
         arg_number = 3
-
         cons_for_output = set([Constraint('suffix', ['nc'])])
 
         if port_vals["startdate_info"] and port_vals["enddate_info"]:
