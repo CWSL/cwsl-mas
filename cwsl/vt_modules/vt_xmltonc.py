@@ -32,9 +32,15 @@ from cwsl.core.pattern_generator import PatternGenerator
 
 
 def latitude_label(lat):
-   """For a given latitude, return a label ending with S or N"""
-   
-    if float(lat) >= 0.0:
+    """Create a latitude label ending with S or N.
+    
+    Args:
+      lat (str or float): Latitude to label
+
+    """
+    if 'S' in str(lat) or 'N' in str(lat):
+        label = lat
+    elif float(lat) >= 0.0:
         label = str(lat) + 'N'
     else: 
         label = str(lat)[1:] + 'S'
