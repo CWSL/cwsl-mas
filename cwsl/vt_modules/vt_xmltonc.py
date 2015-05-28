@@ -2,6 +2,7 @@
 
 Authors:  Tim Bedin (Tim.Bedin@csiro.au)
           Tim Erwin (Tim.Erwin@csiro.au)
+          Damien Irving (irving.damien@gmail.com)
 
 Copyright 2014 CSIRO
 
@@ -74,29 +75,26 @@ def latitude_label(lat):
 
 
 class XmlToNc(vistrails_module.Module):
-    """
-    This module selects a time period from a single netCDF file or cdml catalogue file
-
-    """
+    """Crop a dataset on its longitude, latitude, time and/or level axis."""
 
     # Define the module ports.
     _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet',
-                     {'labels': str(['Input Dataset'])}),
-                    ('startdate', basic_modules.String,
-                     {'labels': str(['Start Date (YYYY-MM-DD)']),'optional': True}),
-                    ('enddate', basic_modules.String,
-                     {'labels': str(['End Date (YYYY-MM-DD)']), 'optional': True}),
-                    ('westlon', basic_modules.String,
-                     {'labels': str(['Western longitude']), 'optional': True}),
-                    ('eastlon', basic_modules.String,
-                     {'labels': str(['Eastern longitude']), 'optional': True}),
-                    ('southlat', basic_modules.String,
-                     {'labels': str(['Southern Latitude']), 'optional': True}),
-                    ('northlat', basic_modules.String,
-                     {'labels': str(['Northern Latitude']), 'optional': True}),
-                    ('bottomlevel', basic_modules.String,
+                     {'labels': str(['Input dataset'])}),
+                    ('timestart', basic_modules.String,
+                     {'labels': str(['Start date (YYYY-MM-DD)']),'optional': True}),
+                    ('timeend', basic_modules.String,
+                     {'labels': str(['End date (YYYY-MM-DD)']), 'optional': True}),
+                    ('lonwest', basic_modules.String,
+                     {'labels': str(['Western longitude (0-360E)']), 'optional': True}),
+                    ('loneast', basic_modules.String,
+                     {'labels': str(['Eastern longitude (0-360E)']), 'optional': True}),
+                    ('latsouth', basic_modules.String,
+                     {'labels': str(['Southern latitude']), 'optional': True}),
+                    ('latnorth', basic_modules.String,
+                     {'labels': str(['Northern latitude']), 'optional': True}),
+                    ('levelbottom', basic_modules.String,
                      {'labels': str(['Bottom level']), 'optional': True}),
-                    ('toplevel', basic_modules.String,
+                    ('leveltop', basic_modules.String,
                      {'labels': str(['Top level']), 'optional': True})]
 
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
@@ -122,9 +120,9 @@ class XmlToNc(vistrails_module.Module):
         # Set up the output command for this module, adding extra options.
         positional_args = [('variable', 0)]
 
-        port_names = ["startdate", "enddate", "westlon",
-                      "eastlon", "southlat", "northlat",
-                      "bottomlevel", "toplevel"]
+        port_names = ["timestart", "timeend", "lonwest",
+                      "loneast", "latsouth", "latnorth",
+                      "levelbottom", "leveltop"]
         port_vals = {}
         for name in port_names:
             try:
@@ -135,45 +133,45 @@ class XmlToNc(vistrails_module.Module):
         arg_number = 3
         cons_for_output = set([Constraint('suffix', ['nc'])])
 
-        if port_vals["startdate_info"] and port_vals["enddate_info"]:
+        if port_vals["timestart_info"] and port_vals["timeend_info"]:
             positional_args += [('--time_bounds', arg_number, 'raw'),
-                                ('startdate_info', arg_number+1),
-                                ('enddate_info', arg_number+2)]
+                                ('timestart_info', arg_number+1),
+                                ('timeend_info', arg_number+2)]
             arg_number += 3
-            cons_for_output |= set([Constraint('startdate_info', [port_vals["startdate_info"]]),
-                                    Constraint('enddate_info', [port_vals["enddate_info"]])])
+            cons_for_output |= set([Constraint('timestart_info', [port_vals["timestart_info"]]),
+                                    Constraint('timeend_info', [port_vals["timeend_info"]])])
 
-        if port_vals["eastlon_info"] and port_vals["westlon_info"]:
+        if port_vals["loneast_info"] and port_vals["lonwest_info"]:
             positional_args += [('--lon_bounds', arg_number, 'raw'),
-                                ('westlon_info', arg_number+1),
-                                ('eastlon_info', arg_number+2)]
+                                ('lonwest_info', arg_number+1),
+                                ('loneast_info', arg_number+2)]
             arg_number += 3
 
-            westlon_text = longitude_label(port_vals["westlon_info"])
-            eastlon_text = longitude_label(port_vals["eastlon_info"])
+            lonwest_text = longitude_label(port_vals["lonwest_info"])
+            loneast_text = longitude_label(port_vals["loneast_info"])
 
-            cons_for_output |= set([Constraint('westlon_info', [westlon_text]),
-                                    Constraint('eastlon_info', [eastlon_text])])
+            cons_for_output |= set([Constraint('lonwest_info', [lonwest_text]),
+                                    Constraint('loneast_info', [loneast_text])])
 
-        if port_vals["southlat_info"] and port_vals["northlat_info"]:
+        if port_vals["latsouth_info"] and port_vals["latnorth_info"]:
             positional_args += [('--lat_bounds', arg_number, 'raw'),
-                                ('southlat_info', arg_number+1),
-                                ('northlat_info', arg_number+2)]
+                                ('latsouth_info', arg_number+1),
+                                ('latnorth_info', arg_number+2)]
             arg_number += 3
             
-            southlat_text = latitude_label(port_vals["southlat_info"])
-            northlat_text = latitude_label(port_vals["northlat_info"])
+            latsouth_text = latitude_label(port_vals["latsouth_info"])
+            latnorth_text = latitude_label(port_vals["latnorth_info"])
             
-            cons_for_output |= set([Constraint('southlat_info', [southlat_text]),
-                                    Constraint('northlat_info', [northlat_text])])
+            cons_for_output |= set([Constraint('latsouth_info', [latsouth_text]),
+                                    Constraint('latnorth_info', [latnorth_text])])
 
-        if port_vals["bottomlevel_info"] and port_vals["toplevel_info"]:
+        if port_vals["levelbottom_info"] and port_vals["leveltop_info"]:
             positional_args += [('--level_bounds', arg_number, 'raw'),
-                                ('bottomlevel_info', arg_number+1),
-                                ('toplevel_info', arg_number+2)]
+                                ('levelbottom_info', arg_number+1),
+                                ('leveltop_info', arg_number+2)]
             arg_number += 3
-            cons_for_output |= set([Constraint('bottomlevel_info', [port_vals["bottomlevel_info"]]),
-                                    Constraint('toplevel_info', [port_vals["toplevel_info"]])])
+            cons_for_output |= set([Constraint('levelbottom_info', [port_vals["levelbottom_info"]]),
+                                    Constraint('leveltop_info', [port_vals["leveltop_info"]])])
 
         # Execute the xml_to_nc process.
         this_process = ProcessUnit([in_dataset],
