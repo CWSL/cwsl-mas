@@ -22,6 +22,7 @@ import itertools
 import hashlib
 
 from cwsl.core.constraint import Constraint
+from cwsl.core.metafile import MetaFile
 
 module_logger = logging.getLogger('cwsl.core.argument_creator')
 
@@ -29,14 +30,17 @@ module_logger = logging.getLogger('cwsl.core.argument_creator')
 class ArgumentCreator(object):
     """ The ArgumentCreator. """
 
-    def __init__(self, input_datasets, output_file_creator):
+    def __init__(self, input_datasets, output_file_creator,
+                 merge_output=None):
         ''' The class takes in a list of DataSet objects for its input and
         a FileCreator object for output.
 
-        Optionally a map_dict can be passed in which maps a constraint in the
-        input with one from the output.
+        Optionally, a merge_output list can be passed in which will merge
+        the constraint values for all input datasets into one.
 
         '''
+
+        self.merge_output = merge_output
 
         self.output_file_creator = output_file_creator
         self.input_datasets = input_datasets
@@ -84,10 +88,9 @@ class ArgumentCreator(object):
         self.all_combinations = itertools.product(*all_vals)
 
     def __iter__(self):
-        "Set up ArgumentCreator as an iterator"
+        "Set up the ArgumentCreator as an iterator"
 
         return self.get_combinations()
-
 
     def get_combinations(self):
         """ Return the next group of input and output file/metafile objects."""
@@ -95,26 +98,19 @@ class ArgumentCreator(object):
         processed_hashes = []
 
         for comb in self.all_combinations:
-
-            this_dict = {key: value for key, value in zip(self.all_names,
-                                                          comb)}
+            this_dict = {key: value for key, value
+                         in zip(self.all_names, comb)}
 
             all_outs = self.output_file_creator.get_files(this_dict, update=False,
                                                           check=False)
 
             # For every output file, grab the corresponding input files.
             for output in all_outs:
-                out_hash = hash(output)
-                module_logger.debug("Output file is: {}"
-                                    .format(output))
-
-                if out_hash in processed_hashes:
-                    continue
-
                 in_list = []
                 all_atts = output.all_atts
                 module_logger.debug("Original output attributes are: {}"
                                     .format(all_atts))
+                input_atts = {}
                 for ds in self.input_datasets:
                     good_atts = {}
                     for thing, value in output.all_atts.items():
@@ -123,19 +119,58 @@ class ArgumentCreator(object):
                             if in_con and (value in in_con.values):
                                 good_atts[thing] = value
 
-                    module_logger.debug("Getting files from input - dictionary is: {}"
-                                        .format(good_atts))
                     returned_files = ds.get_files(good_atts, check=True, update=False)
                     in_list += returned_files
+
                     # Update the attribute dictionary for keyword arguments
                     for returned_file in returned_files:
-                        all_atts.update(returned_file.all_atts)
+                        input_atts.update(returned_file.all_atts)
 
-                processed_hashes.append(out_hash)
+                input_atts.update(all_atts)
                 if in_list:
-                    # This is a good combination - update the output.
-                    self.output_file_creator.get_files(this_dict, update=True)
-                    module_logger.debug("Yielding a combination of input and output")
-                    yield (in_list, [output], all_atts)
+                    # This is a good combination - update the output and apply
+                    # any constraint merge.
+                    final_atts = self.merge_outcons(input_atts, in_list)
+
+                    module_logger.debug("Performing the output overwrite")
+                    output_overwrite = self.output_file_creator.get_files(final_atts, update=True,
+                                                                          check=False)
+                    module_logger.debug("All the valid output files: {}"
+                                        .format([thing for thing in self.output_file_creator.files]))
+                    out_hash = hash(output_overwrite[0])
+                    if out_hash in processed_hashes:
+                        continue
+                    else:
+                        processed_hashes.append(out_hash)
+                        module_logger.debug("Yielding a combination of input and output")
+                        yield (in_list, output_overwrite, final_atts)
                 else:
                     module_logger.debug("No combination found!")
+
+    def merge_outcons(self, attdict, input_list):
+        """ This function applies the merge_output list.
+
+        This merges the constraints into and updates the output file creator.
+
+        """
+
+        if not self.merge_output:
+            return attdict
+
+        for consname in self.merge_output:
+            thiscons_list = []
+            for metafile in input_list:
+                thiscons_list.append(metafile.all_atts[consname])
+
+            attdict[consname] = '-'.join(thiscons_list)
+
+        module_logger.debug("Returning dictionary after merging: {}"
+                            .format(attdict))
+
+        # Update the constraints of the output.
+        for consname in self.merge_output:
+            old_con = (self.output_file_creator
+                       .get_constraint(consname)
+                       .values.add(attdict[consname]))
+
+        return attdict

@@ -29,8 +29,11 @@ class MetaFile(object):
         self.path_dir = path_dir
         self.filename = filename
 
-        self.full_path = os.path.join(path_dir, filename)
         self.all_atts = all_atts
+
+    @property
+    def full_path(self):
+        return os.path.join(self.path_dir, self.filename)
 
     def __repr__(self):
 

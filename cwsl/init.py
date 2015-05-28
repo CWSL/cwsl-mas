@@ -48,7 +48,7 @@ from cwsl.vt_modules.cmip5_constraints import CMIP5Constraints
 from cwsl.vt_modules.sdm_extract import SDMDataExtract
 from cwsl.vt_modules.cod_dataset import ChangeOfDate
 from cwsl.vt_modules.json_extract import ExtractTimeseries
-
+from cwsl.vt_modules.mv_output import MoveOutput
 
 
 def initialize(*args, **keywords):
@@ -119,6 +119,8 @@ def initialize(*args, **keywords):
     reg.add_module(Remap, name='Remap horizontal grid',
                    namespace='Utilities')
     reg.add_module(DatasetArithmetic, name='Dataset Arithmetic',
+                   namespace='Utilities')
+    reg.add_module(MoveOutput, name='Move Output',
                    namespace='Utilities')
 
     # Statistical Downscaling.

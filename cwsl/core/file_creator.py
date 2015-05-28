@@ -204,7 +204,7 @@ class FileCreator(DataSet):
 
     def climate_file_from_combination(self, keys, next_combination,
                                       check, update):
-        """ Make a possible output ClimateFiles object from
+        """ Make a possible output MetaFile object from
         a combination of attributes.
 
         """
@@ -230,8 +230,9 @@ class FileCreator(DataSet):
                                     all_atts=sub_dict)
 
         if check:
-            # Hash the climate file and see if it is in the dictionary.
+            # Check that this combination is valid for the FileCreator
             # If it is not, return None.
+            module_logger.debug("Checking cons_list: {}".format(cons_list))
             if frozenset(cons_list) not in self.valid_combinations:
                 module_logger.debug("This combination: {0} is not found in {1}"
                                     .format(cons_list, self.valid_combinations))
@@ -243,6 +244,7 @@ class FileCreator(DataSet):
             self.valid_hashes.add(file_hash)
             self.valid_combinations.add(frozenset(cons_list))
 
+        module_logger.debug("Returning climate file: {}".format(new_climate_file))
         return new_climate_file
 
     @staticmethod

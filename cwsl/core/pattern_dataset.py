@@ -45,11 +45,11 @@ class PatternDataSet(DataSet):
         pattern_to_glob: this is a string filename pattern, with placeholders
                          surrounding attribute names.
                          e.g. "/home/billy/test/%colour%/%texture%/%fruit%_%colour%.%file_type%"
-        
+
         constraint_set: A set of Constraint objects to restrict the values the
                         attributes can take.
         """
-        
+
         self._files = None
 
         self.check_filename_pattern(pattern_to_glob,
@@ -109,7 +109,7 @@ class PatternDataSet(DataSet):
 
     def check_filename_pattern(self, glob_pattern, constraints):
         """ Check that added constraints are also found in the input pattern."""
-        
+
         generated_cons = FileCreator.constraints_from_pattern(glob_pattern)
         gen_names = [cons.key for cons in generated_cons]
         for cons in constraints:
@@ -249,10 +249,18 @@ class PatternDataSet(DataSet):
 
         output = []
         for full_path in all_files:
+            out_dict = self.read_atts(full_path)
             path, name = os.path.split(full_path)
-            output.append(MetaFile(name, path, {}))
+            output.append(MetaFile(name, path, out_dict))
 
         return output
+
+    def read_atts(self, file_name):
+        """ Applies the file pattern to a file name to read the correct attributes. """
+
+        match = re.match(self.regex_pattern, file_name)
+
+        return match.groupdict()
 
     def create_subsets(self):
         """ Sets up a hash table to allow you to get the required files
