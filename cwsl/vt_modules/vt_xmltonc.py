@@ -31,6 +31,17 @@ from cwsl.core.process_unit import ProcessUnit
 from cwsl.core.pattern_generator import PatternGenerator
 
 
+def latitude_label(lat):
+   """For a given latitude, return a label ending with S or N"""
+   
+    if float(lat) >= 0.0:
+        label = str(lat) + 'N'
+    else: 
+        label = str(lat)[1:] + 'S'
+        
+    return label
+
+
 class XmlToNc(vistrails_module.Module):
     """
     This module selects a time period from a single netCDF file or cdml catalogue file
@@ -114,8 +125,12 @@ class XmlToNc(vistrails_module.Module):
                                 ('southlat_info', arg_number+1),
                                 ('northlat_info', arg_number+2)]
             arg_number += 3
-            cons_for_output |= set([Constraint('southlat_info', [port_vals["southlat_info"]]),
-                                    Constraint('northlat_info', [port_vals["northlat_info"]])])
+            
+            southlat_text = latitude_label(port_vals["southlat_info"])
+            northlat_text = latitude_label(port_vals["northlat_info"])
+            
+            cons_for_output |= set([Constraint('southlat_info', [southlat_text]),
+                                    Constraint('northlat_info', [northlat_text])])
 
         if port_vals["bottomlevel_info"] and port_vals["toplevel_info"]:
             positional_args += [('--level_bounds', arg_number, 'raw'),
