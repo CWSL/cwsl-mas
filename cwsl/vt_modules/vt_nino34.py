@@ -23,6 +23,8 @@ Part of the CWSLab Model Analysis Service VisTrails plugin.
 
 """
 
+import subprocess
+
 from vistrails.core.modules import vistrails_module
 from vistrails.core.modules import basic_modules
 
@@ -94,6 +96,8 @@ class IndicesNino34(vistrails_module.Module):
 
         try:
             this_process.execute(simulate=configuration.simulate_execution)
+        except subprocess.CalledProcessError as e:
+            raise vistrails_module.ModuleError(self, e.output)
         except Exception as e:
             raise vistrails_module.ModuleError(self, repr(e))
 
