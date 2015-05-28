@@ -31,10 +31,34 @@ from cwsl.core.process_unit import ProcessUnit
 from cwsl.core.pattern_generator import PatternGenerator
 
 
+def longitude_label(lon):
+    """Create a longitude label ending with E.
+    
+    Input longitude can be a string or float and in
+      -135, 135W, 225 or 225E format.
+
+    """
+
+    lon = str(lon).upper()
+    
+    if 'W' in lon:
+        deg_east = 360 - float(lon[:-1]) 
+    elif 'E' in lon:
+        deg_east = float(lon[:-1])
+    elif float(lon) < 0.0:
+        deg_east = 360 + float(lon)
+    else: 
+        deg_east = float(lon)
+    
+    assert 0 <= deg_east <= 360, "Longitude must lie between 0-360E"
+    
+    return str(deg_east)+'E'
+
+
 def latitude_label(lat):
     """Create a latitude label ending with S or N.
     
-    Input latitude can be string for float and in
+    Input latitude can be a string or float and in
       -55 or 55S format.
 
     """
@@ -124,8 +148,12 @@ class XmlToNc(vistrails_module.Module):
                                 ('westlon_info', arg_number+1),
                                 ('eastlon_info', arg_number+2)]
             arg_number += 3
-            cons_for_output |= set([Constraint('westlon_info', [port_vals["westlon_info"]]),
-                                    Constraint('eastlon_info', [port_vals["eastlon_info"]])])
+
+            westlon_text = longitude_label(port_vals["westlon_info"])
+            eastlon_text = longitude_label(port_vals["eastlon_info"])
+
+            cons_for_output |= set([Constraint('westlon_info', [westlon_text]),
+                                    Constraint('eastlon_info', [eastlon_text])])
 
         if port_vals["southlat_info"] and port_vals["northlat_info"]:
             positional_args += [('--lat_bounds', arg_number, 'raw'),
