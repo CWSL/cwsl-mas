@@ -75,7 +75,16 @@ def latitude_label(lat):
 
 
 class XmlToNc(vistrails_module.Module):
-    """Crop a dataset on its longitude, latitude, time and/or level axis."""
+    """Crop a dataset on its longitude, latitude, time and/or level axis.
+
+    Wraps the cwsl-ctools/utils/xml_to_nc.py script.
+
+    All inputs (besides in_dataset) are optional (i.e. they can be left blank).
+
+    If an optional input is provided, so must its pair (e.g. if you enter a timestart
+      you must also enter a timeend). 
+
+    """
 
     # Define the module ports.
     _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet',
