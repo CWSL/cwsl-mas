@@ -13,8 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-This module wraps a shell script that performs simple arithmetic on 
-two datasets: cwsl-ctools/utils/cdo_dataset_arithmetic.sh
+This module wraps a shell script that calculates the temporal correlation: 
+cwsl-ctools/statistics/cdo_timcor.sh
 
 Part of the CWSLab Model Analysis Service VisTrails plugin.
 
@@ -28,13 +28,10 @@ from cwsl.core.process_unit import ProcessUnit
 from cwsl.core.pattern_generator import PatternGenerator
 
 
-class DatasetArithmetic(vistrails_module.Module):
-    """Simple arithmetic on two datasets.
+class TemporalCorrelation(vistrails_module.Module):
+    """Temporal correlation.
 
-    Wraps the cwsl-ctools/utils/cdo_dataset_arithmetic.sh script.
-
-    Arithmetic operation choices are: add sub mul div min max atan2.
-    For sub and div, it's (in_dataset1 - in_dataset2) or (in_dataset1 / in_dataset2).
+    Wraps the cwsl-ctools/statistics/cdo_timcor.sh script.
 
     """
 
@@ -42,31 +39,28 @@ class DatasetArithmetic(vistrails_module.Module):
                      {'labels': str(['Input dataset 1'])}),
                     ('in_dataset2', 'csiro.au.cwsl:VtDataSet',
                      {'labels': str(['Input dataset 2'])}),
-                    ('operation', basic_modules.String,
-                     {'labels': str(['Arithmetic operation'])}),
                    ]
 
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
     
     _execution_options = {'required_modules': ['cdo', 'python/2.7.5', 'python-cdat-lite/6.0rc2-py2.7.5']}
 
-    command = '${CWSL_CTOOLS}/utils/cdo_dataset_arithmetic.sh'
+    command = '${CWSL_CTOOLS}/statistics/cdo_timcor.sh'
 
     def __init__(self):
 
-        super(DatasetArithmetic, self).__init__()
+        super(TemporalCorrelation, self).__init__()
         self.out_pattern = PatternGenerator('user', 'default').pattern
 
     def compute(self):
 
         in_dataset1 = self.getInputFromPort('in_dataset1')
         in_dataset2 = self.getInputFromPort('in_dataset2')
-        operation = self.getInputFromPort('operation')
 
-        self.positional_args = [(operation, 0, 'raw'), ]
+        self.positional_args = []
         self.keyword_args = {}
 
-        new_constraints_for_output = set([Constraint('extra_info', [operation]),
+        new_constraints_for_output = set([Constraint('extra_info', ['timcor']),
                                           Constraint('suffix', ['nc']),
                                           ])
         
