@@ -20,7 +20,6 @@ added to the GUI.
 
 # Vistrails imports
 from vistrails.core.packagemanager import get_package_manager
-from vistrails.gui.preferences import QPackageConfigurationDialog
 from vistrails.core.modules.module_registry import get_module_registry
 
 # Available Tools
@@ -43,7 +42,6 @@ from cwsl.vt_modules.vt_zonal_agg import ZonalAggregation
 from cwsl.vt_modules.vt_vertical_agg import VerticalAggregation
 from cwsl.vt_modules.vt_remap import Remap
 from cwsl.vt_modules.vt_dataset_arithmetic import DatasetArithmetic
-from cwsl.vt_modules.imageviewer import ImageViewerPanel
 from cwsl.vt_modules.cmip5_constraints import CMIP5Constraints
 from cwsl.vt_modules.sdm_extract import SDMDataExtract
 from cwsl.vt_modules.cod_dataset import ChangeOfDate
@@ -103,9 +101,6 @@ def initialize(*args, **keywords):
  
     #Visualisation
     reg.add_module(PlotTimeSeries, name='Plot Timeseries', namespace='Visualisation')
-    #ImageViewerPanel depends on the Spreadsheet package
-    reg.add_module(ImageViewerPanel, name='Image Viewer', namespace='Visualisation')
-    reg.add_input_port(ImageViewerPanel, 'in_dataset', 'csiro.au.cwsl:VtDataSet')
 
     #General
     reg.add_module(ConstraintBuilder, name='Constraint Builder',
@@ -130,23 +125,3 @@ def initialize(*args, **keywords):
                    namespace='Statistical Downscaling')
     reg.add_module(ExtractTimeseries, name='Extract JSON Timeseries',
                    namespace='Statistical Downscaling')
-
-
-def menu_items():
-    """
-    menu_items() -> tuple of (str,function)
-    It returns a list of pairs containing text for the menu and a
-    callback function that will be executed when that menu item is selected.
-    """
-    def package_configuration():
-        """
-        Create a shortcut to Edit->Preferences->Module Package->Enabled Packages->Configure in menu.
-        """
-        pkgmgr = get_package_manager()
-        package = pkgmgr.get_package(identifier)
-        dlg = QPackageConfigurationDialog(None, package)
-        dlg.exec_()
-
-    lst = []
-    lst.append(("Configure", package_configuration))
-    return tuple(lst)
