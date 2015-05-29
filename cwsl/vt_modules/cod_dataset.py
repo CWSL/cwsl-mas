@@ -19,6 +19,8 @@ VT Module to build a DataSet from the COD files.
 
 """
 
+import os.path
+
 from vistrails.core.modules import vistrails_module
 from vistrails.core.modules.basic_modules import String
 
@@ -33,7 +35,8 @@ class ChangeOfDate(vistrails_module.Module):
                     ('experiment', String, {"defaults": str([''])}),
                     ('variable', String, {"defaults": str([''])}),
                     ('season_number', String, {"defaults": str([''])}),
-                    ('region', String, {"defaults": str([''])})]
+                    ('region', String, {"defaults": str([''])}),
+                    ('cod_datapath', String)]
 
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
 
@@ -51,7 +54,10 @@ class ChangeOfDate(vistrails_module.Module):
                        for cons_name in cons_list
                        if self.getInputFromPort(cons_name)])
 
-        file_pattern = "/home/548/teb548/cod/CMIP5_v2/%model%_%experiment%/%region%/%variable%/season_%season_number%/rawfield_analog_%season_number%"
+        cod_datapath = self.getInputFromPort('cod_datapath')
+
+        file_pattern = os.path.join(cod_datapath,
+                                    "/%model%_%experiment%/%region%/%variable%/season_%season_number%/rawfield_analog_%season_number%")
         output_ds = PatternDataSet(file_pattern, in_cons)
 
         self.setResult('out_dataset', output_ds)
