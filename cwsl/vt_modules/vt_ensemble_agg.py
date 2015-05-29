@@ -55,7 +55,7 @@ class EnsembleAggregation(vistrails_module.Module):
     
     _execution_options = {'required_modules': ['cdo', 'python/2.7.5', 'python-cdat-lite/6.0rc2-py2.7.5']}
 
-    command = '${CWSL_CTOOLS}/aggregation/cdo_field_agg.sh'
+    command = '${CWSL_CTOOLS}/aggregation/cdo_ensemble_agg.sh'
 
     def __init__(self):
 
