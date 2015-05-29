@@ -48,7 +48,7 @@ class ExtractTimeseries(vistrails_module.Module):
         x_value = self.getInputFromPort('x_value')
         y_value = self.getInputFromPort('y_value')
 
-        command = "echo"
+        command = "${CWSL_CTOOLS}/utils/extract_json.py"
         
         # The data is written out to the default location.
         output_pattern = FileCreator.default_pattern(in_dataset.constraints, temp=True) + ".json"

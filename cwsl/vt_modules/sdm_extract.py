@@ -14,10 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-
-Module containing a VT module that is very open.
-
-DataSet of some kind and a Pipeline-style pattern.
+VT module to wrap the data extraction using a SDM change-of-date file.
 
 """
 
@@ -46,17 +43,16 @@ class SDMDataExtract(vistrails_module.Module):
     def __init__(self):
 
         super(SDMDataExtract, self).__init__()
-        
+
         self._required_modules = {'required_modules': ['python']}
 
     def compute(self):
 
         in_dataset = self.getInputFromPort('cod_dataset')
 
-        command = "echo This is the command to run."
-        
-        # The data is written out to the default
-        # location.
+        command = "${CWSL_CTOOLS}/sdm/sdmrun.py dxt-gridded"
+
+        # The data is written out to the default location.
         output_pattern = FileCreator.default_pattern(in_dataset.constraints, temp=True)
         this_process = ProcessUnit([in_dataset],
                                    output_pattern,
