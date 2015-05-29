@@ -76,7 +76,9 @@ class EnsembleAggregation(vistrails_module.Module):
             agg_constraint = method
 
         new_constraints_for_output = set([Constraint('suffix', ['nc']),
-                                          ]) # FIXME: Need to figure out instituion/model constraint mapping
+                                          Constraint('model', ['ensemble']),
+                                          Constraint('institute', ['ensemble']),
+                                          ])
         
         this_process = ProcessUnit([in_dataset],
                                    self.out_pattern,

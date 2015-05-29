@@ -70,7 +70,8 @@ class FieldCorrelation(vistrails_module.Module):
                                    new_constraints_for_output,
                                    execution_options=self._execution_options,
                                    positional_args=self.positional_args,
-                                   cons_keywords=self.keyword_args)
+                                   cons_keywords=self.keyword_args,
+                                   merge_output=['model', 'institute'])
 
         try:
             this_process.execute(simulate=configuration.simulate_execution)
