@@ -37,6 +37,7 @@ from cwsl.vt_modules.vt_nino34 import IndicesNino34
 from cwsl.vt_modules.vt_general_command_pattern import GeneralCommandPattern
 from cwsl.vt_modules.vt_constraintbuilder import ConstraintBuilder
 from cwsl.vt_modules.vt_plot_timeseries import PlotTimeSeries
+from cwsl.vt_modules.vt_time_agg import TimeAggregation
 from cwsl.vt_modules.vt_field_agg import FieldAggregation
 from cwsl.vt_modules.vt_meridional_agg import MeridionalAggregation
 from cwsl.vt_modules.vt_zonal_agg import ZonalAggregation
@@ -88,6 +89,8 @@ def initialize(*args, **keywords):
                    namespace='Aggregation')
     reg.add_module(Climatology, name="Climatology",
                    namespace='Aggregation')
+    reg.add_module(TimeAggregation, name="Time Aggregation",
+                   namespace="Aggregation")
     reg.add_module(FieldAggregation, name="Field Aggregation",
                    namespace="Aggregation")
     reg.add_module(MeridionalAggregation, name="Meridional Aggregation",
