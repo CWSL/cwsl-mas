@@ -37,12 +37,14 @@ from cwsl.vt_modules.vt_nino34 import IndicesNino34
 from cwsl.vt_modules.vt_general_command_pattern import GeneralCommandPattern
 from cwsl.vt_modules.vt_constraintbuilder import ConstraintBuilder
 from cwsl.vt_modules.vt_plot_timeseries import PlotTimeSeries
+from cwsl.vt_modules.vt_time_agg import TimeAggregation
 from cwsl.vt_modules.vt_field_agg import FieldAggregation
 from cwsl.vt_modules.vt_meridional_agg import MeridionalAggregation
 from cwsl.vt_modules.vt_zonal_agg import ZonalAggregation
 from cwsl.vt_modules.vt_vertical_agg import VerticalAggregation
 from cwsl.vt_modules.vt_ensemble_agg import EnsembleAggregation
 from cwsl.vt_modules.vt_remap import Remap
+from cwsl.vt_modules.vt_temporal_anomaly import TemporalAnomaly
 from cwsl.vt_modules.vt_dataset_arithmetic import DatasetArithmetic
 from cwsl.vt_modules.vt_fldcor import FieldCorrelation
 from cwsl.vt_modules.vt_timcor import TemporalCorrelation
@@ -88,6 +90,8 @@ def initialize(*args, **keywords):
                    namespace='Aggregation')
     reg.add_module(Climatology, name="Climatology",
                    namespace='Aggregation')
+    reg.add_module(TimeAggregation, name="Time Aggregation",
+                   namespace="Aggregation")
     reg.add_module(FieldAggregation, name="Field Aggregation",
                    namespace="Aggregation")
     reg.add_module(MeridionalAggregation, name="Meridional Aggregation",
@@ -128,6 +132,8 @@ def initialize(*args, **keywords):
 #    reg.add_module(GeneralCommandPattern, name='General Command Line Program',
 #                   namespace='Utilities')
     reg.add_module(Remap, name='Remap horizontal grid',
+                   namespace='Utilities')
+    reg.add_module(TemporalAnomaly, name='Temporal Anomaly',
                    namespace='Utilities')
     reg.add_module(DatasetArithmetic, name='Dataset Arithmetic',
                    namespace='Utilities')
