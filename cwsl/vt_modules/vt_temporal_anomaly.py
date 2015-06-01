@@ -83,8 +83,8 @@ class TemporalAnomaly(vistrails_module.Module):
             clim_bounds = self.getInputFromPort('clim_bounds')
             positional_args += [('-b', arg_number, 'raw'),
                                 (clim_bounds, arg_number+1, 'raw')]
-            start_year, end_year = clim_bounds.split(',')
-            anom_label = 'anom-wrt-'+start_year+'-'+end_year
+            start_date, end_date = clim_bounds.split(',')
+            anom_label = 'anom-wrt-'+start_date+'-'+end_date
             arg_number += 2
         except vistrails_module.ModuleError as e:
             pass

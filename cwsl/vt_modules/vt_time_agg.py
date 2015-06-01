@@ -35,9 +35,14 @@ class TimeAggregation(vistrails_module.Module):
 
     Inputs:
       in_dataset: Can consist of netCDF files and/or cdml catalogue files
-      method: Aggregation method. Choices are timmin, timmax, timsum, 
-        timmean, timavg, timvar, timvar1, timstd, timstd1, timpctl,N 
-        (where N is the percentile)
+      method: Aggregation method. Consists of operation and timescale together (e.g. ydayavg).
+        timescales include 
+          - tim (i.e. operate over all times)
+          - hour, day, mon, year, seas (operate over single hours, days, etc)
+          - yhour, yday, ymon, yseas (operate over multi-year hours, days, etc)
+        operations include: 
+          - min, max, sum, mean, avg, var, var1, std, std1 
+          - timpctl,N (where N is the percentile)
     
     Outputs:
       out_dataset: Consists of netCDF files (i.e. cdml catalogue files
