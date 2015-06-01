@@ -30,9 +30,7 @@ import cwsl.vt_modules.drs_dataset as drs
 from cwsl.vt_modules.vt_dataset import VtDataSet
 from cwsl.vt_modules.vt_cdscan import CDScan
 from cwsl.vt_modules.vt_xmltonc import XmlToNc
-from cwsl.vt_modules.vt_seas_vars import SeasVars
-from cwsl.vt_modules.vt_climatology import Climatology
-from cwsl.vt_modules.change import TimesliceChange
+#from cwsl.vt_modules.change import TimesliceChange
 from cwsl.vt_modules.vt_nino34 import IndicesNino34
 from cwsl.vt_modules.vt_general_command_pattern import GeneralCommandPattern
 from cwsl.vt_modules.vt_constraintbuilder import ConstraintBuilder
@@ -85,10 +83,7 @@ def initialize(*args, **keywords):
                    name='BOM-SDMa-NRM', namespace='DataSets|RCM')
 
     #Aggregation
-    reg.add_module(CDScan, name='Merge Timeseries', namespace='Aggregation')
-    reg.add_module(SeasVars, name='Seasonal Timeseries',
-                   namespace='Aggregation')
-    reg.add_module(Climatology, name="Climatology",
+    reg.add_module(CDScan, name='Merge Timeseries', 
                    namespace='Aggregation')
     reg.add_module(TimeAggregation, name="Time Aggregation",
                    namespace="Aggregation")
@@ -110,8 +105,8 @@ def initialize(*args, **keywords):
                    namespace='Statistics')
 
     #Change
-    reg.add_module(TimesliceChange, name="Timeslice Change",
-                   namespace='Change')
+#    reg.add_module(TimesliceChange, name="Timeslice Change",
+#                   namespace='Change')
 
     #Indices
     reg.add_module(IndicesNino34, name='Nino3.4', namespace='Indices')
