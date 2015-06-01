@@ -44,7 +44,7 @@ from cwsl.vt_modules.vt_zonal_agg import ZonalAggregation
 from cwsl.vt_modules.vt_vertical_agg import VerticalAggregation
 from cwsl.vt_modules.vt_ensemble_agg import EnsembleAggregation
 from cwsl.vt_modules.vt_remap import Remap
-from cwsl.vt_modules.vt_anomaly import TemporalAnomaly
+from cwsl.vt_modules.vt_temporal_anomaly import TemporalAnomaly
 from cwsl.vt_modules.vt_dataset_arithmetic import DatasetArithmetic
 from cwsl.vt_modules.vt_fldcor import FieldCorrelation
 from cwsl.vt_modules.vt_timcor import TemporalCorrelation
