@@ -60,7 +60,14 @@ class ArgumentCreator(object):
         module_logger.debug("All values are: {}"
                             .format(all_values))
 
-        # Remove values that are not in all inputs and outputs.
+        # Remove values that are not in the output.
+        out_cons_names = self.output_file_creator.cons_names
+        module_logger.debug("Output constraints are: {}".format(out_cons_names))
+        to_remove = []
+        all_values = [cons for cons in all_values
+                      if cons.key in out_cons_names]
+
+        # Remove values that are not in all inputs.
         self.final_shared = []
         for name in self.shared_constraints:
             temp_list = []

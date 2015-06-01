@@ -67,8 +67,8 @@ class IndicesNino34(vistrails_module.Module):
         self.out_pattern = PatternGenerator('user', 'default').pattern
         
         # Set up the output command for this module, adding extra options.
-        self.positional_args = [('startdate_info', 2), ('enddate_info', 3)]
-        
+        self.positional_args = [('timestart_info', 2), ('timeend_info', 3)]
+
     def compute(self):
 
         # Required input
