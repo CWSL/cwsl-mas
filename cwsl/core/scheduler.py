@@ -166,11 +166,10 @@ class AbstractExecManager(object):
 class SimpleExecManager(AbstractExecManager):
 
     def __init__(self, verbose=False, noexec=False):
-
-        super(SimpleExecManager, self).__init__(verbose,noexec)
+        super(SimpleExecManager, self).__init__(verbose, noexec)
         self.job = SimpleJob()
         # Clear loaded modules inherited from parent
-        self.add_pre_cmd(self.job,['module','purge'])
+        self.add_pre_cmd(self.job,['module', 'purge'])
 
     def add_module_dep(self, module):
         self.add_pre_cmd(self.job, ['module', 'load', module])
