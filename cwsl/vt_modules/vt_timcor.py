@@ -39,7 +39,9 @@ class TemporalCorrelation(vistrails_module.Module):
                      {'labels': str(['Input dataset 1'])}),
                     ('in_dataset2', 'csiro.au.cwsl:VtDataSet',
                      {'labels': str(['Input dataset 2'])}),
-                   ]
+                    ('merge_constraints', basic_modules.String,
+                     {'labels': str(['Constraints to merge']),
+                      'defaults': str([''])})]
 
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
     
@@ -63,6 +65,12 @@ class TemporalCorrelation(vistrails_module.Module):
         new_constraints_for_output = set([Constraint('extra_info', ['timcor']),
                                           Constraint('suffix', ['nc']),
                                           ])
+
+        merge_val =  self.getInputFromPort('merge_constraints')
+        if merge_val:
+            extra_merge = [cons_name.strip() for cons_name in merge_val.split(',')]
+        else:
+            extra_merge = []
         
         this_process = ProcessUnit([in_dataset1, in_dataset2],
                                    self.out_pattern,
@@ -71,7 +79,7 @@ class TemporalCorrelation(vistrails_module.Module):
                                    execution_options=self._execution_options,
                                    positional_args=self.positional_args,
                                    cons_keywords=self.keyword_args,
-                                   merge_output=['model', 'institute'])
+                                   merge_output=extra_merge)
 
         try:
             this_process.execute(simulate=configuration.simulate_execution)
