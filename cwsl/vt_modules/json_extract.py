@@ -55,7 +55,8 @@ class ExtractTimeseries(vistrails_module.Module):
         this_process = ProcessUnit([in_dataset], output_pattern,
                                    command, in_dataset.constraints,
                                    execution_options=self._required_modules,
-                                   positional_args=[(x_value, 1, 'raw'), (y_value, 2, 'raw')])
+                                   positional_args=[("variable", 3), (x_value, 4, 'raw'),
+                                                    (y_value, 5, 'raw')])
 
         this_process.execute(simulate=configuration.simulate_execution)
         process_output = this_process.file_creator
