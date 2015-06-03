@@ -57,7 +57,7 @@ class ChangeOfDate(vistrails_module.Module):
         cod_datapath = self.getInputFromPort('cod_datapath')
 
         file_pattern = os.path.join(cod_datapath,
-                                    "/%model%_%experiment%/%region%/%variable%/season_%season_number%/rawfield_analog_%season_number%")
+                                    "%model%_%experiment%/%region%/%variable%/season_%season_number%/rawfield_analog_%season_number%")
         output_ds = PatternDataSet(file_pattern, in_cons)
 
         self.setResult('out_dataset', output_ds)
