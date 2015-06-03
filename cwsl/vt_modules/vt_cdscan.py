@@ -36,9 +36,9 @@ from cwsl.core.pattern_generator import PatternGenerator
 
 class CDScan(vistrails_module.Module):
     """
-    Create a single cdms catalogue file for the entire timeperiod for a set of files.
+    Create a single cdms catalogue file for the entire time period for a set of files.
 
-    Inputs:    dataset 
+    Inputs:    dataset
 
     Outputs:   dataset
     Filepath:  <user_basepath>/%mip%/%product%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/
@@ -50,41 +50,28 @@ class CDScan(vistrails_module.Module):
 
 
     # Define the module ports.
-    _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet'),
-                    ('added_constraints', List, True,
-                     {'defaults': ['[]']})]
+    _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet')]
 
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
 
     _execution_options = {'required_modules': ['cdo', 'nco',
-                                               'python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5']
-                         }
+                                               'python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5']}
 
     def __init__(self):
 
         super(CDScan, self).__init__()
- 
+
         self.command = '${CWSL_CTOOLS}/aggregation/version_safe_cdscan.py'
         self.out_pattern = PatternGenerator('user', 'cdat_lite_catalogue').pattern
 
     def compute(self):
 
         in_dataset = self.getInputFromPort('in_dataset')
-        try:
-            # Add extra constraints if necessary.
-            added_constraints = self.getInputFromPort('added_constraints')
-        except vistrails_module.ModuleError:
-            added_constraints = None
 
-        # Change the file_type constraint from nc to xml and add
-        # any added constraints.
+        # Change the file_type constraint from nc to xml
         cons_for_output = set([Constraint('suffix', ['xml'])])
-        if added_constraints:
-            cons_for_output = set.union(cons_for_output,
-                                        set(added_constraints))
 
-
-        # Execute the xml_to_nc process.
+        # Execute the cdscan
         this_process = ProcessUnit([in_dataset],
                                    self.out_pattern,
                                    self.command,
@@ -95,7 +82,7 @@ class CDScan(vistrails_module.Module):
             this_process.execute(simulate=configuration.simulate_execution)
         except subprocess.CalledProcessError, e:
             raise vistrails_module.ModuleError(self, e.output)
-            
+
         process_output = this_process.file_creator
 
         self.setResult('out_dataset', process_output)

@@ -51,7 +51,8 @@ class ProcessUnit(object):
 
     def __init__(self, inputlist, output_pattern, shell_command,
                  extra_constraints=None, map_dict=None, cons_keywords=None,
-                 positional_args=None, execution_options=None, kw_string=None):
+                 positional_args=None, execution_options=None, kw_string=None,
+                 merge_output=None):
 
         """
         Arguments:
@@ -91,6 +92,8 @@ class ProcessUnit(object):
             self.map_dict = map_dict
         else:
             self.map_dict = {}
+
+        self.merge_output = merge_output
 
         self.mapped_con_names = [cons_name for cons_name in self.map_dict]
 
@@ -279,18 +282,15 @@ class ProcessUnit(object):
 
         # We now create a looper to compare all the input Datasets with
         # the output FileCreator.
-        module_logger.debug("Before ArgumentCreator, FileCreator constraints are: {0}"
-                            .format(self.file_creator.constraints))
-        this_looper = ArgumentCreator(self.inputlist, self.file_creator)
-        module_logger.debug("Created ArgumentCreator: {0}".format(this_looper))
+        this_looper = ArgumentCreator(self.inputlist, self.file_creator, self.merge_output)
 
-        #TODO determine scheduler from user options.
+        # TODO determine scheduler from user options.
         scheduler = SimpleExecManager(noexec=simulate)
 
         if self.execution_options.has_key('required_modules'):
             scheduler.add_module_deps(self.execution_options['required_modules'])
 
-        #Add environment variables to the script and the current environment.
+        # Add environment variables to the script and the current environment.
         scheduler.add_environment_variables({'CWSL_CTOOLS':configuration.cwsl_ctools_path})
         os.environ['CWSL_CTOOLS'] = configuration.cwsl_ctools_path
         scheduler.add_python_paths([os.path.join(configuration.cwsl_ctools_path,'pythonlib')])
@@ -298,16 +298,10 @@ class ProcessUnit(object):
         # For every valid possible combination, apply any positional and
         # keyword args, then add the command to the scheduler.
         for combination in this_looper:
-            module_logger.debug("Combination: " + str(combination))
             if combination:
 
                 in_files, out_files = self.get_fullnames((combination[0], combination[1]))
                 this_dict = combination[2]
-
-                module_logger.info("in_files are:")
-                module_logger.info(in_files)
-                module_logger.info("out_files are:")
-                module_logger.info(out_files)
 
                 base_cmd_list = [self.shell_command] + in_files + out_files
 

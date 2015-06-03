@@ -20,7 +20,6 @@ Part of the CWSLab Model Analysis Service VisTrails plugin.
 
 """
 
-import subprocess
 from vistrails.core.modules import vistrails_module, basic_modules
 
 from cwsl.configuration import configuration
@@ -30,15 +29,21 @@ from cwsl.core.pattern_generator import PatternGenerator
 
 
 class DatasetArithmetic(vistrails_module.Module):
-    """This module performs simple arithmetic on two datasets.
+    """Simple arithmetic on two datasets.
 
-    It wraps the cwsl-ctools/utils/cdo_dataset_arithmetic.sh script.
+    Wraps the cwsl-ctools/utils/cdo_dataset_arithmetic.sh script.
+
+    Arithmetic operation choices are: add sub mul div min max atan2.
+    For sub and div, it's (in_dataset1 - in_dataset2) or (in_dataset1 / in_dataset2).
 
     """
 
-    _input_ports = [('in_dataset1', 'csiro.au.cwsl:VtDataSet'),
-                    ('in_dataset2', 'csiro.au.cwsl:VtDataSet'),
-                    ('operation', basic_modules.String),
+    _input_ports = [('in_dataset1', 'csiro.au.cwsl:VtDataSet',
+                     {'labels': str(['Input dataset 1'])}),
+                    ('in_dataset2', 'csiro.au.cwsl:VtDataSet',
+                     {'labels': str(['Input dataset 2'])}),
+                    ('operation', basic_modules.String,
+                     {'labels': str(['Arithmetic operation'])}),
                    ]
 
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
@@ -71,7 +76,8 @@ class DatasetArithmetic(vistrails_module.Module):
                                    new_constraints_for_output,
                                    execution_options=self._execution_options,
                                    positional_args=self.positional_args,
-                                   cons_keywords=self.keyword_args)
+                                   cons_keywords=self.keyword_args,
+                                   merge_output=['model', 'institute'])
 
         try:
             this_process.execute(simulate=configuration.simulate_execution)

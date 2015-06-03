@@ -23,6 +23,8 @@ Part of the CWSLab Model Analysis Service VisTrails plugin.
 
 """
 
+import subprocess
+
 from vistrails.core.modules import vistrails_module
 from vistrails.core.modules import basic_modules
 
@@ -65,22 +67,22 @@ class IndicesNino34(vistrails_module.Module):
         self.out_pattern = PatternGenerator('user', 'default').pattern
         
         # Set up the output command for this module, adding extra options.
-        self.positional_args = [('startdate_info', 2), ('enddate_info', 3)]
-        
+        self.positional_args = [('timestart_info', 2), ('timeend_info', 3)]
+
     def compute(self):
 
         # Required input
         in_dataset = self.getInputFromPort("in_dataset")
 
         new_cons = set([Constraint('extra_info', ['nino34']),
-                        Constraint('southlat_info', ['5S']),
-                        Constraint('northlat_info', ['5N']),
+                        Constraint('latsouth_info', ['5S']),
+                        Constraint('latnorth_info', ['5N']),
                         Constraint('latagg_info', ['fldavg']),
-                        Constraint('westlon_info', ['190E']),
-                        Constraint('eastlon_info', ['240E']),
+                        Constraint('lonwest_info', ['190E']),
+                        Constraint('loneast_info', ['240E']),
                         Constraint('lonagg_info', ['fldavg']),
-                        Constraint('toplevel_info', ['surface']),
-                        Constraint('bottomlevel_info', ['surface']),
+                        Constraint('leveltop_info', ['surface']),
+                        Constraint('levelbottom_info', ['surface']),
                         Constraint('anomaly_info', ['anom']),
                        ])
         
@@ -94,6 +96,8 @@ class IndicesNino34(vistrails_module.Module):
 
         try:
             this_process.execute(simulate=configuration.simulate_execution)
+        except subprocess.CalledProcessError as e:
+            raise vistrails_module.ModuleError(self, e.output)
         except Exception as e:
             raise vistrails_module.ModuleError(self, repr(e))
 

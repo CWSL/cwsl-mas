@@ -13,8 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-This module wraps a shell script that performs vertical aggregation: 
-cwsl-ctools/aggregation/cdo_vertical_agg.sh
+This module wraps a shell script that performs ensemble aggregation: 
+cwsl-ctools/aggregation/cdo_ensemble_agg.sh
 
 Part of the CWSLab Model Analysis Service VisTrails plugin.
 
@@ -28,37 +28,38 @@ from cwsl.core.process_unit import ProcessUnit
 from cwsl.core.pattern_generator import PatternGenerator
 
 
-class VerticalAggregation(vistrails_module.Module):
-    """Aggregation along the vertical axis.
+class EnsembleAggregation(vistrails_module.Module):
+    """Ensemble aggregation.
 
-    Wraps the cwsl-ctools/aggregation/cdo_vertical_agg.sh script.
+    Wraps the cwsl-ctools/aggregation/cdo_ensemble_agg.sh script.
 
     Inputs:
       in_dataset: Can consist of netCDF files and/or cdml catalogue files
-      method: Aggregation method. Choices are vertmin, vertmax, vertsum,
-        vertmean, vertavg, vertvar, vertstd
+      method: Aggregation method. Choices are ensmin, ensmax, enssum, 
+        ensmean, ensavg, ensvar, ensvar1, ensstd, ensstd1, enspctl,N 
+        (where N is the percentile)
     
     Outputs:
       out_dataset: Consists of netCDF files (i.e. cdml catalogue files
-      are converted).
-
+        are converted).
+    
     """
 
     _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet', 
                      {'labels': str(['Input dataset'])}),
                     ('method', basic_modules.String, 
                      {'labels': str(['Aggregation method'])}),
-                   ] 
-
+                   ]
+                   
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
     
     _execution_options = {'required_modules': ['cdo', 'python/2.7.5', 'python-cdat-lite/6.0rc2-py2.7.5']}
 
-    command = '${CWSL_CTOOLS}/aggregation/cdo_vertical_agg.sh'
+    command = '${CWSL_CTOOLS}/aggregation/cdo_ensemble_agg.sh'
 
     def __init__(self):
 
-        super(VerticalAggregation, self).__init__()
+        super(EnsembleAggregation, self).__init__()
         self.out_pattern = PatternGenerator('user', 'default').pattern
 
     def compute(self):
@@ -69,8 +70,14 @@ class VerticalAggregation(vistrails_module.Module):
         self.positional_args = [(method, 0, 'raw'), ]
         self.keyword_args = {}
 
-        new_constraints_for_output = set([Constraint('levelagg_info', [method]),
-                                          Constraint('suffix', ['nc']),
+        if len(method.split(',')) > 1:
+            agg_constraint = "".join(method.split(','))
+        else:
+            agg_constraint = method
+
+        new_constraints_for_output = set([Constraint('suffix', ['nc']),
+                                          Constraint('model', ['ensemble']),
+                                          Constraint('institute', ['ensemble']),
                                           ])
         
         this_process = ProcessUnit([in_dataset],

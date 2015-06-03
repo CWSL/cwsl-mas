@@ -20,7 +20,6 @@ Part of the CWSLab Model Analysis Service VisTrails plugin.
 
 """
 
-import subprocess
 from vistrails.core.modules import vistrails_module, basic_modules
 
 from cwsl.configuration import configuration
@@ -30,15 +29,31 @@ from cwsl.core.pattern_generator import PatternGenerator
 
 
 class Remap(vistrails_module.Module):
-    """This module remaps data to a new horizontal grid.
+    """Remap data to a new horizontal grid.
 
-    It wraps the cwsl-ctools/utils/cdo_remap.sh script.
+    Wraps the cwsl-ctools/utils/cdo_remap.sh script.
+
+    Inputs:
+      in_dataset: Can consist of netCDF files and/or cdml catalogue files
+      method: Method for remapping to new horizontal grid. Choices are remapbil, 
+        remapbic, remapdis, remapnn, remapcon, remapcon2, remaplaf. If in doubt, 
+        use remapcon2.
+      grid: Name of cdo target grid or interpolation weights file. A common
+        grid is r360x180 (1 deg by 1 deg global grid). Full listing of options is
+        at https://code.zmaw.de/projects/cdo/embedded/index.html#x1-150001.3.2
+    
+    Outputs:
+      out_dataset: Consists of netCDF files (i.e. cdml catalogue files
+      are converted).
 
     """
 
-    _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet'),
-                    ('method', basic_modules.String),
-                    ('grid', basic_modules.String),
+    _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet',
+                     {'labels': str(['Input dataset'])}),
+                    ('method', basic_modules.String, 
+                     {'labels': str(['Remapping method'])}),
+                    ('grid', basic_modules.String, 
+                     {'labels': str(['Target grid'])}),
                    ]
 
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]

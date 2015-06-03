@@ -89,24 +89,12 @@ class PatternGenerator(object):
         """
 
         fullpath_dict = {}
-        fullpath_dict["seasonal"] = os.path.join("%mip%/%product%/%grid%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
-                                                 "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%year_start%-%year_end%-%seas_agg%_%grid%.%suffix%")
-        fullpath_dict["monthly_ts"] = os.path.join("%mip%/%product%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
-                                                   "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%startdate_info%-%enddate_info%_%grid_info%.%suffix%")
-        fullpath_dict["seasonal_indices"] = os.path.join("%mip%/%product%/%grid%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
-                                                         "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%year_start%-%year_end%-%seas_agg%_%index%_%grid%.%suffix%")
-        fullpath_dict["monthly_indices"] = os.path.join("%mip%/%product%/%grid%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
-                                                        "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%year_start%-%year_end%_%index%_%grid%.%suffix%")
         fullpath_dict["default"] = os.path.join("%mip%/%product%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
-                                                "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%startdate_info%-%enddate_info%-%anomaly_info%-%timeagg_info%_%bottomlevel_info%-%toplevel_info%-%levelagg_info%_%westlon_info%-%eastlon_info%-%lonagg_info%_%southlat_info%-%northlat_info%-%latagg_info%_%grid_info%_%extra_info%.%suffix%")
+                                                "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%timestart_info%-%timeend_info%-%anomaly_info%-%timeagg_info%_%levelbottom_info%-%leveltop_info%-%levelagg_info%_%lonwest_info%-%loneast_info%-%lonagg_info%_%latsouth_info%-%latnorth_info%-%latagg_info%_%grid_info%_%extra_info%.%suffix%")
         fullpath_dict["downloaded"] = os.path.join("%mip%/%product%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
                                                    "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%origstart%-%origend%.nc")
-        fullpath_dict["timeseries"] = os.path.join("%mip%/%product%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
-                                                   "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_cdat-5-1-0.xml")
         fullpath_dict["cdat_lite_catalogue"] = os.path.join("%mip%/%product%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
                                                             "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_cdat-lite-6-0rc2-py2.7.%suffix%")
-        fullpath_dict["seasonal_aggregate"] = os.path.join("%mip%/%product%/%grid%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
-                                                           "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%year_start%-%year_end%-%seas_agg%_%agg_type%_%grid%.%suffix%")
         fullpath_dict["timeslice_change"] = os.path.join("%mip%/%product%/%grid%/%institute%/%model%/%experiment%/%frequency%/%realm%/%variable%/%ensemble%/",
                                                          "%variable%_%mip_table%_%model%_%experiment%_%ensemble%_%fut_start%-%fut_end%_%change_type%-wrt_%hist_start%-%hist_end%_%seas_agg%_%grid%.nc")
 

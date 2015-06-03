@@ -29,19 +29,21 @@ import cwsl.vt_modules.drs_dataset as drs
 from cwsl.vt_modules.vt_dataset import VtDataSet
 from cwsl.vt_modules.vt_cdscan import CDScan
 from cwsl.vt_modules.vt_xmltonc import XmlToNc
-from cwsl.vt_modules.vt_seas_vars import SeasVars
-from cwsl.vt_modules.vt_climatology import Climatology
-from cwsl.vt_modules.change import TimesliceChange
 from cwsl.vt_modules.vt_nino34 import IndicesNino34
 from cwsl.vt_modules.vt_general_command_pattern import GeneralCommandPattern
 from cwsl.vt_modules.vt_constraintbuilder import ConstraintBuilder
 from cwsl.vt_modules.vt_plot_timeseries import PlotTimeSeries
+from cwsl.vt_modules.vt_time_agg import TimeAggregation
 from cwsl.vt_modules.vt_field_agg import FieldAggregation
 from cwsl.vt_modules.vt_meridional_agg import MeridionalAggregation
 from cwsl.vt_modules.vt_zonal_agg import ZonalAggregation
 from cwsl.vt_modules.vt_vertical_agg import VerticalAggregation
+from cwsl.vt_modules.vt_ensemble_agg import EnsembleAggregation
 from cwsl.vt_modules.vt_remap import Remap
+from cwsl.vt_modules.vt_temporal_anomaly import TemporalAnomaly
 from cwsl.vt_modules.vt_dataset_arithmetic import DatasetArithmetic
+from cwsl.vt_modules.vt_fldcor import FieldCorrelation
+from cwsl.vt_modules.vt_timcor import TemporalCorrelation
 from cwsl.vt_modules.cmip5_constraints import CMIP5Constraints
 from cwsl.vt_modules.sdm_extract import SDMDataExtract
 from cwsl.vt_modules.cod_dataset import ChangeOfDate
@@ -78,11 +80,10 @@ def initialize(*args, **keywords):
                    name='BOM-SDMa-NRM', namespace='DataSets|RCM')
 
     #Aggregation
-    reg.add_module(CDScan, name='Merge Timeseries', namespace='Aggregation')
-    reg.add_module(SeasVars, name='Seasonal Timeseries',
+    reg.add_module(CDScan, name='Merge Timeseries', 
                    namespace='Aggregation')
-    reg.add_module(Climatology, name="Climatology",
-                   namespace='Aggregation')
+    reg.add_module(TimeAggregation, name="Time Aggregation",
+                   namespace="Aggregation")
     reg.add_module(FieldAggregation, name="Field Aggregation",
                    namespace="Aggregation")
     reg.add_module(MeridionalAggregation, name="Meridional Aggregation",
@@ -91,10 +92,14 @@ def initialize(*args, **keywords):
                    namespace="Aggregation")
     reg.add_module(VerticalAggregation, name="Vertical Aggregation",
                    namespace="Aggregation")
+    reg.add_module(EnsembleAggregation, name="Ensemble Aggregation",
+                   namespace="Aggregation")
 
-    #Change
-    reg.add_module(TimesliceChange, name="Timeslice Change",
-                   namespace='Change')
+    #Statistics
+    reg.add_module(FieldCorrelation, name='Field Correlation',
+                   namespace='Statistics')
+    reg.add_module(TemporalCorrelation, name='Temporal Correlation',
+                   namespace='Statistics')
 
     #Indices
     reg.add_module(IndicesNino34, name='Nino3.4', namespace='Indices')
@@ -109,9 +114,9 @@ def initialize(*args, **keywords):
                    namespace='Utilities')
     reg.add_module(XmlToNc, name='Crop',
                    namespace='Utilities')
-#    reg.add_module(GeneralCommandPattern, name='General Command Line Program',
-#                   namespace='Utilities')
     reg.add_module(Remap, name='Remap horizontal grid',
+                   namespace='Utilities')
+    reg.add_module(TemporalAnomaly, name='Temporal Anomaly',
                    namespace='Utilities')
     reg.add_module(DatasetArithmetic, name='Dataset Arithmetic',
                    namespace='Utilities')

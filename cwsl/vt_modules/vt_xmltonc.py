@@ -2,6 +2,7 @@
 
 Authors:  Tim Bedin (Tim.Bedin@csiro.au)
           Tim Erwin (Tim.Erwin@csiro.au)
+          Damien Irving (irving.damien@gmail.com)
 
 Copyright 2014 CSIRO
 
@@ -31,30 +32,83 @@ from cwsl.core.process_unit import ProcessUnit
 from cwsl.core.pattern_generator import PatternGenerator
 
 
-class XmlToNc(vistrails_module.Module):
-    """
-    This module selects a time period from a single netCDF file or cdml catalogue file
+def longitude_label(lon):
+    """Create a longitude label ending with E.
+    
+    Input longitude can be a string or float and in
+      -135, 135W, 225 or 225E format.
 
-    Requires: year_start - Start date of time selection, format YYYY[[MM][DD]]
-              year_end   - End date of time selection, format YYYY[[MM][DD]]
+    """
+
+    lon = str(lon).upper()
+    
+    if 'W' in lon:
+        deg_east = 360 - float(lon[:-1]) 
+    elif 'E' in lon:
+        deg_east = float(lon[:-1])
+    elif float(lon) < 0.0:
+        deg_east = 360 + float(lon)
+    else: 
+        deg_east = float(lon)
+    
+    assert 0 <= deg_east <= 360, "Longitude must lie between 0-360E"
+    
+    return str(deg_east)+'E'
+
+
+def latitude_label(lat):
+    """Create a latitude label ending with S or N.
+    
+    Input latitude can be a string or float and in
+      -55 or 55S format.
+
+    """
+
+    if 'S' in str(lat).upper() or 'N' in str(lat).upper():
+        label = str(lat).upper()
+    elif float(lat) >= 0.0:
+        label = str(lat) + 'N'
+    else: 
+        label = str(lat)[1:] + 'S'
+        
+    return label
+
+
+class XmlToNc(vistrails_module.Module):
+    """Crop a dataset on its longitude, latitude, time and/or level axis.
+
+    Wraps the cwsl-ctools/utils/xml_to_nc.py script.
+
+    All inputs (besides in_dataset) are optional (i.e. they can be left blank).
+
+    If an optional input is provided, so must its pair (e.g. if you enter a timestart
+      you must also enter a timeend). 
 
     """
 
     # Define the module ports.
     _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet',
-                     {'labels': str(['Input Dataset'])}),
-                    ('start_year', basic_modules.Integer,
-                     {'labels': str(['Start Date (YYYY[[MM][DD]])'])}),
-                    ('end_year', basic_modules.Integer,
-                     {'labels': str(['End Date (YYYY[[MM][DD]])'])}),
-                    ('added_constraints', basic_modules.List, True,
-                     {'defaults': ["[]"]})]
+                     {'labels': str(['Input dataset'])}),
+                    ('timestart', basic_modules.String,
+                     {'labels': str(['Start date (YYYY-MM-DD)']),'optional': True}),
+                    ('timeend', basic_modules.String,
+                     {'labels': str(['End date (YYYY-MM-DD)']), 'optional': True}),
+                    ('lonwest', basic_modules.String,
+                     {'labels': str(['Western longitude (0-360E)']), 'optional': True}),
+                    ('loneast', basic_modules.String,
+                     {'labels': str(['Eastern longitude (0-360E)']), 'optional': True}),
+                    ('latsouth', basic_modules.String,
+                     {'labels': str(['Southern latitude']), 'optional': True}),
+                    ('latnorth', basic_modules.String,
+                     {'labels': str(['Northern latitude']), 'optional': True}),
+                    ('levelbottom', basic_modules.String,
+                     {'labels': str(['Bottom level']), 'optional': True}),
+                    ('leveltop', basic_modules.String,
+                     {'labels': str(['Top level']), 'optional': True})]
 
-    _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet'),
-                     ('out_constraints', basic_modules.String, True)]
+    _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
 
-    _execution_options = {'required_modules': ['cdo', 'cct', 'nco',
-                                               'python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5']}
+    _execution_options = {'required_modules': ['cdo', 'python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5']}
 
 
     def __init__(self):
@@ -62,44 +116,78 @@ class XmlToNc(vistrails_module.Module):
         super(XmlToNc, self).__init__()
 
         #Command Line Tool
-        tools_base_path = configuration.cwsl_ctools_path
         self.command = '${CWSL_CTOOLS}/utils/xml_to_nc.py'
-        #Output file structure declaration ??
+
+        # Output file structure declaration
         self.out_pattern = PatternGenerator('user', 'default').pattern
-
-        # Set up the output command for this module, adding extra options.
-        self.positional_args = [('variable', 0)]
-        # This means that we will now have the positional arguments on form
-        # ./script variable infile outfile.
-
-        # Add the --time_bounds argument as positional, because it is of
-        # list form (--option ARG ARG)
-        self.positional_args += [('--time_bounds', 3, 'raw'),
-                                 ('startdate_info', 4),
-                                 ('enddate_info', 5)]
-
-        self.keyword_args = {}
 
     def compute(self):
 
         # Required input
         in_dataset = self.getInputFromPort("in_dataset")
-        year_start = self.getInputFromPort("start_year")
-        year_end = self.getInputFromPort("end_year")
 
-        new_cons = set([Constraint('startdate_info', [year_start]),
-                        Constraint('enddate_info', [year_end]),
-                        Constraint('suffix', ['nc']),])
+        # Set up the output command for this module, adding extra options.
+        positional_args = [('variable', 0)]
 
-        cons_for_output = new_cons
+        port_names = ["timestart", "timeend", "lonwest",
+                      "loneast", "latsouth", "latnorth",
+                      "levelbottom", "leveltop"]
+        port_vals = {}
+        for name in port_names:
+            try:
+                port_vals[name+"_info"] = self.getInputFromPort(name)
+            except vistrails_module.ModuleError as e:
+                port_vals[name+"_info"] = None
+
+        arg_number = 3
+        cons_for_output = set([Constraint('suffix', ['nc'])])
+
+        if port_vals["timestart_info"] and port_vals["timeend_info"]:
+            positional_args += [('--time_bounds', arg_number, 'raw'),
+                                ('timestart_info', arg_number+1),
+                                ('timeend_info', arg_number+2)]
+            arg_number += 3
+            cons_for_output |= set([Constraint('timestart_info', [port_vals["timestart_info"]]),
+                                    Constraint('timeend_info', [port_vals["timeend_info"]])])
+
+        if port_vals["loneast_info"] and port_vals["lonwest_info"]:
+            positional_args += [('--lon_bounds', arg_number, 'raw'),
+                                ('lonwest_info', arg_number+1),
+                                ('loneast_info', arg_number+2)]
+            arg_number += 3
+
+            lonwest_text = longitude_label(port_vals["lonwest_info"])
+            loneast_text = longitude_label(port_vals["loneast_info"])
+
+            cons_for_output |= set([Constraint('lonwest_info', [lonwest_text]),
+                                    Constraint('loneast_info', [loneast_text])])
+
+        if port_vals["latsouth_info"] and port_vals["latnorth_info"]:
+            positional_args += [('--lat_bounds', arg_number, 'raw'),
+                                ('latsouth_info', arg_number+1),
+                                ('latnorth_info', arg_number+2)]
+            arg_number += 3
+            
+            latsouth_text = latitude_label(port_vals["latsouth_info"])
+            latnorth_text = latitude_label(port_vals["latnorth_info"])
+            
+            cons_for_output |= set([Constraint('latsouth_info', [latsouth_text]),
+                                    Constraint('latnorth_info', [latnorth_text])])
+
+        if port_vals["levelbottom_info"] and port_vals["leveltop_info"]:
+            positional_args += [('--level_bounds', arg_number, 'raw'),
+                                ('levelbottom_info', arg_number+1),
+                                ('leveltop_info', arg_number+2)]
+            arg_number += 3
+            cons_for_output |= set([Constraint('levelbottom_info', [port_vals["levelbottom_info"]]),
+                                    Constraint('leveltop_info', [port_vals["leveltop_info"]])])
 
         # Execute the xml_to_nc process.
         this_process = ProcessUnit([in_dataset],
                                    self.out_pattern,
                                    self.command,
                                    cons_for_output,
-                                   positional_args=self.positional_args,
-                                   cons_keywords=self.keyword_args,
+                                   positional_args=positional_args,
                                    execution_options=self._execution_options)
 
         try:

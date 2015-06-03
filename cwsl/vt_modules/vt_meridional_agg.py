@@ -20,7 +20,6 @@ Part of the CWSLab Model Analysis Service VisTrails plugin.
 
 """
 
-import subprocess
 from vistrails.core.modules import vistrails_module, basic_modules
 
 from cwsl.configuration import configuration
@@ -30,14 +29,25 @@ from cwsl.core.pattern_generator import PatternGenerator
 
 
 class MeridionalAggregation(vistrails_module.Module):
-    """This module performs aggregation along the meridional (latitudinal) axis.
+    """Aggregation along the meridional (latitudinal) axis.
 
-    It wraps the cwsl-ctools/aggregation/cdo_meridional_agg.sh script.
+    Wraps the cwsl-ctools/aggregation/cdo_meridional_agg.sh script.
 
+    Inputs:
+      in_dataset: Can consist of netCDF files and/or cdml catalogue files
+      method: Aggregation method. Choices are mermin, mermax, mersum, mermean,
+        meravg, mervar, merstd, merpctl,N (where N is the percentile)
+    
+    Outputs:
+      out_dataset: Consists of netCDF files (i.e. cdml catalogue files
+        are converted).
+        
     """
 
-    _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet'),
-                    ('method', basic_modules.String),
+    _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet', 
+                     {'labels': str(['Input dataset'])}),
+                    ('method', basic_modules.String, 
+                     {'labels': str(['Aggregation method'])}),
                    ]
 
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
