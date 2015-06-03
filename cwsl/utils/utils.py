@@ -38,6 +38,7 @@ def get_git_status(ifile):
     """
 
     ifile = os.path.expandvars(ifile)
+    ifile = ifile.split()[0]
 
     if not os.path.exists(ifile):
         log.error("Script: {} does not exist on file system".format(ifile))
