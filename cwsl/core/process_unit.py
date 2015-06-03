@@ -279,7 +279,6 @@ class ProcessUnit(object):
         # Check that cws_ctools_path is set. Drop to a default if necessary.
         if not configuration.cwsl_ctools_path or not os.path.exists(configuration.cwsl_ctools_path):
             module_logger.warning("cwsl_ctools_path is not set in package options")
-        else:
             configuration.cwsl_ctools_path = "/opt/cwslab-ctools/"
 
         # We now create a looper to compare all the input Datasets with
