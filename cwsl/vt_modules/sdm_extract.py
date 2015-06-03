@@ -53,7 +53,7 @@ class SDMDataExtract(vistrails_module.Module):
         command = "${CWSL_CTOOLS}/sdm/sdmrun.py dxt-gridded"
 
         # The data is written out to the default location.
-        output_pattern = FileCreator.default_pattern(in_dataset.constraints, temp=True)
+        output_pattern = FileCreator.default_pattern(in_dataset.constraints, temp=True) + ".nc"
         this_process = ProcessUnit([in_dataset],
                                    output_pattern,
                                    command,
