@@ -39,7 +39,7 @@ class ExtractHistogram(vistrails_module.Module):
 
     def __init__(self):
 
-        super(ExtractTimeseries, self).__init__()
+        super(ExtractHistogram, self).__init__()
         
         self._required_modules = {'required_modules': ['python']}
 
