@@ -48,6 +48,7 @@ from cwsl.vt_modules.cmip5_constraints import CMIP5Constraints
 from cwsl.vt_modules.sdm_extract import SDMDataExtract
 from cwsl.vt_modules.cod_dataset import ChangeOfDate
 from cwsl.vt_modules.json_extract import ExtractTimeseries
+from cwsl.vt_modules.json_histogram import ExtractHistogram
 from cwsl.vt_modules.mv_output import MoveOutput
 
 
@@ -129,4 +130,6 @@ def initialize(*args, **keywords):
     reg.add_module(SDMDataExtract, name='Data Extraction',
                    namespace='Statistical Downscaling')
     reg.add_module(ExtractTimeseries, name='Extract JSON Timeseries',
+                   namespace='Statistical Downscaling')
+    reg.add_module(ExtractHistogram, name='Extract JSON Histogram',
                    namespace='Statistical Downscaling')
