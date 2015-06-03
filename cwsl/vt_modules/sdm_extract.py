@@ -50,7 +50,7 @@ class SDMDataExtract(vistrails_module.Module):
 
         in_dataset = self.getInputFromPort('cod_dataset')
 
-        command = "${CWSL_CTOOLS}/sdm/sdmrun.py dxt-gridded"
+        command = "/usr/local/venv/bin/sdmrun.py -c /local/ep1_1/data/staging_data/config/sdm_config.cfg dxt-gridded"
 
         # The data is written out to the default location.
         output_pattern = FileCreator.default_pattern(in_dataset.constraints, temp=True) + ".nc"
