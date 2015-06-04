@@ -38,5 +38,6 @@ class MoveOutput(vistrails_module.Module):
 
         for metafile in in_dataset.files:
             dirname = os.path.dirname(metafile.full_path)
-            os.makedirs(dirname)
+            if not os.path.exists(dirname):
+                os.makedirs(dirname)
             os.rename(metafile.full_path, output_name)
