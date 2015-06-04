@@ -37,4 +37,6 @@ class MoveOutput(vistrails_module.Module):
         output_name = self.getInputFromPort('output_name')
 
         for metafile in in_dataset.files:
+            dirname = os.path.dirname(metafile.full_path)
+            os.makedirs(dirname)
             os.rename(metafile.full_path, output_name)
