@@ -35,6 +35,9 @@ class ConstraintBuilder(Module):
     Enter strings in the form KEY1=VALUE1,VALUE2,VALUE3;KEY2=VALUE4,VALUE5,VALUE6 etc.
 
     e.g. model = MIROC5, ACCESS1-3 ; variable = tas, tos, rsds
+    
+    The best way to view a list of CMIP5 model names on NCI is to type the following at the command line:
+      $ ls /g/data/ua6/drstree/CMIP5/GCM
 
     """
 
