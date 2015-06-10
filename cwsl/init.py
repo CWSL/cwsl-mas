@@ -52,6 +52,7 @@ from cwsl.vt_modules.sdm_extract import SDMDataExtract
 from cwsl.vt_modules.cod_dataset import ChangeOfDate
 from cwsl.vt_modules.json_extract import ExtractTimeseries
 from cwsl.vt_modules.mv_output import MoveOutput
+from cwsl.vt_modules.dataset_summary import DatasetSummary
 
 
 def initialize(*args, **keywords):
@@ -104,10 +105,6 @@ def initialize(*args, **keywords):
     reg.add_module(TemporalCorrelation, name='Temporal Correlation',
                    namespace='Statistics')
 
-    #Change
-#    reg.add_module(TimesliceChange, name="Timeslice Change",
-#                   namespace='Change')
-
     #Indices
     reg.add_module(IndicesNino34, name='Nino3.4', namespace='Indices')
  
@@ -124,8 +121,6 @@ def initialize(*args, **keywords):
                    namespace='Utilities')
     reg.add_module(XmlToNc, name='Crop',
                    namespace='Utilities')
-#    reg.add_module(GeneralCommandPattern, name='General Command Line Program',
-#                   namespace='Utilities')
     reg.add_module(Remap, name='Remap horizontal grid',
                    namespace='Utilities')
     reg.add_module(TemporalAnomaly, name='Temporal Anomaly',
@@ -133,6 +128,8 @@ def initialize(*args, **keywords):
     reg.add_module(DatasetArithmetic, name='Dataset Arithmetic',
                    namespace='Utilities')
     reg.add_module(MoveOutput, name='Move Output',
+                   namespace='Utilities')
+    reg.add_module(DatasetSummary, name='HTML Summary',
                    namespace='Utilities')
 
     # Statistical Downscaling.
