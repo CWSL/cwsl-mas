@@ -53,16 +53,21 @@ class SDMDataExtract(vistrails_module.Module):
 
         in_dataset = self.getInputFromPort('cod_dataset')
 
-        command = "echo This is the command to run."
+        command = "${CWSL_CTOOLS}/sdm/sdmrun.py"
+
+        sdm_config = configuration.cwsl_ctools_path + "/sdm/default.cfg"
+        positional_args = [("dxt-gridded", 0, "raw"),
+                           ("-c " + sdm_config, 0, "raw")]
         
         # The data is written out to the default
         # location.
-        output_pattern = FileCreator.default_pattern(in_dataset.constraints, temp=True)
+        output_pattern = FileCreator.default_pattern(in_dataset.constraints, temp=True) + ".nc"
         this_process = ProcessUnit([in_dataset],
                                    output_pattern,
                                    command,
                                    in_dataset.constraints,
-                                   execution_options=self._required_modules)
+                                   execution_options=self._required_modules,
+                                   positional_args=positional_args)
 
         this_process.execute(simulate=configuration.simulate_execution)
         process_output = this_process.file_creator
