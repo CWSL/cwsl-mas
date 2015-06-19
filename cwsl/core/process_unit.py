@@ -277,8 +277,13 @@ class ProcessUnit(object):
         """
 
         # Check that cws_ctools_path is set
-        if not configuration.cwsl_ctools_path or not os.path.exists(configuration.cwsl_ctools_path):
+        if not configuration.cwsl_ctools_path:
             raise Exception("cwsl_ctools_path is not set in package options")
+
+        configuration.cwsl_ctools_path = os.path.expandvars(configuration.cwsl_ctools_path)
+        if not os.path.exists(configuration.cwsl_ctools_path):
+            raise Exception("Path: {} for cwsl_ctools_path does not exist"
+                            .format(configuration.cwsl_ctools_path))
 
         # We now create a looper to compare all the input Datasets with
         # the output FileCreator.
