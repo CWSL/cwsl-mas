@@ -53,6 +53,7 @@ from cwsl.vt_modules.cod_dataset import ChangeOfDate
 from cwsl.vt_modules.json_extract import ExtractTimeseries
 from cwsl.vt_modules.mv_output import MoveOutput
 from cwsl.vt_modules.dataset_summary import DatasetSummary
+from cwsl.vt_modules.open_dataset import OpenDataSet
 
 
 def initialize(*args, **keywords):
@@ -74,6 +75,8 @@ def initialize(*args, **keywords):
                    name="Global Climate Model Dataset")
     reg.add_module(drs.RegionalClimateModel, namespace='DataSets|Generic',
                    name='Regional Climate Model DataSet')
+    reg.add_module(OpenDataSet, namespace='DataSets|Generic',
+                   name='Open DataSet from FS pattern')
     reg.add_module(drs.CMIP5, namespace='DataSets|GCM',
                    name="CMIP5")
     reg.add_module(drs.CMIP3, namespace='DataSets|GCM',
