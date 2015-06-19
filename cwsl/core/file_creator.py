@@ -263,7 +263,15 @@ class FileCreator(DataSet):
         output = out_pattern[:-1]
 
         if temp:
-            output = os.path.join(os.environ["TMPDIR"], output)
+            # Try some different temp directories.
+            if "TMPDIR" in os.environ:
+                output = os.path.join(os.environ["TMPDIR"], output)
+            elif "TEMP" in os.environ:
+                output = os.path.join(os.environ["TEMP"], output)
+            elif "TMP" in os.environ:
+                output = os.path.join(os.environ["TMP"], output)
+            else:
+                output = os.path.join("/tmp", output)
 
         return output
 
