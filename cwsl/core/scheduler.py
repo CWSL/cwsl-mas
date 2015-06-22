@@ -79,8 +79,10 @@ class SimpleJob(Job):
     """
 
     __template = """
-                 #!/bin/sh
+                 #!/bin/bash
                  set -e
+
+                 source /etc/bashrc
 
                  %(cmds)s
                  """
