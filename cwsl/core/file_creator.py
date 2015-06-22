@@ -248,7 +248,7 @@ class FileCreator(DataSet):
         return new_climate_file
 
     @staticmethod
-    def default_pattern(out_constraints, temp=False):
+    def default_pattern(out_constraints, temp=False, jobdir=False):
         """ Creates a default pattern from a set of constraints.
 
         Mostly for testing - we could extend this to use real patterns.
@@ -264,6 +264,8 @@ class FileCreator(DataSet):
 
         if temp:
             output = os.path.join(os.environ["TMPDIR"], output)
+        elif jobdir:
+            output = os.path.join(os.environ["JOBROOT"], output)
 
         return output
 

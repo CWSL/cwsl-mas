@@ -53,7 +53,7 @@ class SDMDataExtract(vistrails_module.Module):
         command = "/usr/local/venv/bin/sdmrun.py -c /local/ep1_1/data/staging_data/config/sdm_config.cfg dxt-gridded"
 
         # The data is written out to the default location.
-        output_pattern = FileCreator.default_pattern(in_dataset.constraints, temp=True) + ".nc"
+        output_pattern = FileCreator.default_pattern(in_dataset.constraints, jobdir=True) + ".nc"
         this_process = ProcessUnit([in_dataset],
                                    output_pattern,
                                    command,
