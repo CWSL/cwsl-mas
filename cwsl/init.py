@@ -46,6 +46,7 @@ from cwsl.vt_modules.vt_fldcor import FieldCorrelation
 from cwsl.vt_modules.vt_timcor import TemporalCorrelation
 from cwsl.vt_modules.cmip5_constraints import CMIP5Constraints
 from cwsl.vt_modules.sdm_extract import SDMDataExtract
+from cwsl.vt_modules.ts_sdm_extract import DataExtractSDM
 from cwsl.vt_modules.cod_dataset import ChangeOfDate
 from cwsl.vt_modules.json_extract import ExtractTimeseries
 from cwsl.vt_modules.json_histogram import ExtractHistogram
@@ -128,6 +129,8 @@ def initialize(*args, **keywords):
     reg.add_module(ChangeOfDate, name='Change of Date Files',
                    namespace='Statistical Downscaling')
     reg.add_module(SDMDataExtract, name='Data Extraction',
+                   namespace='Statistical Downscaling')
+    reg.add_module(DataExtractSDM, name='Data Extraction - JSON Timeseries',
                    namespace='Statistical Downscaling')
     reg.add_module(ExtractTimeseries, name='Extract JSON Timeseries',
                    namespace='Statistical Downscaling')
