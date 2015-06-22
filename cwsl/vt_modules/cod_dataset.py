@@ -48,7 +48,7 @@ class ChangeOfDate(vistrails_module.Module):
 
     def compute(self):
         
-        print("1% Complete")
+        print("percent complete: 1")
 
         cons_list = ['model', 'experiment', 'variable',
                      'season_number', 'region']

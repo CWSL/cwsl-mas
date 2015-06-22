@@ -45,7 +45,7 @@ class ExtractHistogram(vistrails_module.Module):
 
     def compute(self):
 
-        print("99% Complete")
+        print("percent complete: 99")
 
         in_dataset = self.getInputFromPort('in_dataset')
         x_value = self.getInputFromPort('x_value')
@@ -55,7 +55,7 @@ class ExtractHistogram(vistrails_module.Module):
         command = "${CWSL_CTOOLS}/utils/extract_histogram.py"
         
         # The data is written out to the default location.
-        output_pattern = FileCreator.default_pattern(in_dataset.constraints, temp=True) + "_histogram.json"
+        output_pattern = FileCreator.default_pattern(in_dataset.constraints, jobdir=True) + "_histogram.json"
         this_process = ProcessUnit([in_dataset], output_pattern,
                                    command, in_dataset.constraints,
                                    execution_options=self._required_modules,
