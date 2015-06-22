@@ -52,6 +52,8 @@ class SDMDataExtract(vistrails_module.Module):
 
         command = "/usr/local/venv/bin/sdmrun.py -c /local/ep1_1/data/staging_data/config/sdm_config.cfg dxt-gridded"
 
+        print("5% Complete")
+
         # The data is written out to the default location.
         output_pattern = FileCreator.default_pattern(in_dataset.constraints, jobdir=True) + ".nc"
         this_process = ProcessUnit([in_dataset],
@@ -62,5 +64,7 @@ class SDMDataExtract(vistrails_module.Module):
 
         this_process.execute(simulate=configuration.simulate_execution)
         process_output = this_process.file_creator
+
+        print("98% Complete")
 
         self.setResult('out_dataset', process_output)

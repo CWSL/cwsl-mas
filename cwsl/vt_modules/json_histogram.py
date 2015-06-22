@@ -45,6 +45,8 @@ class ExtractHistogram(vistrails_module.Module):
 
     def compute(self):
 
+        print("99% Complete")
+
         in_dataset = self.getInputFromPort('in_dataset')
         x_value = self.getInputFromPort('x_value')
         y_value = self.getInputFromPort('y_value')

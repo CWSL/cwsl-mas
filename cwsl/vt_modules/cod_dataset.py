@@ -48,6 +48,8 @@ class ChangeOfDate(vistrails_module.Module):
 
     def compute(self):
         
+        print("1% Complete")
+
         cons_list = ['model', 'experiment', 'variable',
                      'season_number', 'region']
         in_cons = set([Constraint(cons_name, [self.getInputFromPort(cons_name)])
