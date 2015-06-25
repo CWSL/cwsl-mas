@@ -21,6 +21,8 @@ DataSet of some kind and a Pipeline-style pattern.
 
 """
 
+import os
+
 from vistrails.core.modules import vistrails_module
 from vistrails.core.modules.basic_modules import String, List
 
@@ -61,7 +63,8 @@ class SDMDataExtract(vistrails_module.Module):
         
         # The data is written out to the default
         # location.
-        output_pattern = FileCreator.default_pattern(in_dataset.constraints, temp=True) + ".nc"
+        output_pattern = os.path.join(configuration.user_basepath,
+                                      FileCreator.default_pattern(in_dataset.constraints) + ".nc")
         this_process = ProcessUnit([in_dataset],
                                    output_pattern,
                                    command,

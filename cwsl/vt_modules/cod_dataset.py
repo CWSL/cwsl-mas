@@ -51,7 +51,7 @@ class ChangeOfDate(vistrails_module.Module):
                        for cons_name in cons_list
                        if self.getInputFromPort(cons_name)])
 
-        file_pattern = "/short/r87/cod/CMIP5_v2/%model%_%experiment%/%region%/%variable%/season_%season_number%/rawfield_analog_%season_number%"
+        file_pattern = "/g/data/ua6/CAWCR_CVC_processed/staging/users/CWSL/SDM/COD/CMIP5_v2/%model%_%experiment%/%region%/%variable%/season_%season_number%/rawfield_analog_%season_number%"
         output_ds = PatternDataSet(file_pattern, in_cons)
 
         self.setResult('out_dataset', output_ds)
