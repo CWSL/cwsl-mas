@@ -50,15 +50,23 @@ class DataExtractSDM(vistrails_module.Module):
 
     def compute(self):
 
-        in_dataset = self.getInputFromPort('cod_dataset')
+        print("percent complete: 5")
 
-        command = "echo ${CTOOLS_PATH}/sdm/ts_extract/sdm_ts_extract.py"
+        in_dataset = self.getInputFromPort('cod_dataset')
+        lat = self.getInputFromPort('latitude')
+        lon = self.getInputFromPort('longitude')
+
+        command = "/usr/local/venv/bin/python /opt/cwslab-ctools/sdm/ts_extract/sdm_ts_extract.py"
+
+        positional_args = [(lat, 0, 'raw'),
+                           (lon, 1, 'raw')]
 
         # The data is written out to the default location.
         output_pattern = FileCreator.default_pattern(in_dataset.constraints, jobdir=True) + ".json"
         this_process = ProcessUnit([in_dataset],
                                    output_pattern,
                                    command,
+                                   positional_args=positional_args,
                                    in_dataset.constraints,
                                    execution_options=self._required_modules)
 
@@ -66,3 +74,5 @@ class DataExtractSDM(vistrails_module.Module):
         process_output = this_process.file_creator
 
         self.setResult('out_dataset', process_output)
+
+        print("percent complete: 98")
