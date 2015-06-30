@@ -130,7 +130,7 @@ def initialize(*args, **keywords):
                    namespace='Statistical Downscaling')
     reg.add_module(SDMDataExtract, name='Data Extraction',
                    namespace='Statistical Downscaling')
-    reg.add_module(DataExtractSDM, name='Data Extraction - JSON Timeseries',
+    reg.add_module(DataExtractSDM, name='Data Extraction - SDM JSON',
                    namespace='Statistical Downscaling')
     reg.add_module(ExtractTimeseries, name='Extract JSON Timeseries',
                    namespace='Statistical Downscaling')

@@ -38,7 +38,10 @@ class DataExtractSDM(vistrails_module.Module):
     # Define the module ports.
     _input_ports = [('cod_dataset', 'csiro.au.cwsl:VtDataSet'),
                     ('latitude', String),
-                    ('longitude', String)]
+                    ('longitude', String),
+                    ('variable', String),
+                    ('output_type', String),
+                    ('bins', String)]
 
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
 
@@ -47,6 +50,9 @@ class DataExtractSDM(vistrails_module.Module):
         super(DataExtractSDM, self).__init__()
 
         self._required_modules = {'required_modules': ['python']}
+        self.command = "/usr/local/venv/bin/python /opt/cwslab-ctools/sdm/fast_extract/sdm_extract.py"
+
+
 
     def compute(self):
 
@@ -55,19 +61,22 @@ class DataExtractSDM(vistrails_module.Module):
         in_dataset = self.getInputFromPort('cod_dataset')
         lat = self.getInputFromPort('latitude')
         lon = self.getInputFromPort('longitude')
-
-        command = "/usr/local/venv/bin/python /opt/cwslab-ctools/sdm/ts_extract/sdm_ts_extract.py"
+        variable = self.getInputFromPort('variable')
+        output_type = self.getInputFromPort('output_type')
+        bins = self.getInputFromPort('bins')
 
         positional_args = [(lat, 0, 'raw'),
-                           (lon, 1, 'raw')]
+                           (lon, 1, 'raw'),
+                           (variable, 2, 'raw'),
+                           (output_type, 3, 'raw'),
+                           (bins, 4, 'raw')]
 
         # The data is written out to the default location.
         output_pattern = FileCreator.default_pattern(in_dataset.constraints, jobdir=True) + ".json"
         this_process = ProcessUnit([in_dataset],
                                    output_pattern,
-                                   command,
+                                   self.command,
                                    positional_args=positional_args,
-                                   in_dataset.constraints,
                                    execution_options=self._required_modules)
 
         this_process.execute(simulate=configuration.simulate_execution)
