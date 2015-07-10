@@ -19,6 +19,7 @@ Module to rename output files to a specified output file name.
 """
 
 import os
+import shutil
 
 from vistrails.core.modules import vistrails_module
 from vistrails.core.modules.basic_modules import String
@@ -40,4 +41,4 @@ class MoveOutput(vistrails_module.Module):
             dirname = os.path.dirname(output_name)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
-            os.rename(metafile.full_path, output_name)
+            shutil.move(metafile.full_path, output_name)
