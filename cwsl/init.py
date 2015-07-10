@@ -54,6 +54,10 @@ from cwsl.vt_modules.json_extract import ExtractTimeseries
 from cwsl.vt_modules.mv_output import MoveOutput
 from cwsl.vt_modules.dataset_summary import DatasetSummary
 from cwsl.vt_modules.open_dataset import OpenDataSet
+from cwsl.vt_modules.vt_plot_gridded_seas import PlotGriddedSeas
+from cwsl.vt_modules.vt_cdo_histogram import Histogram
+from cwsl.vt_modules.vt_cdo_calc_pdf import PDF
+from cwsl.vt_modules.vt_cdo_clim_statistics import ClimStatistics
 
 
 def initialize(*args, **keywords):
@@ -107,12 +111,19 @@ def initialize(*args, **keywords):
                    namespace='Statistics')
     reg.add_module(TemporalCorrelation, name='Temporal Correlation',
                    namespace='Statistics')
+    reg.add_module(ClimStatistics, name='Clim Statistics',
+                   namespace='Statistics')
+    reg.add_module(Histogram, name='Histogram',
+                   namespace='Statistics')
+    reg.add_module(PDF, name='PDF',
+                   namespace='Statistics')
 
     #Indices
     reg.add_module(IndicesNino34, name='Nino3.4', namespace='Indices')
  
     #Visualisation
     reg.add_module(PlotTimeSeries, name='Plot Timeseries', namespace='Visualisation')
+    reg.add_module(PlotGriddedSeas, name='Plot Gridded', namespace='Visualisation')
     #ImageViewerPanel depends on the Spreadsheet package
     reg.add_module(ImageViewerPanel, name='Image Viewer', namespace='Visualisation')
     reg.add_input_port(ImageViewerPanel, 'in_dataset', 'csiro.au.cwsl:VtDataSet')
