@@ -19,6 +19,7 @@ Module to rename output files to a specified output file name.
 """
 
 import os
+import shutil
 
 from vistrails.core.modules import vistrails_module
 from vistrails.core.modules.basic_modules import String
@@ -37,4 +38,4 @@ class MoveOutput(vistrails_module.Module):
         output_name = self.getInputFromPort('output_name')
 
         for metafile in in_dataset.files:
-            os.rename(metafile.full_path, output_name)
+            shutil.move(metafile.full_path, output_name)
