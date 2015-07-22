@@ -30,6 +30,7 @@ from cwsl.configuration import configuration
 from cwsl.core.process_unit import ProcessUnit
 from cwsl.core.file_creator import FileCreator
 from cwsl.core.constraint import Constraint
+from cwsl.core.pattern_generator import PatternGenerator
 
 
 class SDMDataExtract(vistrails_module.Module):
@@ -48,7 +49,7 @@ class SDMDataExtract(vistrails_module.Module):
     def __init__(self):
 
         super(SDMDataExtract, self).__init__()
-        
+
         self._required_modules = {'required_modules': ['python']}
 
     def compute(self):
@@ -60,15 +61,29 @@ class SDMDataExtract(vistrails_module.Module):
         sdm_config = configuration.cwsl_ctools_path + "/sdm/default.cfg"
         positional_args = [("dxt-gridded", 0, "raw"),
                            ("-c " + sdm_config, 0, "raw")]
-        
+
         # The data is written out to the default
         # location.
-        output_pattern = os.path.join(configuration.user_basepath,
-                                      FileCreator.default_pattern(in_dataset.constraints) + ".nc")
+        out_pattern = PatternGenerator('user', 'default').pattern
+
+        # Add extra constraints so that the data can be used in later modules.
+        new_constraints = set([Constraint('extra_info',
+                                          in_dataset.get_constraint('region').values),
+                               Constraint('realm', ['atmos']),
+                               Constraint('ensemble', ['r1i1p1']),
+                               Constraint('suffix', ['nc']),
+                               Constraint('mip_table', ['day']),
+                               Constraint('mip', ['CMIP5']),
+                               Constraint('institute', ['BoM']),
+                               Constraint('frequency', ['day']),
+                               Constraint('product', ['RCM'])])
+
+        output_constraints = in_dataset.constraints.union(new_constraints)
+
         this_process = ProcessUnit([in_dataset],
-                                   output_pattern,
+                                   out_pattern,
                                    command,
-                                   in_dataset.constraints,
+                                   output_constraints,
                                    execution_options=self._required_modules,
                                    positional_args=positional_args)
 
