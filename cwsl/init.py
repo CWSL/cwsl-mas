@@ -30,6 +30,7 @@ from cwsl.vt_modules.vt_dataset import VtDataSet
 from cwsl.vt_modules.vt_cdscan import CDScan
 from cwsl.vt_modules.vt_xmltonc import XmlToNc
 from cwsl.vt_modules.vt_nino34 import IndicesNino34
+from cwsl.vt_modules.nino_singlestep import SingleStepNino34
 from cwsl.vt_modules.vt_general_command_pattern import GeneralCommandPattern
 from cwsl.vt_modules.vt_constraintbuilder import ConstraintBuilder
 from cwsl.vt_modules.vt_plot_timeseries import PlotTimeSeries
@@ -105,7 +106,9 @@ def initialize(*args, **keywords):
 
     #Indices
     reg.add_module(IndicesNino34, name='Nino3.4', namespace='Indices')
- 
+    reg.add_module(SingleStepNino34, name='Nino3.4 (Single Step)',
+                   namespace='Indices')
+
     #Visualisation
     reg.add_module(PlotTimeSeries, name='Plot Timeseries', namespace='Visualisation')
 
