@@ -82,30 +82,30 @@ class Constraint(object):
         current_val = self.values_iter.next()
 
         return self.key, current_val
-    
+
     @staticmethod
     def remove_constraints(cons_name_list, cons_set):
         cons_copy = deepcopy(cons_set)
-        
+
         cons_names = [cons.key for cons in cons_set]
-        
+
         to_remove = []
-        
+
         for cons_name in cons_name_list:
             if cons_name not in cons_names:
                 raise ConstraintNotFoundError
-        
+
         for constraint in cons_set:
             if constraint.key in cons_name_list:
                 to_remove.append(constraint)
-                
+
         for removed in to_remove:
             cons_copy.remove(removed)
-            
+
         return cons_copy
-        
-        
-        
+
+
+
 class ConstraintNotFoundError(Exception):
     ''' Raised if you try and remove a Constraint that doesn't exist. '''
     pass

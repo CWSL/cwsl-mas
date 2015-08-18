@@ -298,7 +298,7 @@ class ProcessUnit(object):
         # Add environment variables to the script and the current environment.
         scheduler.add_environment_variables({'CWSL_CTOOLS':configuration.cwsl_ctools_path})
         os.environ['CWSL_CTOOLS'] = configuration.cwsl_ctools_path
-        scheduler.add_python_paths([os.path.join(configuration.cwsl_ctools_path,'pythonlib')])
+        scheduler.add_python_paths([os.path.join(configuration.cwsl_ctools_path, 'pythonlib')])
 
         # For every valid possible combination, apply any positional and
         # keyword args, then add the command to the scheduler.

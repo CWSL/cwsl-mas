@@ -28,7 +28,7 @@ class PatternGenerator(object):
     a VisTrails module.
 
     """
-    
+
     def __init__(self, destination, data_type):
         self.destination = destination
         self.data_type = data_type
@@ -39,10 +39,10 @@ class PatternGenerator(object):
         except KeyError:
             self.project = "NoProjectSet"
         self.user = os.environ["USER"]
-        
+
         self.pbas = self.load_pbas()
         self.paths = self.load_paths()
-        
+
         # Check the inputs to make sure that they make sense.
         self.check_inputs()
 
@@ -74,18 +74,18 @@ class PatternGenerator(object):
         return pba_dict
 
     def load_paths(self):
-        """ The patterns live here. 
-        
-        You should use the "default" pattern unless you have a good reason not to. 
+        """ The patterns live here.
 
-        All fields in a pattern are compulsory (i.e. there must be a constraint matching each) 
+        You should use the "default" pattern unless you have a good reason not to.
+
+        All fields in a pattern are compulsory (i.e. there must be a constraint matching each)
         except for the %x_info% fields (e.g. %lat_info%). If there is no matching constraint a
         placeholder value is inserted (e.g. %lat_info% becomes "origlat") to indicate that
         that field is unaltered from the original data file.
-        
+
         The %extra_info% field in the default pattern is a good place to store information
         like the name of your index.
-         
+
         """
 
         fullpath_dict = {}

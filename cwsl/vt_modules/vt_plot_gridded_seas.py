@@ -24,10 +24,8 @@ limitations under the License.
 
 """
 
-import os
-
 from vistrails.core.modules import vistrails_module
-from vistrails.core.modules.basic_modules import String, List
+from vistrails.core.modules.basic_modules import String
 
 from cwsl.configuration import configuration
 from cwsl.core.process_unit import ProcessUnit
@@ -39,7 +37,7 @@ class PlotGriddedSeas(vistrails_module.Module):
     """
     Plots a gridded field(season).
 
-    Required inputs: 
+    Required inputs:
 
     Other inputs:    infile (from dataset connector)
                      title (model name from dataset connector)
@@ -96,10 +94,10 @@ region's:
 
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet',)]
 
-    _execution_options = {'required_modules': ['cdo','python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5',
+    _execution_options = {'required_modules': ['cdo', 'python/2.7.5',
+                                               'python-cdat-lite/6.0rc2-py2.7.5',
                                                'cct/trunk','python/2.7.5-matplotlib',
-                                               'python-basemap/1.0.7-py2.7']
-                         }
+                                               'python-basemap/1.0.7-py2.7']}
 
     def __init__(self):
 
@@ -119,25 +117,25 @@ region's:
 
         variable = self.getInputFromPort("variable")
         #self.positional_args=[(variable_name, 0, 'raw')]
-        
+
         plot_type = self.getInputFromPort("plot_type")
         #self.positional_args=[(plot_type, 1, 'raw')]
-        
+
         title = self.getInputFromPort("title")
         #self.positional_args=[(title, 2, 'raw')]
-        
+
         region = self.getInputFromPort("region")
         #self.positional_args=[(plot_type, 3, 'raw')]
-        
+
         colormap = self.getInputFromPort("colormap")
         #self.positional_args=[(colormap, 4, 'raw')]
-        
+
         ticks = self.getInputFromPort("ticks")
         #self.positional_args=[(plot_type, 5, 'raw')]
 
         conv_units = self.getInputFromPort("conv_units")
         #self.positional_args=[(conv_units, 6, 'raw')]
-        
+
         cons_for_output = set([Constraint('suffix', ['png'])])
 
         run_opts = ''

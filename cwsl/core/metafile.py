@@ -18,7 +18,6 @@ This module contains the MetaFile class.
 """
 
 import os
-import logging
 
 
 class MetaFile(object):
@@ -50,5 +49,5 @@ class MetaFile(object):
 
     def __eq__(self, other):
         """ Two MetaFiles are equal if their hashs are equal."""
-        
-        return(hash(self) == hash(other))
+
+        return hash(self) == hash(other)

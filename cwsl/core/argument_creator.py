@@ -57,12 +57,11 @@ class ArgumentCreator(object):
                 if new_con:
                     all_values.append(new_con)
 
-        module_logger.debug("All values are: {}"
-                            .format(all_values))
+        module_logger.debug("All values are: %s", all_values)
 
         # Remove values that are not in the output.
         out_cons_names = self.output_file_creator.cons_names
-        module_logger.debug("Output constraints are: {}".format(out_cons_names))
+        module_logger.debug("Output constraints are: %s", out_cons_names)
         to_remove = []
         all_values = [cons for cons in all_values
                       if cons.key in out_cons_names]
@@ -75,7 +74,7 @@ class ArgumentCreator(object):
                 if constraint.key == name:
                     temp_list.append(constraint.values)
 
-            if(temp_list):
+            if temp_list:
                 self.final_shared.append(Constraint(name, set.intersection(*temp_list)))
 
         # Check for Constraint overwrites.
@@ -115,8 +114,8 @@ class ArgumentCreator(object):
             for output in all_outs:
                 in_list = []
                 all_atts = output.all_atts
-                module_logger.debug("Original output attributes are: {}"
-                                    .format(all_atts))
+                module_logger.debug("Original output attributes are: %s",
+                                    all_atts)
                 input_atts = {}
                 for ds in self.input_datasets:
                     good_atts = {}
@@ -171,13 +170,11 @@ class ArgumentCreator(object):
 
             attdict[consname] = '-'.join(thiscons_list)
 
-        module_logger.debug("Returning dictionary after merging: {}"
-                            .format(attdict))
+        module_logger.debug("Returning dictionary after merging: %s", attdict)
 
         # Update the constraints of the output.
         for consname in self.merge_output:
-            old_con = (self.output_file_creator
-                       .get_constraint(consname)
-                       .values.add(attdict[consname]))
+            old_con = self.output_file_creator.get_constraint(consname)
+            old_con.values.add(attdict[consname])
 
         return attdict

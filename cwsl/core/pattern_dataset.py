@@ -39,7 +39,7 @@ class PatternDataSet(DataSet):
 
     """
 
-    def __init__(self, pattern_to_glob, constraint_set=set()):
+    def __init__(self, pattern_to_glob, constraint_set=None):
         """ Arguments:
 
         pattern_to_glob: this is a string filename pattern, with placeholders
@@ -51,14 +51,18 @@ class PatternDataSet(DataSet):
         """
 
         self._files = None
+        if constraint_set is not None:
+            self.constraint_set = constraint_set
+        else:
+            self.constraint_set = set()
 
         self.check_filename_pattern(pattern_to_glob,
-                                    constraint_set)
+                                    self.constraint_set)
 
         if constraint_set:
             self.restricted_patterns = []
             given_names, given_values = zip(*[(cons.key, cons.values)
-                                              for cons in constraint_set])
+                                              for cons in self.constraint_set])
 
             # Generate all combinations
             for combination in itertools.product(*given_values):
@@ -81,7 +85,7 @@ class PatternDataSet(DataSet):
         self.constraints = self.update_constraints()
 
         # Update the constraints.
-        bad_cons_names = [cons.key for cons in constraint_set]
+        bad_cons_names = [cons.key for cons in self.constraint_set]
         to_remove = []
         for cons in self.constraints:
             if cons.key in bad_cons_names:
@@ -90,7 +94,7 @@ class PatternDataSet(DataSet):
         for cons in to_remove:
             self.constraints.remove(cons)
 
-        self.constraints = self.constraints.union(constraint_set)
+        self.constraints = self.constraints.union(self.constraint_set)
         self.cons_names = [cons.key for cons in self.constraints]
 
         self.subsets = self.create_subsets()
@@ -227,7 +231,7 @@ class PatternDataSet(DataSet):
         all_valid_names = self.cons_names
         try:
             all_valid_names += self.alias_map.keys()
-        except:
+        except AttributeError as e:
             pass
 
         for key in reqs_dict:
@@ -236,7 +240,7 @@ class PatternDataSet(DataSet):
                 try:
                     old_key = key
                     key = self.alias_map[key]
-                except:
+                except (KeyError, AttributeError) as e:
                     old_key = key
 
                 att_value = reqs_dict[old_key]

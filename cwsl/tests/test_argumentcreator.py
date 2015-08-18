@@ -38,7 +38,7 @@ class TestArgumentCreator(unittest.TestCase):
 
         mock_file_pattern_1 = "/fake/%food%_%animal%.file"
         mock_file_list_1 = ["/fake/pizza_moose.file", "/fake/pizza_rabbit.file",
-                            "/fake/chocolate_bilby.file","/fake/chocolate_rabbit.file"]
+                            "/fake/chocolate_bilby.file", "/fake/chocolate_rabbit.file"]
 
         mock_file_pattern_2 = "/fake/%animal%.file"
         mock_file_list_2 = ["/fake/moose.file", "/fake/rabbit.file",

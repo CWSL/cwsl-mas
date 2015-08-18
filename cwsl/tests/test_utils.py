@@ -54,9 +54,9 @@ class TestUtils(unittest.TestCase):
 
         status_return = utils.get_git_status(infile)
         first_letters = status_return[0:10]
-        
+
         self.assertEqual(first_letters, "Git info: ")
-        
+
         # Try a file that doesn't exist.
         nonexist = "/this/is/not/a/file.txt"
         status_return = utils.get_git_status(nonexist)

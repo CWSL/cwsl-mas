@@ -24,15 +24,13 @@ from vistrails.gui.preferences import QPackageConfigurationDialog
 from vistrails.core.modules.module_registry import get_module_registry
 
 # Available Tools
-# TODO: Imports will get large as tools get added, 
+# TODO: Imports will get large as tools get added,
 #  add automatic import similar to Spreadsheet package
 import cwsl.vt_modules.drs_dataset as drs
 from cwsl.vt_modules.vt_dataset import VtDataSet
 from cwsl.vt_modules.vt_cdscan import CDScan
 from cwsl.vt_modules.vt_xmltonc import XmlToNc
-#from cwsl.vt_modules.change import TimesliceChange
 from cwsl.vt_modules.vt_nino34 import IndicesNino34
-from cwsl.vt_modules.vt_general_command_pattern import GeneralCommandPattern
 from cwsl.vt_modules.vt_constraintbuilder import ConstraintBuilder
 from cwsl.vt_modules.vt_plot_timeseries import PlotTimeSeries
 from cwsl.vt_modules.vt_time_agg import TimeAggregation
@@ -91,7 +89,7 @@ def initialize(*args, **keywords):
                    name='BOM-SDMa-NRM', namespace='DataSets|RCM')
 
     #Aggregation
-    reg.add_module(CDScan, name='Merge Timeseries', 
+    reg.add_module(CDScan, name='Merge Timeseries',
                    namespace='Aggregation')
     reg.add_module(TimeAggregation, name="Time Aggregation",
                    namespace="Aggregation")
@@ -120,7 +118,7 @@ def initialize(*args, **keywords):
 
     #Indices
     reg.add_module(IndicesNino34, name='Nino3.4', namespace='Indices')
- 
+
     #Visualisation
     reg.add_module(PlotTimeSeries, name='Plot Timeseries', namespace='Visualisation')
     reg.add_module(PlotGriddedSeas, name='Plot Gridded', namespace='Visualisation')
