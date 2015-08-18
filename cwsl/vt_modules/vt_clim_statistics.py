@@ -35,31 +35,31 @@ from cwsl.core.pattern_generator import PatternGenerator
 
 def longitude_label(lon):
     """Create a longitude label ending with E.
-    
+
     Input longitude can be a string or float and in
       -135, 135W, 225 or 225E format.
 
     """
 
     lon = str(lon).upper()
-    
+
     if 'W' in lon:
-        deg_east = 360 - float(lon[:-1]) 
+        deg_east = 360 - float(lon[:-1])
     elif 'E' in lon:
         deg_east = float(lon[:-1])
     elif float(lon) < 0.0:
         deg_east = 360 + float(lon)
-    else: 
+    else:
         deg_east = float(lon)
-    
+
     assert 0 <= deg_east <= 360, "Longitude must lie between 0-360E"
-    
+
     return str(deg_east)+'E'
 
 
 def latitude_label(lat):
     """Create a latitude label ending with S or N.
-    
+
     Input latitude can be a string or float and in
       -55 or 55S format.
 
@@ -69,9 +69,9 @@ def latitude_label(lat):
         label = str(lat).upper()
     elif float(lat) >= 0.0:
         label = str(lat) + 'N'
-    else: 
+    else:
         label = str(lat)[1:] + 'S'
-        
+
     return label
 
 
@@ -83,7 +83,7 @@ class ClimStats(vistrails_module.Module):
     All inputs (besides in_dataset and stat) are optional (i.e. they can be left blank).
 
     If an optional input is provided, so must its pair (e.g. if you enter a timestart
-      you must also enter a timeend). 
+      you must also enter a timeend).
 
     """
 
@@ -93,7 +93,7 @@ class ClimStats(vistrails_module.Module):
                     ('stat', 'csiro.au.cwsl:VtDataSet',
                      {'labels': str(['Statistic'])}),
                     ('timestart', basic_modules.String,
-                     {'labels': str(['Start date (YYYY-MM-DD)']),'optional': True}),
+                     {'labels': str(['Start date (YYYY-MM-DD)']), 'optional': True}),
                     ('timeend', basic_modules.String,
                      {'labels': str(['End date (YYYY-MM-DD)']), 'optional': True}),
                     ('lonwest', basic_modules.String,
@@ -109,17 +109,18 @@ class ClimStats(vistrails_module.Module):
                     ('leveltop', basic_modules.String,
                      {'labels': str(['Top level']), 'optional': True})]
 
-    _output_ports = [('out_dataset_mon',  'csiro.au.cwsl:VtDataSet'),
+    _output_ports = [('out_dataset_mon', 'csiro.au.cwsl:VtDataSet'),
                      ('out_dataset_seas', 'csiro.au.cwsl:VtDataSet'),
-                     ('out_dataset_ann',  'csiro.au.cwsl:VtDataSet'),]
+                     ('out_dataset_ann', 'csiro.au.cwsl:VtDataSet')]
 
 
-    _execution_options = {'required_modules': ['cdo', 'python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5']}
+    _execution_options = {'required_modules': ['cdo', 'python/2.7.5',
+                                               'python-cdat-lite/6.0rc2-py2.7.5']}
 
 
     def __init__(self):
-
-        super(XmlToNc, self).__init__()
+        
+        super(ClimStats, self).__init__()
 
         #Command Line Tool
         self.command = '${CWSL_CTOOLS}/utils/xml_to_nc.py'
@@ -173,10 +174,10 @@ class ClimStats(vistrails_module.Module):
                                 ('latsouth_info', arg_number+1),
                                 ('latnorth_info', arg_number+2)]
             arg_number += 3
-            
+
             latsouth_text = latitude_label(port_vals["latsouth_info"])
             latnorth_text = latitude_label(port_vals["latnorth_info"])
-            
+
             cons_for_output |= set([Constraint('latsouth_info', [latsouth_text]),
                                     Constraint('latnorth_info', [latnorth_text])])
 

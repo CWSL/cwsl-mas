@@ -19,10 +19,8 @@ Contains the ArgumentCreator class.
 
 import logging
 import itertools
-import hashlib
 
 from cwsl.core.constraint import Constraint
-from cwsl.core.metafile import MetaFile
 
 module_logger = logging.getLogger('cwsl.core.argument_creator')
 
@@ -141,8 +139,8 @@ class ArgumentCreator(object):
                     module_logger.debug("Performing the output overwrite")
                     output_overwrite = self.output_file_creator.get_files(final_atts, update=True,
                                                                           check=False)
-                    module_logger.debug("All the valid output files: {}"
-                                        .format([thing for thing in self.output_file_creator.files]))
+                    module_logger.debug("All the valid output files: %s",
+                                        [thing for thing in self.output_file_creator.files])
                     out_hash = hash(output_overwrite[0])
                     if out_hash in processed_hashes:
                         continue

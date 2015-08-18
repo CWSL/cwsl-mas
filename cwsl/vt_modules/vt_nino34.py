@@ -40,7 +40,7 @@ class IndicesNino34(vistrails_module.Module):
 
     of sea surface temperature data. It uses a 30-year rolling climatology to calculate
     the surface temperature anomaly.
-    
+
     This wraps the cwsl-ctools/indices/nino_34.sh script.
 
     '''
@@ -49,23 +49,23 @@ class IndicesNino34(vistrails_module.Module):
     _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet'),
                     ('added_constraints', basic_modules.List, True,
                      {'defaults': ["[]"]})]
-    
+
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet'),
                      ('out_constraints', basic_modules.String, True)]
-    
-    _execution_options = {'required_modules': ['cdo', 'nco', 
-                                               'python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5']}
+
+    _execution_options = {'required_modules': ['cdo', 'nco', 'python/2.7.5',
+                                               'python-cdat-lite/6.0rc2-py2.7.5']}
 
     def __init__(self):
 
         super(IndicesNino34, self).__init__()
-        
+
         #Command Line Tool
         tools_base_path = configuration.cwsl_ctools_path
         self.command = '${CWSL_CTOOLS}/indices/nino34.sh'
-        #Output file structure declaration 
+        #Output file structure declaration
         self.out_pattern = PatternGenerator('user', 'default').pattern
-        
+
         # Set up the output command for this module, adding extra options.
         self.positional_args = [('timestart_info', 2), ('timeend_info', 3)]
 
@@ -85,7 +85,7 @@ class IndicesNino34(vistrails_module.Module):
                         Constraint('levelbottom_info', ['surface']),
                         Constraint('anomaly_info', ['anom']),
                        ])
-        
+
         # Execute the process.
         this_process = ProcessUnit([in_dataset],
                                    self.out_pattern,

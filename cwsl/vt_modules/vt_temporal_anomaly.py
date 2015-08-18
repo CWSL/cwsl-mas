@@ -35,14 +35,14 @@ class TemporalAnomaly(vistrails_module.Module):
 
     Inputs:
       in_dataset: Can consist of netCDF files and/or cdml catalogue files
-      clim_bounds (optional): Time bounds for the climatology used to 
-        calculate the anomaly timeseries. 
-      timescale (optional): Timescale for anomaly calculation (can be yday, 
+      clim_bounds (optional): Time bounds for the climatology used to
+        calculate the anomaly timeseries.
+      timescale (optional): Timescale for anomaly calculation (can be yday,
         ymon, yseas for daily, monthly or seasonal anomaly)
 
     Outputs:
       out_dataset: Consists of netCDF files (i.e. cdml catalogue files
-      are converted). 
+      are converted).
 
     """
 
@@ -50,13 +50,14 @@ class TemporalAnomaly(vistrails_module.Module):
     _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet',
                      {'labels': str(['Input dataset'])}),
                     ('clim_bounds', basic_modules.String,
-                     {'labels': str(['YYYY-MM-DD,YYYY-MM-DD']),'optional': True}),
+                     {'labels': str(['YYYY-MM-DD,YYYY-MM-DD']), 'optional': True}),
                     ('timescale', basic_modules.String,
                      {'labels': str(['Anomaly timescale']), 'optional': True}),]
 
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
 
-    _execution_options = {'required_modules': ['cdo', 'python/2.7.5','python-cdat-lite/6.0rc2-py2.7.5']}
+    _execution_options = {'required_modules': ['cdo', 'python/2.7.5',
+                                               'python-cdat-lite/6.0rc2-py2.7.5']}
 
 
     def __init__(self):
@@ -78,7 +79,7 @@ class TemporalAnomaly(vistrails_module.Module):
         positional_args = []
         anom_label = 'anom-wrt-all'
         arg_number = 0
-        
+
         try:
             clim_bounds = self.getInputFromPort('clim_bounds')
             positional_args += [('-b', arg_number, 'raw'),

@@ -18,7 +18,7 @@ limitations under the License.
 """
 
 import abc
-import os, sys
+import os
 from textwrap import dedent
 import tempfile
 import subprocess
@@ -118,7 +118,7 @@ class SimpleJob(Job):
             self.add_pre_cmd(['mkdir', '-p'] + sorted(self.outdirs))
 
         if noexec:
-            log.warning("Would run script:\n\n========>\n%s\n<========\n\n" % self.to_str())
+            log.warning("Would run script:\n\n========>\n%s\n<========\n\n", self.to_str())
         else:
             script_file, script_name = tempfile.mkstemp('.sh')
             script_file = os.fdopen(script_file, 'w+b')
@@ -134,7 +134,7 @@ class SimpleJob(Job):
                 raise
             finally:
                 # For now, print output to console as well.
-                print(output)
+                print output
                 os.remove(script_name)
 
 class AbstractExecManager(object):
@@ -169,7 +169,7 @@ class SimpleExecManager(AbstractExecManager):
         super(SimpleExecManager, self).__init__(verbose, noexec)
         self.job = SimpleJob()
         # Clear loaded modules inherited from parent
-        self.add_pre_cmd(self.job,['module', 'purge'])
+        self.add_pre_cmd(self.job, ['module', 'purge'])
 
     def add_module_dep(self, module):
         self.add_pre_cmd(self.job, ['module', 'load', module])
@@ -178,13 +178,13 @@ class SimpleExecManager(AbstractExecManager):
         for module in module_list:
             self.add_module_dep(module)
 
-    def add_environment_variables(self,environ_vars):
+    def add_environment_variables(self, environ_vars):
         for var in environ_vars.keys():
-            self.add_pre_cmd(self.job,['export',"%s=%s" % (var,environ_vars[var])])
+            self.add_pre_cmd(self.job, ['export', "%s=%s" % (var,environ_vars[var])])
 
-    def add_python_paths(self,python_paths):
+    def add_python_paths(self, python_paths):
         for path in python_paths:
-            self.add_pre_cmd(self.job,['export','PYTHONPATH=$PYTHONPATH:%s' % path])
+            self.add_pre_cmd(self.job, ['export', 'PYTHONPATH=$PYTHONPATH:%s' % path])
 
     def add_cmd(self, cmd_list, out_files, annotation=None):
         self._out_files = out_files
@@ -206,7 +206,7 @@ class SimpleExecManager(AbstractExecManager):
                 annotate_list = ['ncatted', '-O', '-a', att_desc, out_file]
                 self.queue_cmd(self.job, annotate_list)
             else:
-                log.warning("Not annotating file '%s' - not NetCDF" % out_file)
+                log.warning("Not annotating file '%s' - not NetCDF", out_file)
 
     def submit(self):
         """Creates a simple shell script with all the commands to be executed.

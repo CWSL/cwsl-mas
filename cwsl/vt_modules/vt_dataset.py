@@ -25,10 +25,7 @@ class VtDataSet(Module):
     _output_ports = [('out_dataset', '(csiro.au.cwsl:VtDataSet)')]
 
     def compute(self):
+        """ This is an abstract module and should never have compute called."""
 
         in_dataset = self.getInputFromPort("in_dataset")
-
-        # This is an abstract module and should never have 'compute' called.
-        raise Exception
-
         self.setResult('out_dataset', in_dataset)

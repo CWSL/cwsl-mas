@@ -85,10 +85,10 @@ class FileCreator(DataSet):
                 elif 'info' in split_key:
                     constraint.values = set(['orig'+split_key[0]])
                 else:
-                    module_logger.error("Constraint {0} is empty - should be in canonical form!"
-                                        .format(constraint))
-                    raise EmptyConstraintError("Constraint {0} is empty - should be in canonical form!"
-                                               .format(constraint))
+                    module_logger.error("Constraint %s is empty - should be in canonical form!",
+                                        constraint)
+                    raise EmptyConstraintError("Constraint %s is empty - should be in canonical form!",
+                                               constraint)
 
         # A set to hold all the valid combinations of attributes.
         self.valid_combinations = set()
@@ -121,7 +121,7 @@ class FileCreator(DataSet):
                 # If a key is not in the att_dict, grab the existing constraint.
                 existing_cons = self.get_constraint(key)
                 to_loop.append((existing_cons.key, existing_cons.values))
-                assert(type(existing_cons.values == set))
+                assert type(existing_cons.values == set)
             else:
                 new_cons = Constraint(key, [att_dict[key]])
                 to_loop.append((new_cons.key, new_cons.values))
@@ -153,8 +153,8 @@ class FileCreator(DataSet):
 
         for combination in huge_iterator:
             # Create a set of constraints for this combination.
-            climate_file =  self.climate_file_from_combination(cons_names, combination,
-                                                               check=True, update=False)
+            climate_file = self.climate_file_from_combination(cons_names, combination,
+                                                              check=True, update=False)
             if climate_file:
                 yield climate_file
 
@@ -232,10 +232,10 @@ class FileCreator(DataSet):
         if check:
             # Check that this combination is valid for the FileCreator
             # If it is not, return None.
-            module_logger.debug("Checking cons_list: {}".format(cons_list))
+            module_logger.debug("Checking cons_list: %s", cons_list)
             if frozenset(cons_list) not in self.valid_combinations:
-                module_logger.debug("This combination: {0} is not found in {1}"
-                                    .format(cons_list, self.valid_combinations))
+                module_logger.debug("This combination: %s is not found in %s",
+                                    cons_list, self.valid_combinations)
                 return None
 
         if update:
@@ -244,7 +244,8 @@ class FileCreator(DataSet):
             self.valid_hashes.add(file_hash)
             self.valid_combinations.add(frozenset(cons_list))
 
-        module_logger.debug("Returning climate file: {}".format(new_climate_file))
+        module_logger.debug("Returning climate file: %s", new_climate_file)
+
         return new_climate_file
 
     @staticmethod
@@ -293,19 +294,17 @@ class FileCreator(DataSet):
 
 class EmptyConstraintError(Exception):
     def __init__(self, constraint):
-        self.constraint = constraint
-        module_logger.error("Constraint {} is empty but must contain values"
-                            .format(self.constraint))
 
-    def __repr__(self):
-        return repr(self.constraint)
+        message = "Constraint {} is empty but must contain values".format(self.constraint)
+        super(EmptyConstraintError, self).__init__(self, message)
+        module_logger.error(message)
 
 
 class ExtraConstraintError(Exception):
     def __init__(self, constraint):
-        self.constraint = constraint
-        module_logger.error("Constraint {} passed to FileCreator is not found in the output pattern!"
-                            .format(self.constraint))
 
-    def __repr__(self):
-        return repr(self.constraint)
+        message = "Constraint {} passed to FileCreator is not found in the output pattern!".format(constraint)
+
+        super(ExtraConstraintError, self).__init__(self, message)
+
+        module_logger.error(message)

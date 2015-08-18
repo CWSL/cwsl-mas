@@ -68,7 +68,7 @@ class Constraint(object):
     def __hash__(self):
         # The class needs to be hashable in order to work
         # inside a set.
-        return(hash(repr(self)))
+        return hash(repr(self))
 
     def __eq__(self, other):
         # Constraints are equal if their hashes are the same.

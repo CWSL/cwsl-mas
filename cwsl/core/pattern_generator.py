@@ -50,7 +50,7 @@ class PatternGenerator(object):
 
         # Throw some errors if the parameters don't make sense.
         drs_only = ["downloaded"]
-        if (self.destination != "drstree" and self.data_type in drs_only):
+        if self.destination != "drstree" and self.data_type in drs_only:
             raise BadCombinationError
         if self.data_type not in self.paths:
             raise PatternNotFoundError

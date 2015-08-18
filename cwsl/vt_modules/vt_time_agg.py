@@ -1,4 +1,4 @@
-"""
+h"""
 Authors:  Damien Irving (irving.damien@gmail.com)
 
 Copyright 2015 CSIRO
@@ -53,12 +53,12 @@ class TimeAggregation(vistrails_module.Module):
     _input_ports = [('in_dataset', 'csiro.au.cwsl:VtDataSet',
                      {'labels': str(['Input dataset'])}),
                     ('method', basic_modules.String,
-                     {'labels': str(['Aggregation method'])}),
-                   ]
+                     {'labels': str(['Aggregation method'])})]
 
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
 
-    _execution_options = {'required_modules': ['cdo', 'python/2.7.5', 'python-cdat-lite/6.0rc2-py2.7.5']}
+    _execution_options = {'required_modules': ['cdo', 'python/2.7.5',
+                                               'python-cdat-lite/6.0rc2-py2.7.5']}
 
     command = '${CWSL_CTOOLS}/aggregation/cdo_time_agg.sh'
 
@@ -81,8 +81,7 @@ class TimeAggregation(vistrails_module.Module):
             agg_constraint = method
 
         new_constraints_for_output = set([Constraint('timeagg_info', [agg_constraint]),
-                                          Constraint('suffix', ['nc']),
-                                          ])
+                                          Constraint('suffix', ['nc'])])
 
         this_process = ProcessUnit([in_dataset],
                                    self.out_pattern,

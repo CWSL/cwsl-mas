@@ -37,27 +37,26 @@ class TimesliceChange(vistrails_module.Module):
     baseline dataset.
 
     It wraps the cct cdo_perc_change and cdo_abs_change scripts.
-    
+
     '''
 
     # Define the module ports.
     _input_ports = [('future_dataset', 'csiro.au.cwsl:VtDataSet'),
                     ('baseline_dataset', 'csiro.au.cwsl:VtDataSet')]
-    
+
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
-    
+
     _execution_options = {'required_modules': ['cdo', 'cct', 'nco']}
-                          
+
     def __init__(self):
 
         super(TimesliceChange, self).__init__()
-        
+
         # Command Line Tool
-        tools_base_path = configuration.cwsl_ctools_path
         self.command = 'echo ${CWSL_CTOOLS}/change_script_path'
-        # Output file structure declaration 
+        # Output file structure declaration
         self.out_pattern = PatternGenerator('user', 'timeslice_change').pattern
-        
+
     def compute(self):
 
         # Required input

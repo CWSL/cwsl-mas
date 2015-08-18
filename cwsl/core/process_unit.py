@@ -131,22 +131,21 @@ class ProcessUnit(object):
 
         # Finallly fill the empty output constraints from the input DataSets.
         self.final_constraints = self.fill_from_input(self.inputlist, filled_constraints)
-        module_logger.debug("Final output constraints are: {0}".format(self.final_constraints))
+        module_logger.debug("Final output constraints are: %s",
+                            self.final_constraints)
 
         for ds in inputlist:
-            module_logger.debug("Input constraints are: {}"
-                                .format(ds.constraints))
-
+            module_logger.debug("Input constraints are: %s",
+                                ds.constraints)
 
         # Make a file_creator from the new, fixed constraints.
         self.file_creator = FileCreator(output_pattern, self.final_constraints)
 
     def apply_mappings(self, constraints):
 
-        module_logger.debug("Before applying mappings, output_constraints are: {}"
-                            .format(constraints))
+        module_logger.debug("Before applying mappings, output_constraints are: %s",
+                            constraints)
 
-        to_remove = []
         for map_name, map_spec in self.map_dict.items():
             # First update the outputs with values from the input.
             found_con = self.inputlist[map_spec[1]].get_constraint(map_spec[0])
@@ -158,10 +157,10 @@ class ProcessUnit(object):
             # this will fail for a FileCreator.
             try:
                 for value in found_con.values:
-                    module_logger.debug("Updating subsets for {}: {}"
-                                        .format(map_name, value))
+                    module_logger.debug("Updating subsets for %s: %s",
+                                        map_name, value)
                     found_files = self.inputlist[map_spec[1]].get_files({found_con.key: value})
-                    module_logger.debug("Found files are: {}".format(found_files))
+                    module_logger.debug("Found files are: %s", found_files)
                     self.inputlist[map_spec[1]].subsets[map_name][value] = [file_ob.full_path
                                                                             for file_ob in found_files]
             except AttributeError:
@@ -175,39 +174,37 @@ class ProcessUnit(object):
             # Now alter the valid combinations of the input.
             fixed_combinations = set([])
             for combination in self.inputlist[map_spec[1]].valid_combinations:
-                module_logger.debug("Original combination is: {}".format(combination))
+                module_logger.debug("Original combination is: %s", combination)
                 new_list = []
                 for constraint in combination:
                     if constraint.key == map_spec[0]:
                         new_list.append(Constraint(map_name, constraint.values))
                     new_list.append(constraint)
-                module_logger.debug("New combination is: {}".format(new_list))
+                module_logger.debug("New combination is: %s", new_list)
                 fixed_combinations.add(frozenset(new_list))
             self.inputlist[map_spec[1]].valid_combinations = fixed_combinations
 
-        module_logger.debug("After applying mappings, output_constraints are: {}"
-                            .format(constraints))
+        module_logger.debug("After applying mappings, output_constraints are: %s",
+                            constraints)
 
         return constraints
 
 
     def fill_from_input(self, inputlist, constraints):
 
-        module_logger.debug("Before filling from input, output_constraints are: {}"
-                            .format(constraints))
+        module_logger.debug("Before filling from input, output_constraints are: %s",
+                            constraints)
 
         new_cons = set([])
         to_remove = []
         for cons in constraints:
             if not cons.values:
-                module_logger.debug("Trying to fill constraint: {}"
-                                    .format(cons))
+                module_logger.debug("Trying to fill constraint: %s", cons)
                 found_cons = set([input_ds.get_constraint(cons.key)
                                   for input_ds in inputlist
                                   if input_ds.get_constraint(cons.key)])
 
-                module_logger.debug("Found constraints: {}"
-                                    .format(found_cons))
+                module_logger.debug("Found constraints: %s", found_cons)
                 new_cons = new_cons.union(found_cons)
                 to_remove.append(cons)
 
@@ -216,8 +213,8 @@ class ProcessUnit(object):
 
         constraints = constraints.union(new_cons)
 
-        module_logger.debug("After filling from input, output_constraints are: {}"
-                            .format(constraints))
+        module_logger.debug("After filling from input, output_constraints are: %s",
+                            constraints)
 
         return constraints
 
@@ -229,22 +226,22 @@ class ProcessUnit(object):
         if extra_constraints is None:
             extra_constraints = []
 
-        module_logger.debug("Before filling from extras, output constraints: {}"
-                            .format(constraints))
-        module_logger.debug("Extra constraints to fill are: {}"
-                            .format(extra_constraints))
+        module_logger.debug("Before filling from extras, output constraints: %s",
+                            constraints)
+        module_logger.debug("Extra constraints to fill are: %s",
+                            extra_constraints)
 
         # Make sure we are not overwriting with empty constraints.
         for cons in extra_constraints:
             if not cons.values:
-                raise EmptyOverwriteError("Constraint {} is being used to overwrite"
-                                          .format(cons))
+                raise EmptyOverwriteError("Constraint %s is being used to overwrite",
+                                          cons)
 
         # Find the empty constraints to fill.
         empty_cons_names = [cons.key for cons in constraints
                             if not cons.values]
-        module_logger.debug("Attempting to fill: {}"
-                            .format(empty_cons_names))
+        module_logger.debug("Attempting to fill: %s",
+                            empty_cons_names)
 
         # Lists to hold constraints to add or remove.
         to_add = []
@@ -263,8 +260,8 @@ class ProcessUnit(object):
         for cons in to_add:
             constraints.add(cons)
 
-        module_logger.debug("After filling from extras, output constraints: {}"
-                            .format(constraints))
+        module_logger.debug("After filling from extras, output constraints: %s",
+                            constraints)
 
         return constraints
 
@@ -352,7 +349,7 @@ class ProcessUnit(object):
 
         command_list.append(outstring)
 
-        return(command_list)
+        return command_list
 
 
     def apply_positional_args(self, arg_list, constraint_dict):
