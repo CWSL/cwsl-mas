@@ -50,6 +50,7 @@ from cwsl.vt_modules.cmip5_constraints import CMIP5Constraints
 from cwsl.vt_modules.sdm_extract import SDMDataExtract
 from cwsl.vt_modules.ts_sdm_extract import DataExtractSDM
 from cwsl.vt_modules.cod_dataset import ChangeOfDate
+from cwsl.vt_modules.tos_dataset import TosDataset
 from cwsl.vt_modules.json_extract import ExtractTimeseries
 from cwsl.vt_modules.json_histogram import ExtractHistogram
 from cwsl.vt_modules.mv_output import MoveOutput
@@ -82,6 +83,8 @@ def initialize(*args, **keywords):
                    name='CSIRO-CCAM-NRM', namespace='DataSets|RCM')
     reg.add_module(drs.RegionalClimateModel_SDMa_NRM,
                    name='BOM-SDMa-NRM', namespace='DataSets|RCM')
+    reg.add_module(TosDataset,
+                   name='Monthly TOS data', namespace='DataSets|Webservice')
 
     #Aggregation
     reg.add_module(CDScan, name='Merge Timeseries', 
