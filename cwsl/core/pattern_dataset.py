@@ -195,7 +195,8 @@ class PatternDataSet(DataSet):
                     new_cons_dir[thing].add(match.groupdict()[thing])
             else:
                 module_logger.error("Pattern regex did not match found file!")
-                raise Exception
+                raise Exception("File is: {}, pattern is: {}"
+                                .format(found_file, self.regex_pattern))
 
         cons_set = set()
         for new_cons in new_cons_dir:
