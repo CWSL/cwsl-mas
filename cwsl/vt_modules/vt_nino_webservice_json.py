@@ -41,7 +41,7 @@ class NinoWebserviceExtract(vistrails_module.Module):
 
         in_dataset = self.getInputFromPort('nino_dataset')
 
-        out_constraints = set([in_dataset.get_constraint('variable'),
+        out_constraints = set([in_dataset.get_constraint('model'),
                                in_dataset.get_constraint('experiment')])
 
         print("percent complete: 80")
