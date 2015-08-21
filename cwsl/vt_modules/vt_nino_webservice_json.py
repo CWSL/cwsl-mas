@@ -41,13 +41,12 @@ class NinoWebserviceExtract(vistrails_module.Module):
 
         in_dataset = self.getInputFromPort('nino_dataset')
 
-        out_constraints = set([in_dataset.get_constraint('model'),
-                               in_dataset.get_constraint('experiment')])
+        out_constraints = set([in_dataset.get_constraint('experiment')])
 
         print("percent complete: 80")
 
         # The data is written out to the default location.
-        output_pattern = FileCreator.default_pattern(in_dataset.constraints, jobdir=True) + ".json"
+        output_pattern = FileCreator.default_pattern(out_constraints, jobdir=True) + ".json"
         this_process = ProcessUnit([in_dataset], output_pattern,
                                    self._command, out_constraints,
                                    execution_options=self._required_modules)
