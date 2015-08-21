@@ -65,7 +65,9 @@ class SingleStepNino34(vistrails_module.Module):
         #Output file structure declaration 
         output_pattern = FileCreator.default_pattern(in_dataset.constraints, jobdir=True) + ".nc"
 
-        new_cons = set([Constraint('extra_info', ['nino34']),
+        new_cons = set([in_dataset.get_constraint("model"),
+                        in_dataset.get_constraint("experiment"),
+                        Constraint('extra_info', ['nino34']),
                         Constraint('latsouth_info', ['5S']),
                         Constraint('latnorth_info', ['5N']),
                         Constraint('latagg_info', ['fldavg']),

@@ -45,7 +45,7 @@ class TosDataset(vistrails_module.Module):
         print("percent complete: 1")
 
         cons_list = ['model', 'experiment']
-        in_cons = set([Constraint(cons_name, [self.getInputFromPort(cons_name)])
+        in_cons = set([Constraint(cons_name, self.getInputFromPort(cons_name).split(","))
                        for cons_name in cons_list])
 
         tos_datapath = self.getInputFromPort('tos_datapath')

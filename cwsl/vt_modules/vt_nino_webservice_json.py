@@ -34,7 +34,7 @@ class NinoWebserviceExtract(vistrails_module.Module):
     _input_ports = [('nino_dataset', 'csiro.au.cwsl:VtDataSet')]
     _output_ports = [('out_dataset', 'csiro.au.cwsl:VtDataSet')]
     _required_modules = {'required_modules': ['python']}
-    _command = '${CWSL_CTOOLS}/indices/nino_extract.py'
+    _command = '/usr/local/venv/bin/python ${CWSL_CTOOLS}/indices/nino_extract.py'
 
 
     def compute(self):
