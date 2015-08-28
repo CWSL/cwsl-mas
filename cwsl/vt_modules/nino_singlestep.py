@@ -63,8 +63,6 @@ class SingleStepNino34(vistrails_module.Module):
         in_dataset = self.getInputFromPort("in_dataset")
         
         #Output file structure declaration 
-        output_pattern = FileCreator.default_pattern(in_dataset.constraints, jobdir=True) + ".nc"
-
         new_cons = set([in_dataset.get_constraint("model"),
                         in_dataset.get_constraint("experiment"),
                         Constraint('extra_info', ['nino34']),
@@ -77,6 +75,8 @@ class SingleStepNino34(vistrails_module.Module):
                         Constraint('leveltop_info', ['surface']),
                         Constraint('levelbottom_info', ['surface']),
                         Constraint('anomaly_info', ['anom'])])
+
+        output_pattern = FileCreator.default_pattern(new_cons, jobdir=True) + ".nc"
 
         # Execute the process.
         this_process = ProcessUnit([in_dataset],
